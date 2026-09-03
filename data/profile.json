@@ -1,0 +1,13 @@
+{
+  "_descripcion": "Datos generales del estudiante y reglas académicas de referencia. Los campos en null todavía no fueron completados — se completan durante la primera actualización real.",
+  "nombre": null,
+  "carrera": null,
+  "universidad": "Universidad Católica Argentina (UCA)",
+  "cohorte": null,
+  "cuatrimestre_actual": null,
+  "regla_asistencia_minima": {
+    "valor": 0.75,
+    "nivel_fuente": 4,
+    "nota": "Valor de referencia general (75%) usado como default hasta confirmar la regla oficial exacta. Si se confirma una regla oficial (igual o distinta), actualizar este valor y cambiar nivel_fuente a 1, citando la fuente."
+  }
+}

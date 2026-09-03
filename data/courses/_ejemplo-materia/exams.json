@@ -1,0 +1,29 @@
+{
+  "_descripcion": "Registro estructurado de evaluaciones de esta materia (parciales, trabajos prácticos, finales). EJEMPLO DE ESTRUCTURA — usar exactamente esta forma al cargar exámenes reales.",
+  "_ejemplo_examen": {
+    "id": "parcial1-ejemplo-materia",
+    "tipo": "parcial",
+    "fecha": "2026-10-22",
+    "modalidad": "presencial",
+    "contenidos": ["unidad 1", "unidad 2"],
+    "bibliografia": [],
+    "indicaciones_profesor": [
+      {"texto": "Ejemplo de indicación del profesor", "fecha": "2026-09-01", "nivel_fuente": 2}
+    ],
+    "peso_final": 0.3,
+    "estado_preparacion": {"valor": "no iniciado", "nivel_fuente": 3},
+    "prioridad": {
+      "score": null,
+      "componentes": {
+        "proximidad": null,
+        "peso_final": null,
+        "volumen_contenido": null,
+        "preparacion": null,
+        "densidad_examenes_cercanos": null,
+        "enfasis_profesor": null
+      },
+      "nivel_fuente": 4
+    }
+  },
+  "examenes": []
+}

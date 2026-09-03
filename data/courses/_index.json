@@ -1,0 +1,10 @@
+{
+  "_descripcion": "Mapa entre los identificadores oficiales de EVA/SIU y las carpetas locales de cada materia. Se completa a medida que se cargan materias reales. Es clave para cuando en el futuro (Fase 4) se conecte el sistema a EVA/SIU vía navegador, porque le va a permitir saber a qué carpeta local corresponde cada curso leído automáticamente.",
+  "_ejemplo_entrada": {
+    "course_id": "_ejemplo-materia",
+    "nombre": "Nombre de la materia (ejemplo)",
+    "eva_id": null,
+    "siu_id": null
+  },
+  "materias": []
+}

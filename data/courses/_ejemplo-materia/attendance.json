@@ -1,0 +1,20 @@
+{
+  "_descripcion": "Estado de asistencia de la materia, recalculado por Claude (no solo copiado del SIU). EJEMPLO DE ESTRUCTURA, valores en null hasta la primera carga real.",
+  "clases_totales_calendario": null,
+  "clases_computables": null,
+  "clases_transcurridas": null,
+  "asistencias": null,
+  "inasistencias": null,
+  "porcentaje_reportado_siu": null,
+  "porcentaje_recalculado": null,
+  "clases_restantes": null,
+  "maximo_faltas_permitidas": null,
+  "faltas_disponibles_ahora": null,
+  "margen_seguridad": null,
+  "riesgo": null,
+  "incertidumbre": [
+    "Ejemplo: no está claro si una clase virtual asincrónica cuenta como computable para esta materia."
+  ],
+  "nivel_fuente": 4,
+  "ultima_actualizacion": null
+}

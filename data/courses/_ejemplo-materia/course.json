@@ -1,0 +1,19 @@
+{
+  "_descripcion": "Ficha general de la materia. ESTO ES UN EJEMPLO DE ESTRUCTURA, no es una materia real. Para cargar una materia de verdad: copiá esta carpeta completa (_ejemplo-materia), renombrala con el nombre real (ej. matematica-ii), y completá los datos en todos sus archivos.",
+  "course_id": "_ejemplo-materia",
+  "nombre": "Nombre de la materia (ejemplo)",
+  "profesor": null,
+  "eva_id": null,
+  "siu_id": null,
+  "horario": null,
+  "modalidad": null,
+  "cuatrimestre": null,
+  "instancias_evaluativas": [
+    {
+      "_ejemplo": true,
+      "tipo": "parcial",
+      "peso_final": 0.3
+    }
+  ],
+  "nivel_fuente": 1
+}

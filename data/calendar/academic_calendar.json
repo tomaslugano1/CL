@@ -1,0 +1,13 @@
+{
+  "_descripcion": "Calendario académico oficial de la UCA: feriados, recesos, clases recuperadas y otras fechas relevantes. Se usa para calcular cuántas clases son realmente computables en cada materia.",
+  "nivel_fuente": 1,
+  "fuente": null,
+  "actualizado": null,
+  "_ejemplo_evento": {
+    "fecha": "2026-05-25",
+    "tipo": "feriado",
+    "descripcion": "Día de la Revolución de Mayo (ejemplo de formato, no es un dato real)",
+    "afecta_clases": true
+  },
+  "eventos": []
+}

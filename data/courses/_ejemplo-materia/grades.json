@@ -1,0 +1,12 @@
+{
+  "_descripcion": "Calificaciones registradas en SIU/CIU para esta materia. EJEMPLO DE ESTRUCTURA. Cada nota es un objeto con su propio id — este es el único lugar donde vive ese dato (fuente única).",
+  "_ejemplo_nota": {
+    "id": "parcial1-ejemplo-materia",
+    "instancia": "Primer parcial",
+    "nota": null,
+    "fecha_registro": null,
+    "nivel_fuente": 1,
+    "fuente": "SIU/CIU"
+  },
+  "notas": []
+}
