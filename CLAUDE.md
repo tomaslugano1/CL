@@ -183,3 +183,35 @@ solo lectura:
   `lectura_navegador`, para que el resto del sistema no tenga que cambiar.
 - Sigue rigiendo la regla de seguridad: solo lectura, nunca acciones que modifiquen algo en
   EVA/SIU, nunca sin autorización explícita si en algún momento se planteara ir más allá de lectura.
+
+### Cómo arrancar la Fase 4 (instrucciones para la sesión que la implemente)
+
+La Fase 4 **no se puede implementar en una sesión de Claude Code que corra en la nube/web** —
+necesita un navegador real que el usuario pueda ver y usar para loguearse. Si estás leyendo esto
+desde una sesión de Claude Code corriendo **localmente en la computadora del usuario**, con
+acceso a un navegador (Playwright/Chromium u otro), este es el punto de partida:
+
+1. **No le pidas la contraseña al usuario.** Confirmá que el navegador que vas a controlar se
+   pueda abrir en modo visible (headed, no headless) para que el usuario vea la ventana y haga el
+   login él mismo. Esperá a que confirme que ya inició sesión antes de navegar a ningún curso.
+2. Los IDs de curso en EVA ya están cargados en `data/courses/_index.json` y en el campo `eva_id`
+   de cada `course.json` — pero **faltan varios todavía** (ej. Matemática II no tiene `eva_id`
+   cargado; confirmalo con el usuario o buscalo en la URL de EVA la primera vez que entres a esa
+   materia, y completalo).
+3. Para cada materia, navegá a `https://eva.uca.edu.ar/course/view.php?id=<eva_id>` (patrón
+   observado en las capturas manuales que ya se hicieron) y priorizá abrir los documentos que en
+   Fase 1 quedaron **sin abrir** — están listados explícitamente en cada `materials.md` con la
+   nota "no abierto". Ahí está la mayor parte de lo que falta (programas completos, cronogramas,
+   avisos).
+4. Guardá cada captura en `data/raw_captures/<fecha>/<course_id>/`, igual que las manuales.
+5. Registrá cada dato nuevo en `provenance_log.jsonl` con `"metodo_captura": "lectura_navegador"`
+   — el resto del pipeline (actualización completa/rápida, snapshots, changelog) ya está diseñado
+   para no distinguir si el dato entró a mano o por navegador, así que no hace falta tocar nada
+   más del sistema.
+6. Repetí el mismo patrón de solo lectura para el SIU/CIU (notas, asistencia).
+7. **Nunca** automatices una acción de escritura (inscripciones, entregas, mensajes, confirmar
+   asistencia) — la regla de seguridad de este archivo sigue rigiendo sin excepción, esto es
+   exclusivamente lectura.
+
+Con esto, la sesión local no necesita que el usuario le vuelva a explicar el proyecto: lee este
+archivo, revisa qué falta en cada `materials.md`, y arranca directo.
