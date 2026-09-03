@@ -6,5 +6,12 @@
     "eva_id": null,
     "siu_id": null
   },
-  "materias": []
+  "materias": [
+    {
+      "course_id": "matematica-ii",
+      "nombre": "Matemática Aplicada II",
+      "eva_id": null,
+      "siu_id": "GMA0112"
+    }
+  ]
 }

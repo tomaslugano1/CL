@@ -1,10 +1,18 @@
 {
   "_descripcion": "Datos generales del estudiante y reglas académicas de referencia. Los campos en null todavía no fueron completados — se completan durante la primera actualización real.",
   "nombre": null,
-  "carrera": null,
+  "carrera": {
+    "valor": "Licenciatura en Administración de Empresas (LAE)",
+    "nivel_fuente": 4,
+    "nota": "Inferido del encabezado del programa oficial de Matemática II, que lista esa carrera. Asumo que es la carrera del usuario pero no fue confirmado explícitamente por él - confirmar."
+  },
   "universidad": "Universidad Católica Argentina (UCA)",
   "cohorte": null,
-  "cuatrimestre_actual": null,
+  "cuatrimestre_actual": {
+    "valor": "Segundo 2026",
+    "nivel_fuente": 1,
+    "fuente": "Programa oficial de Matemática II"
+  },
   "regla_asistencia_minima": {
     "valor": 0.75,
     "nivel_fuente": 4,

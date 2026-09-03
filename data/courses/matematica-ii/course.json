@@ -1,0 +1,34 @@
+{
+  "_descripcion": "Ficha general de Matemática II (Matemática Aplicada II), Licenciatura en Administración de Empresas, UCA.",
+  "course_id": "matematica-ii",
+  "nombre": "Matemática Aplicada II",
+  "nombre_coloquial": "Matemática II",
+  "carrera": "Licenciatura en Administración de Empresas (LAE)",
+  "profesores": ["M. Florencia de Azkue", "Susana Varela"],
+  "eva_id": null,
+  "siu_id": "GMA0112",
+  "comision": "03AM",
+  "horario": [
+    { "dia": "miércoles", "de": "07:45", "a": "10:30" },
+    { "dia": "jueves", "de": "11:30", "a": "13:00" }
+  ],
+  "modalidad": "Presencial",
+  "cuatrimestre": "Segundo 2026",
+  "horas_semanales": { "teoricas": 2.5, "practicas": 1.5, "totales": 4 },
+  "regimen_asistencia": {
+    "minimo_requerido": 0.75,
+    "nivel_fuente": 1,
+    "fuente": "Programa oficial de la materia, sección 9 (Requisitos de asistencia)"
+  },
+  "criterios_evaluacion": {
+    "cantidad_parciales": 2,
+    "nota_minima_aprobacion": 4,
+    "escala": 10,
+    "recuperatorios_permitidos": 1,
+    "regla": "Solo se puede desaprobar o faltar a un parcial; se recupera en la fecha indicada. Se admite una sola instancia de recuperación.",
+    "nivel_fuente": 1,
+    "fuente": "Programa oficial de la materia, sección 8"
+  },
+  "nivel_fuente": 1,
+  "fuente": "Programa oficial de la materia (PDF entregado por el usuario, 2026-09-03)"
+}
