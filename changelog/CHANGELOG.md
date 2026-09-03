@@ -5,6 +5,16 @@
 
 ---
 
+**2026-09-03** — Cierre de la Fase 1 (carga inicial). Se agregó contenido real de Macroeconomía
+a partir de dos guías de trabajos prácticos aportadas por el usuario (versión 2026 vigente y
+2017 como referencia): temas confirmados de cuentas nacionales, mercado de bienes, mercado
+monetario e IS-LM. El usuario decidió no seguir completando Software de Negocios por ahora —
+queda aceptada como incompleta. Con esto se da por cerrada la carga inicial de las 6 materias
+del cuatrimestre; de acá en más el sistema se actualiza con el uso normal (avisos y novedades
+puntuales a medida que aparezcan), no con más rondas de captura masiva de EVA.
+
+---
+
 **2026-09-03** — Actualización completa: se cargaron las 5 materias restantes del cuatrimestre
 (Contabilidad II, Macroeconomía, Seminario de Profundización Filosófica, Software de Negocios,
 Gestión Organizacional), a partir de PDFs exportados por el usuario desde EVA. La cobertura de

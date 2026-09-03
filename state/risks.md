@@ -22,15 +22,22 @@ En ninguna materia pude recalcular el % de asistencia de forma independiente tod
 No es urgente en ninguna materia todavía (todas están con 1-2 faltas), pero no confíes en el
 número del SIU como definitivo hasta que lo verifiquemos.
 
-## Cobertura de datos muy desigual entre materias
+## Cobertura de datos desigual entre materias (aceptado, cierre de la carga inicial)
 
-Matemática II y Gestión Organizacional tienen información real (programa, avisos, fechas).
-Macroeconomía, Seminario y Software de Negocios son casi solo el índice de la página principal de
-EVA — no se abrió ningún documento individual (programa, cronograma, etc.). Esto significa que
-para esas 3 materias **todavía no sabemos las fechas de los parciales** (en Software de Negocios
-y Gestión Organizacional sabemos que existen, pero no cuándo; en Macroeconomía y el Seminario ni
-siquiera eso está confirmado). Cuando se acerque el cuatrimestre esto puede convertirse en un
-riesgo real si algún parcial cae sin que lo hayamos visto venir.
+El usuario decidió cerrar acá la fase de carga manual — no se va a seguir completando materia por
+materia. Estado final de cobertura:
+
+- **Buena:** Matemática II, Gestión Organizacional, Macroeconomía (temas reales vía guías de TP).
+- **Solo fechas clave:** Contabilidad II (parcial y recuperatorio, sin programa ni profesor).
+- **Mínima, aceptada como incompleta:** Software de Negocios (índice de temas, sin fechas de
+  examen ni profesor) y Seminario de Profundización Filosófica (sin fechas de examen).
+
+**Todavía no sabemos las fechas de parcial de Software de Negocios, Seminario ni Macroeconomía.**
+En Software de Negocios y Gestión Organizacional sabemos que el examen existe pero no cuándo; en
+Macroeconomía y el Seminario ni siquiera eso está confirmado. Esto puede convertirse en un riesgo
+real más adelante en el cuatrimestre si alguna de esas fechas aparece de golpe — conviene que el
+usuario esté atento a los avisos de esas materias en EVA por su cuenta, ya que el sistema no va a
+poder anticiparlo sin ese dato.
 
 ## Primer parcial de Matemática II en 20 días (23/09)
 

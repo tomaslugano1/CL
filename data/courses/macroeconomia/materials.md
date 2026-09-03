@@ -15,3 +15,5 @@
 | Guía práctica | EVA | 1 | No abierto |
 | Guía anexo | EVA | 1 | No abierto |
 | Resolución TPS 1 Y 2 | EVA | 1 | Archivo Excel, no abierto |
+| Guía de Trabajos Prácticos 2026 (nueva) | Aportado por el usuario | 1 | **Contenido real cargado** — ver `syllabus.md`. Archivo: `data/raw_captures/2026-09-03/macroeconomia/guia_tp_2026.pdf` |
+| Guía de Trabajos Prácticos 2017 (anterior) | Aportado por el usuario | 1 | Referencia complementaria, ver `syllabus.md`. Archivo: `data/raw_captures/2026-09-03/macroeconomia/guia_tp_2017.pdf` |
