@@ -6,12 +6,50 @@
       "tipo": "parcial",
       "fecha": "2026-10-23",
       "modalidad": "presencial",
-      "contenidos": ["Ver guía de TP: Caja y Bancos, Inversiones, Distribución de Utilidades, Créditos, Bienes de Cambio, Bienes de Uso, Activos Intangibles, Pasivo, Patrimonio Neto - no está confirmado cuáles de estos temas entran puntualmente en el parcial"],
+      "contenidos": [
+        "Ver guía de TP: Caja y Bancos, Inversiones, Distribución de Utilidades, Créditos, Bienes de Cambio, Bienes de Uso, Activos Intangibles, Pasivo, Patrimonio Neto - no está confirmado cuáles de estos temas entran puntualmente en el parcial"
+      ],
       "bibliografia": [],
       "indicaciones_profesor": [],
       "peso_final": null,
-      "estado_preparacion": { "valor": "no iniciado", "nivel_fuente": 3 },
-      "prioridad": { "score": null, "componentes": {}, "nivel_fuente": 4, "nota": "Pendiente de calcular." }
+      "estado_preparacion": {
+        "valor": "no iniciado",
+        "nivel_fuente": 3
+      },
+      "prioridad": {
+        "score": 0.391,
+        "componentes": {
+          "proximidad": {
+            "valor": 0.167,
+            "dias_restantes": 50
+          },
+          "peso_final": {
+            "valor": null
+          },
+          "volumen_contenido": {
+            "valor": 0.25,
+            "cantidad_temas": 1
+          },
+          "preparacion": {
+            "valor": 1.0,
+            "autoevaluacion": "no iniciado"
+          },
+          "densidad_examenes_cercanos": {
+            "valor": 0.667,
+            "examenes_cercanos": 2
+          },
+          "enfasis_profesor": {
+            "valor": 0.0,
+            "cantidad_indicaciones": 0
+          }
+        },
+        "componentes_faltantes": [
+          "peso_final"
+        ],
+        "nivel_fuente": 4,
+        "calculado_por": "scripts/compute_priority.py",
+        "calculado_el": "2026-09-03"
+      }
     },
     {
       "id": "recuperatorio-contabilidad-ii",
@@ -22,8 +60,46 @@
       "bibliografia": [],
       "indicaciones_profesor": [],
       "peso_final": null,
-      "estado_preparacion": { "valor": "no aplica todavía", "nivel_fuente": 4 },
-      "prioridad": { "score": null, "componentes": {}, "nivel_fuente": 4, "nota": "Condicional al resultado del parcial." }
+      "estado_preparacion": {
+        "valor": "no aplica todavía",
+        "nivel_fuente": 4
+      },
+      "prioridad": {
+        "score": 0.22,
+        "componentes": {
+          "proximidad": {
+            "valor": 0.123,
+            "dias_restantes": 71
+          },
+          "peso_final": {
+            "valor": null
+          },
+          "volumen_contenido": {
+            "valor": null,
+            "cantidad_temas": 0
+          },
+          "preparacion": {
+            "valor": null,
+            "autoevaluacion": "no aplica todavía"
+          },
+          "densidad_examenes_cercanos": {
+            "valor": 0.667,
+            "examenes_cercanos": 2
+          },
+          "enfasis_profesor": {
+            "valor": 0.0,
+            "cantidad_indicaciones": 0
+          }
+        },
+        "componentes_faltantes": [
+          "peso_final",
+          "volumen_contenido",
+          "preparacion"
+        ],
+        "nivel_fuente": 4,
+        "calculado_por": "scripts/compute_priority.py",
+        "calculado_el": "2026-09-03"
+      }
     }
   ]
 }

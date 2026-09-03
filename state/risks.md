@@ -11,16 +11,20 @@ Ambas son fuentes nivel 1 y no coinciden. No elegí una — lo dejo marcado en
 `data/courses/seminario-profundizacion-filosofica/course.json` hasta que lo confirmes vos (por
 ejemplo, mirando el comprobante de inscripción o preguntando en Secretaría).
 
-## Asistencia: mismo problema en las 6 materias
+## Asistencia: resuelta en Matemática II, pendiente en las otras 5
 
-En ninguna materia pude recalcular el % de asistencia de forma independiente todavía. Falta:
-1. El calendario académico oficial 2026 (feriados/recesos) — sigue sin cargarse.
-2. Confirmar el criterio real de cálculo del SIU (ver la hipótesis registrada en
-   `data/courses/matematica-ii/attendance.json` sobre si cuenta sobre el total del cuatrimestre
-   o sobre las clases ya dictadas).
+Con `scripts/compute_attendance.py` ya verificamos **Matemática II** con datos reales: el SIU reporta 93.75%, y confirmamos que ese número sale de
+dividir sobre los 32 eventos del cuatrimestre (parciales, repasos y recuperatorio incluidos), no
+solo sobre las 25 clases de contenido real (que darían 92%). Recalculado: **92% real, con 4
+faltas todavía disponibles de un máximo de 6 — riesgo bajo.**
 
-No es urgente en ninguna materia todavía (todas están con 1-2 faltas), pero no confíes en el
-número del SIU como definitivo hasta que lo verifiquemos.
+En las otras 5 materias sigue sin poder verificarse, porque no tienen un cronograma estructurado
+con fechas reales de clase (solo Matemática II lo tiene completo). Para activarlo en otra
+materia, hace falta un archivo `cronograma.json` como el de Matemática II — se puede armar en
+cuanto tengamos el programa oficial de esa materia con fechas.
+
+No es urgente en ninguna de las 5 restantes todavía (todas con 1-2 faltas), pero seguimos sin
+poder confirmar el número del SIU en ellas.
 
 ## Cobertura de datos desigual entre materias (aceptado, cierre de la carga inicial)
 

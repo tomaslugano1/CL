@@ -2,20 +2,21 @@
 
 > Este archivo se regenera automáticamente en cada actualización. No lo edites a mano.
 
-**Última actualización:** 2026-09-03 (cierre de la carga inicial — Fase 1 completa)
+**Última actualización:** 2026-09-03 (Fase 2 — cálculo por scripts activado)
 
 ## Resumen rápido
 
-Las 6 materias del cuatrimestre están en el sistema. El usuario decidió cerrar acá la carga
-manual inicial: la cobertura de datos quedó desigual entre materias (ver detalle abajo y en
-`state/risks.md`), y eso queda aceptado como el punto de partida — se va a ir completando con el
-uso normal del cuatrimestre (avisos nuevos, parciales que se acerquen, etc.) en vez de seguir
-insistiendo con más capturas de EVA ahora.
+Las 6 materias del cuatrimestre están cargadas (cobertura desigual, aceptada — ver
+`state/risks.md`). Ahora los cálculos de asistencia y prioridad de exámenes los hace
+`scripts/compute_attendance.py` y `scripts/compute_priority.py` en vez de razonarse a mano.
 
 ## Materias
 
-### Matemática II (GMA0112) — completa
-Parcial 23/09, segundo parcial 29/10, recuperatorio 18/11. Asistencia SIU 93.75% (2 faltas).
+### Matemática II (GMA0112) — completa, asistencia verificada por script
+Parcial 23/09 (prioridad más alta del cuatrimestre, score 0.51), segundo parcial 29/10,
+recuperatorio 18/11. Asistencia: el SIU reporta 93.75%, pero el % real de clases de contenido
+dictadas es **92%** (verificado con `scripts/compute_attendance.py`) — 4 faltas disponibles de
+un máximo de 6, riesgo bajo.
 
 ### Gestión Organizacional (GAD0200) — buena cobertura
 Profesores: Paula De Bonis (a cargo), Paulo Feliciate (asistente). Trabajo de campo grupal como
@@ -67,9 +68,14 @@ Ninguna fecha de examen confirmada para Macroeconomía ni el Seminario todavía.
 - Profesores y horarios de Contabilidad II, Macroeconomía y Software de Negocios.
 - Fechas de examen de Gestión Organizacional, Software de Negocios, Macroeconomía y Seminario.
 
-## Fase 1 — cerrada
+## Fase 1 — cerrada. Fase 2 — cálculo por scripts, activada
 
-El núcleo del sistema (estructura de archivos, jerarquía de fuentes, provenance log, snapshots,
-changelog) quedó armado y probado con las 6 materias reales. A partir de acá, el uso normal es:
-traer avisos/novedades puntuales a medida que aparezcan (actualización rápida), y pedir
-resúmenes o prioridades cuando el usuario lo necesite.
+El núcleo del sistema quedó armado y probado con las 6 materias reales (Fase 1). Ahora además:
+- `scripts/compute_attendance.py` recalcula asistencia de forma determinística (activo en
+  Matemática II; para activarlo en otra materia hace falta su `cronograma.json`).
+- `scripts/compute_priority.py` calcula el ranking de prioridad de exámenes con componentes
+  explicados (activo en todas las materias con examen y fecha confirmados).
+
+De acá en más, el uso normal es: traer avisos/novedades puntuales a medida que aparezcan
+(actualización rápida), correr los scripts cuando cambie algo relevante (nueva falta, nueva
+autoevaluación de preparación, fecha de examen confirmada), y pedir resúmenes cuando haga falta.

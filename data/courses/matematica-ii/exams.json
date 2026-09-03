@@ -6,30 +6,65 @@
       "tipo": "parcial",
       "fecha": "2026-09-23",
       "modalidad": "presencial",
-      "contenidos": ["Unidad 1 - Matrices y Determinantes", "Unidad 2 - Sistemas de Ecuaciones Lineales"],
+      "contenidos": [
+        "Unidad 1 - Matrices y Determinantes",
+        "Unidad 2 - Sistemas de Ecuaciones Lineales"
+      ],
       "bibliografia": [
         "Álgebra con aplicaciones a la economía (Casparri) - Cap. 2, 3, 7",
         "Matemáticas para Administración y Economía (Haussler/Paul) - Cap. 8, 17",
         "Álgebra y elementos de geometría (Di Caro) - Cap. 7 Tomo II"
       ],
       "indicaciones_profesor": [
-        { "texto": "Nivel de comprensión razonable, según el grado de intensidad con que se desarrollaron los temas hasta la fecha del parcial.", "fecha": null, "nivel_fuente": 1 },
-        { "texto": "Aprobación con al menos 4/10 puntos (50%). Si se desaprueba o no se rinde, hay una única instancia de recuperación (18/11).", "fecha": null, "nivel_fuente": 1 }
+        {
+          "texto": "Nivel de comprensión razonable, según el grado de intensidad con que se desarrollaron los temas hasta la fecha del parcial.",
+          "fecha": null,
+          "nivel_fuente": 1
+        },
+        {
+          "texto": "Aprobación con al menos 4/10 puntos (50%). Si se desaprueba o no se rinde, hay una única instancia de recuperación (18/11).",
+          "fecha": null,
+          "nivel_fuente": 1
+        }
       ],
       "peso_final": null,
-      "estado_preparacion": { "valor": "no iniciado", "nivel_fuente": 3 },
+      "estado_preparacion": {
+        "valor": "no iniciado",
+        "nivel_fuente": 3
+      },
       "prioridad": {
-        "score": null,
+        "score": 0.51,
         "componentes": {
-          "proximidad": "pendiente de calcular (20 días desde 2026-09-03)",
-          "peso_final": "no especificado en el programa - pendiente confirmar",
-          "volumen_contenido": "2 unidades completas (Matrices/Determinantes + Sistemas de Ecuaciones)",
-          "preparacion": "no evaluada aún por el usuario",
-          "densidad_examenes_cercanos": "pendiente - depende de fechas de parciales de otras materias, todavía no cargadas",
-          "enfasis_profesor": "ninguno registrado más allá de los criterios generales del programa"
+          "proximidad": {
+            "valor": 0.333,
+            "dias_restantes": 20
+          },
+          "peso_final": {
+            "valor": null
+          },
+          "volumen_contenido": {
+            "valor": 0.5,
+            "cantidad_temas": 2
+          },
+          "preparacion": {
+            "valor": 1.0,
+            "autoevaluacion": "no iniciado"
+          },
+          "densidad_examenes_cercanos": {
+            "valor": 0.333,
+            "examenes_cercanos": 1
+          },
+          "enfasis_profesor": {
+            "valor": 0.6666666666666666,
+            "cantidad_indicaciones": 2
+          }
         },
+        "componentes_faltantes": [
+          "peso_final"
+        ],
         "nivel_fuente": 4,
-        "nota": "No calculé el score todavía porque faltan datos clave (estado de preparación real, fechas de otros parciales). Lo calculo en cuanto tengamos esa info o cuando se acerque más la fecha."
+        "calculado_por": "scripts/compute_priority.py",
+        "calculado_el": "2026-09-03"
       }
     },
     {
@@ -37,21 +72,59 @@
       "tipo": "parcial",
       "fecha": "2026-10-29",
       "modalidad": "presencial",
-      "contenidos": ["Unidad 3 - Funciones de dos variables", "Unidad 4 - Optimización de funciones de dos variables"],
+      "contenidos": [
+        "Unidad 3 - Funciones de dos variables",
+        "Unidad 4 - Optimización de funciones de dos variables"
+      ],
       "bibliografia": [
         "Análisis Matemático II con aplicaciones a la Economía (Di Caro/Gallego) - Cap. 2 a 5, 7",
         "Matemáticas para Administración y Economía (Haussler/Paul) - Cap. 8, 17"
       ],
       "indicaciones_profesor": [
-        { "texto": "Mismos criterios de aprobación que el primer parcial (4/10 puntos, una única recuperación).", "fecha": null, "nivel_fuente": 1 }
+        {
+          "texto": "Mismos criterios de aprobación que el primer parcial (4/10 puntos, una única recuperación).",
+          "fecha": null,
+          "nivel_fuente": 1
+        }
       ],
       "peso_final": null,
-      "estado_preparacion": { "valor": "no iniciado", "nivel_fuente": 3 },
+      "estado_preparacion": {
+        "valor": "no iniciado",
+        "nivel_fuente": 3
+      },
       "prioridad": {
-        "score": null,
-        "componentes": {},
+        "score": 0.452,
+        "componentes": {
+          "proximidad": {
+            "valor": 0.152,
+            "dias_restantes": 56
+          },
+          "peso_final": {
+            "valor": null
+          },
+          "volumen_contenido": {
+            "valor": 0.5,
+            "cantidad_temas": 2
+          },
+          "preparacion": {
+            "valor": 1.0,
+            "autoevaluacion": "no iniciado"
+          },
+          "densidad_examenes_cercanos": {
+            "valor": 0.667,
+            "examenes_cercanos": 2
+          },
+          "enfasis_profesor": {
+            "valor": 0.3333333333333333,
+            "cantidad_indicaciones": 1
+          }
+        },
+        "componentes_faltantes": [
+          "peso_final"
+        ],
         "nivel_fuente": 4,
-        "nota": "Todavía lejos en el tiempo (más de 50 días) - se calcula más adelante."
+        "calculado_por": "scripts/compute_priority.py",
+        "calculado_el": "2026-09-03"
       }
     },
     {
@@ -59,14 +132,57 @@
       "tipo": "recuperatorio",
       "fecha": "2026-11-18",
       "modalidad": "presencial",
-      "contenidos": ["Depende de cuál parcial (primero o segundo) se necesite recuperar - solo se permite recuperar uno"],
+      "contenidos": [
+        "Depende de cuál parcial (primero o segundo) se necesite recuperar - solo se permite recuperar uno"
+      ],
       "bibliografia": [],
       "indicaciones_profesor": [
-        { "texto": "Solo aplica si se desaprobó o no se rindió uno de los dos parciales. Es la única instancia de recuperación disponible.", "fecha": null, "nivel_fuente": 1 }
+        {
+          "texto": "Solo aplica si se desaprobó o no se rindió uno de los dos parciales. Es la única instancia de recuperación disponible.",
+          "fecha": null,
+          "nivel_fuente": 1
+        }
       ],
       "peso_final": null,
-      "estado_preparacion": { "valor": "no aplica todavía", "nivel_fuente": 4 },
-      "prioridad": { "score": null, "componentes": {}, "nivel_fuente": 4, "nota": "Condicional - depende del resultado de los parciales." }
+      "estado_preparacion": {
+        "valor": "no aplica todavía",
+        "nivel_fuente": 4
+      },
+      "prioridad": {
+        "score": 0.249,
+        "componentes": {
+          "proximidad": {
+            "valor": 0.116,
+            "dias_restantes": 76
+          },
+          "peso_final": {
+            "valor": null
+          },
+          "volumen_contenido": {
+            "valor": 0.25,
+            "cantidad_temas": 1
+          },
+          "preparacion": {
+            "valor": null,
+            "autoevaluacion": "no aplica todavía"
+          },
+          "densidad_examenes_cercanos": {
+            "valor": 0.667,
+            "examenes_cercanos": 2
+          },
+          "enfasis_profesor": {
+            "valor": 0.3333333333333333,
+            "cantidad_indicaciones": 1
+          }
+        },
+        "componentes_faltantes": [
+          "peso_final",
+          "preparacion"
+        ],
+        "nivel_fuente": 4,
+        "calculado_por": "scripts/compute_priority.py",
+        "calculado_el": "2026-09-03"
+      }
     }
   ]
 }

@@ -28,6 +28,11 @@ no depende de que la conversación anterior siga "viva".
   priorizar. Estos archivos se regeneran solos en cada actualización.
 - `changelog/CHANGELOG.md` — historial de qué fue cambiando con el tiempo.
 - `inbox/` — donde dejás cosas nuevas para que se procesen (después se archivan, no se pierden).
+- `scripts/` — programitas de cálculo (asistencia y prioridad de exámenes). No hace falta que los
+  toques ni entiendas cómo funcionan por dentro — Claude los ejecuta por vos cuando corresponde.
+  La diferencia con que Claude "calcule a mano" es que estos programas siempre dan el mismo
+  resultado con los mismos datos, así que son más confiables para algo tan importante como saber
+  cuántas faltas te quedan.
 - `CLAUDE.md` — instrucciones para Claude, no hace falta que lo edites vos.
 
 ## Sobre los archivos JSON
@@ -40,8 +45,14 @@ no es un dato real.
 
 ## Estado actual del proyecto
 
-Esto es la **Fase 1**: la estructura y la memoria persistente ya están armadas, con una materia de
-ejemplo (`data/courses/_ejemplo-materia/`) que sirve como plantilla. Todavía no hay conexión
-automática a EVA ni al SIU — toda la carga de datos es manual, pegando información. Los cálculos
-de asistencia y prioridad los hace Claude razonando (más adelante se van a volver más precisos
-usando pequeños programas de cálculo, pero eso es para más adelante).
+**Fase 1 (estructura y memoria persistente) — lista.** Las 6 materias del cuatrimestre están
+cargadas, con distinto nivel de detalle según lo que se pudo conseguir de cada una (ver
+`state/risks.md` para el detalle). Todavía no hay conexión automática a EVA ni al SIU — toda la
+carga de datos sigue siendo manual, pegando información.
+
+**Fase 2 (cálculo por scripts) — en marcha.** Los cálculos de asistencia y prioridad de exámenes
+ya no los razona Claude a mano: los hacen `scripts/compute_attendance.py` y
+`scripts/compute_priority.py`, dos programas chiquitos que siempre calculan igual con los mismos
+datos. Por ahora la asistencia verificada así solo está disponible en Matemática II (es la única
+materia con el cronograma completo cargado); se va sumando a medida que carguemos el cronograma
+de las demás.

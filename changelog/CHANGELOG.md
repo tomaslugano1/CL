@@ -5,6 +5,19 @@
 
 ---
 
+**2026-09-03** — Arranca la Fase 2: cálculos por script en vez de a mano.
+Se crearon `scripts/compute_attendance.py` y `scripts/compute_priority.py`, con las fórmulas
+documentadas en `CLAUDE.md`. Se armó `data/courses/matematica-ii/cronograma.json` (estructurado
+a partir del programa oficial) y se corrió el cálculo de asistencia real: **el % del SIU (93.75%)
+resultó estar calculado sobre las 32 fechas totales del cuatrimestre, no sobre las 25 clases de
+contenido real — el % real recalculado es 92%**, con 4 faltas disponibles de un máximo de 6. De
+paso se encontró y corrigió un error en la fórmula de `maximo_faltas_permitidas` que había quedado
+mal escrita en `CLAUDE.md` desde la Fase 1 (calculaba las clases a aprobar, no las faltas
+permitidas). También se calculó el ranking de prioridad de los 5 exámenes con fecha confirmada,
+con sus componentes explicados en cada `exams.json`.
+
+---
+
 **2026-09-03** — Cierre de la Fase 1 (carga inicial). Se agregó contenido real de Macroeconomía
 a partir de dos guías de trabajos prácticos aportadas por el usuario (versión 2026 vigente y
 2017 como referencia): temas confirmados de cuentas nacionales, mercado de bienes, mercado

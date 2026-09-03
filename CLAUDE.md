@@ -97,34 +97,64 @@ Para un dato puntual de una sola materia (ej. "en Matemática II cambiaron la fe
 3. Agregar una línea al changelog. No hace falta regenerar el snapshot completo.
 4. Confirmarle al usuario en una frase qué se actualizó.
 
-## Cálculo de asistencia (Nivel 4 cuando es recalculado por vos — decilo)
+## Cálculo de asistencia — Fase 2: por script, no a mano
 
-No confíes ciegamente en el porcentaje que muestre el SIU. Recalculá siempre a partir de:
+**No confíes ciegamente en el porcentaje que muestre el SIU, y tampoco confíes ciegamente en tu
+propio cálculo mental — usá `scripts/compute_attendance.py`.** Es determinístico y siempre
+explica sus cuentas, así no hay margen para que vos (razonando a mano) te equivoques en una
+fórmula, como pasó en la Fase 1 (ver nota de corrección más abajo).
 
-- `clases_computables` = clases totales según cronograma de la materia, cruzado con
-  `data/calendar/academic_calendar.json` (restando feriados/recesos, sumando recuperatorias).
-- `maximo_faltas_permitidas` = `floor(clases_computables * regla_asistencia_minima)` usando el
-  valor de `data/profile.json` (75% por defecto) salvo que haya una regla oficial distinta
-  registrada con `nivel_fuente: 1` en `course.json` de esa materia.
+Uso: `python3 scripts/compute_attendance.py <course_id> --hoy YYYY-MM-DD --write`
+(`--hoy` es opcional, por defecto usa la fecha real; sin `--write` solo muestra el resultado sin
+tocar el archivo).
+
+El script necesita que exista `data/courses/<course_id>/cronograma.json` con la lista real de
+fechas de clase de esa materia (nivel_fuente 1, sacado del programa oficial). Si no existe, el
+script lo dice explícitamente en vez de inventar un número — en ese caso, `attendance.json` se
+queda con el % del SIU sin verificar, marcado como pendiente.
+
+Lo que hace el script:
+- `clases_computables` = eventos del cronograma con `tipo: "clase"` (no cuenta parciales, repasos,
+  recuperatorios ni consultas de final como clase regular — ver la nota de ambigüedad abajo).
+- `maximo_faltas_permitidas` = `floor(clases_computables * (1 - regla_asistencia_minima))` —
+  **ojo con esta fórmula, tiene que ser `(1 - regla)` para dar la cantidad de faltas PERMITIDAS,
+  no `regla` sola** (eso fue justamente el bug que tenía este archivo en la Fase 1: calculaba las
+  clases que hay que aprobar, no las que se pueden faltar — corregido cuando se implementó el
+  script y se probó contra datos reales).
 - `faltas_disponibles_ahora` = `maximo_faltas_permitidas - inasistencias_actuales`.
-- Si el % recalculado por vos difiere del % reportado por el SIU, no seas tu la fuente de verdad
-  silenciosa: registrá la discrepancia en `state/risks.md` y explicásela al usuario.
-- Si hay ambigüedad sobre si cierta clase computa o no (ej. clase virtual asincrónica), registralo
-  explícitamente en el campo `incertidumbre` de `attendance.json` — no lo resuelvas por tu cuenta.
+- Prueba 3 hipótesis de cómo calcula el SIU su propio % (solo clases de contenido, todos los
+  eventos del cuatrimestre, o solo lo transcurrido hasta hoy) y dice cuál coincide. Ejemplo real
+  (Matemática II, 2026-09-03): el SIU reportaba 93.75% y coincidía exacto con dividir sobre
+  **todos los 32 eventos del cuatrimestre** (incluyendo parciales/repasos/recuperatorio), no
+  sobre las 25 clases de contenido real — que dan 92%. Es una decisión discutible de cómo cuenta
+  el SIU, no necesariamente "la verdad", pero ahora está verificada con números en vez de ser una
+  suposición.
 
-En Fase 1 este cálculo lo hacés vos razonando a mano y explicando el resultado paso a paso (no hay
-todavía un script). En Fase 2 se va a convertir en un script para que sea siempre igual de precisa
-y vos solo interpretes el resultado.
+Si hay ambigüedad sobre si cierta clase computa o no (ej. clase virtual asincrónica, o si un
+repaso/recuperatorio debería contar), registralo explícitamente en el campo `incertidumbre` de
+`attendance.json` — no lo resuelvas por tu cuenta ni lo hardcodees en el script sin decírselo al
+usuario primero.
 
-## Cálculo de prioridad de exámenes
+## Cálculo de prioridad de exámenes — Fase 2: por script
 
-La prioridad NO es solo "el que rinde antes". Es un puntaje que combina:
-proximidad de fecha (con más peso cuanto más cerca, no lineal), peso del examen en la nota final,
-volumen de contenido, estado de preparación actual (autoevaluado por el usuario = Nivel 3),
-cuántos otros exámenes hay cerca en el tiempo, y énfasis explícito del profesor (Nivel 2).
+Usá `scripts/compute_priority.py <course_id>` (sin argumento calcula todas las materias). La
+prioridad NO es solo "el que rinde antes". Es un puntaje ponderado que combina, con estos pesos
+(documentados acá para que sean consistentes y editables, no arbitrarios en cada corrida):
 
-Guardá siempre el puntaje final **y sus componentes por separado** en `exams.json` — nunca un
-número sin explicación. El usuario tiene que poder entender por qué algo quedó primero.
+| Componente | Peso | Cómo se calcula |
+|---|---|---|
+| Proximidad de fecha | 0.35 | `1 / (1 + días_restantes/10)` — no lineal, sube fuerte cerca de la fecha |
+| Peso del examen en la nota final | 0.20 | `peso_final` directo (0 a 1) si está cargado en `exams.json`; si no, se excluye y se redistribuye el peso entre los demás componentes |
+| Volumen de contenido | 0.15 | `min(1, cantidad_de_temas_en_contenidos / 4)` |
+| Estado de preparación (Nivel 3, autoevaluado) | 0.15 | "no iniciado"=1, "en progreso"=0.5, "preparado"/"listo"=0.1 — cuanto menos preparado, más prioridad |
+| Densidad de exámenes cercanos (±14 días, todas las materias) | 0.10 | `min(1, cantidad_de_examenes_cercanos / 3)` |
+| Énfasis explícito del profesor (Nivel 2) | 0.05 | `min(1, cantidad_de_indicaciones_registradas / 3)` |
+
+Si falta un componente (ej. `peso_final` en null), el script redistribuye su peso proporcionalmente
+entre los que sí están disponibles, y lo deja anotado — nunca lo inventa. Guardá siempre el
+puntaje final **y sus componentes por separado** en `exams.json` (el script ya lo hace si se
+corre con `--write`) — nunca un número sin explicación. El usuario tiene que poder entender por
+qué algo quedó primero.
 
 ## Anti-duplicación
 
