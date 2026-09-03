@@ -1,0 +1,16 @@
+{
+  "_descripcion": "Ficha general de Software de Negocios, LAE/LCNG, UCA.",
+  "course_id": "software-de-negocios",
+  "nombre": "Software de Negocios",
+  "carrera": "Licenciatura en Administración de Empresas (LAE) / Licenciatura en Comercio y Negocios Globales (LCNG)",
+  "profesores": null,
+  "eva_id": "39875",
+  "siu_id": "GCO0210",
+  "comision": "03AM",
+  "horario": null,
+  "modalidad": null,
+  "cuatrimestre": "Segundo 2026",
+  "nivel_fuente": 1,
+  "fuente": "Página principal del curso en EVA (PDF exportado por el usuario)",
+  "nota": "Solo se capturó el menú principal. Confirma que existen 'Exámenes parciales y finales' y 'Entregas de trabajos prácticos' como secciones, pero sin fechas."
+}

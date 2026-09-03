@@ -2,28 +2,40 @@
 
 > Se regenera en cada actualización.
 
-## Matemática II — discrepancia sin resolver en el cálculo de asistencia
+## Contradicción sin resolver: comisión del Seminario de Profundización Filosófica
 
-El SIU reporta 93.75% de asistencia (2 inasistencias no justificadas, 12/08 y 13/08). Todavía
-**no pude recalcular este número de forma independiente** porque:
+- **EVA** dice: Comisión 1MC.
+- **SIU/CIU** dice: Comisión 03CM.
 
-1. No tengo cargado el calendario académico oficial 2026 (feriados/recesos) —
-  `data/calendar/academic_calendar.json` está vacío.
-2. No sé con certeza sobre qué base calcula el SIU ese porcentaje. Encontré algo llamativo: el
-  cronograma oficial de la materia tiene **32 fechas en total** para todo el cuatrimestre, y
-  matemáticamente (32-2)/32 = 93.75% exacto. Esto sugiere que el SIU podría estar calculando el
-  porcentaje sobre el total de clases de TODO el cuatrimestre (no solo las que ya pasaron) — pero
-  es una hipótesis mía (nivel 4), no algo confirmado.
-3. No está claro si "Repaso parcial", los parciales, el recuperatorio y las consultas de final
-  cuentan como clases a efectos de asistencia, o si el 75% aplica solo sobre las clases de
-  contenido nuevo.
+Ambas son fuentes nivel 1 y no coinciden. No elegí una — lo dejo marcado en
+`data/courses/seminario-profundizacion-filosofica/course.json` hasta que lo confirmes vos (por
+ejemplo, mirando el comprobante de inscripción o preguntando en Secretaría).
 
-**No es una situación de riesgo urgente todavía** (2 faltas es poco), pero conviene confirmar el
-criterio real de cálculo antes de confiar en el número para decisiones importantes más adelante
-en el cuatrimestre. Si querés, puedo ayudarte a chequear cómo lo explica el SIU, o simplemente
-esperamos y comparamos cómo cambia el % cuando se registren más clases.
+## Asistencia: mismo problema en las 6 materias
+
+En ninguna materia pude recalcular el % de asistencia de forma independiente todavía. Falta:
+1. El calendario académico oficial 2026 (feriados/recesos) — sigue sin cargarse.
+2. Confirmar el criterio real de cálculo del SIU (ver la hipótesis registrada en
+   `data/courses/matematica-ii/attendance.json` sobre si cuenta sobre el total del cuatrimestre
+   o sobre las clases ya dictadas).
+
+No es urgente en ninguna materia todavía (todas están con 1-2 faltas), pero no confíes en el
+número del SIU como definitivo hasta que lo verifiquemos.
+
+## Cobertura de datos muy desigual entre materias
+
+Matemática II y Gestión Organizacional tienen información real (programa, avisos, fechas).
+Macroeconomía, Seminario y Software de Negocios son casi solo el índice de la página principal de
+EVA — no se abrió ningún documento individual (programa, cronograma, etc.). Esto significa que
+para esas 3 materias **todavía no sabemos las fechas de los parciales** (en Software de Negocios
+y Gestión Organizacional sabemos que existen, pero no cuándo; en Macroeconomía y el Seminario ni
+siquiera eso está confirmado). Cuando se acerque el cuatrimestre esto puede convertirse en un
+riesgo real si algún parcial cae sin que lo hayamos visto venir.
 
 ## Primer parcial de Matemática II en 20 días (23/09)
 
-Cubre Unidades 1 y 2 completas. Todavía no hay estado de preparación autoevaluado. No es urgente
-hoy, pero conviene no dejarlo para último momento dado el volumen (dos unidades enteras).
+Cubre Unidades 1 y 2 completas. Todavía no hay estado de preparación autoevaluado.
+
+## Parcial de Contabilidad II — 23/10
+
+Es el segundo parcial más próximo que conocemos. Todavía no sabemos qué temas puntuales entran.

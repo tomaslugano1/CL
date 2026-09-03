@@ -1,0 +1,24 @@
+{
+  "_descripcion": "Estado de asistencia de Contabilidad II. Mismas limitaciones que Matemática II: no pude recalcular de forma independiente (falta calendario académico y no está confirmado el criterio de cálculo del SIU).",
+  "inasistencias_registradas": [
+    { "fecha": "2026-08-11", "tipo_clase": "Teórico-Práctica", "justificada": false, "nivel_fuente": 1, "fuente": "SIU/CIU" },
+    { "fecha": "2026-09-01", "tipo_clase": "Teórico-Práctica", "justificada": false, "nivel_fuente": 1, "fuente": "SIU/CIU" }
+  ],
+  "inasistencias_actuales": 2,
+  "porcentaje_reportado_siu": 93.75,
+  "nivel_fuente_porcentaje_siu": 1,
+  "clases_totales_calendario": null,
+  "clases_computables": null,
+  "clases_transcurridas": null,
+  "porcentaje_recalculado": null,
+  "clases_restantes": null,
+  "maximo_faltas_permitidas": null,
+  "faltas_disponibles_ahora": null,
+  "margen_seguridad": null,
+  "riesgo": "a_evaluar",
+  "incertidumbre": [
+    "Mismo problema que en Matemática II: no tengo el calendario académico 2026 cargado, ni el cronograma real de esta materia (solo capturé la pantalla principal de EVA, no el programa), así que no puedo recalcular el % de forma independiente todavía."
+  ],
+  "nivel_fuente": 4,
+  "ultima_actualizacion": "2026-09-03"
+}

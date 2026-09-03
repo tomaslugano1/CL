@@ -1,0 +1,29 @@
+{
+  "_descripcion": "Evaluaciones de Contabilidad II. Fechas confirmadas por la pantalla principal de EVA (sección 'PARA AGENDAR'), nivel 1.",
+  "examenes": [
+    {
+      "id": "parcial-contabilidad-ii",
+      "tipo": "parcial",
+      "fecha": "2026-10-23",
+      "modalidad": "presencial",
+      "contenidos": ["Ver guía de TP: Caja y Bancos, Inversiones, Distribución de Utilidades, Créditos, Bienes de Cambio, Bienes de Uso, Activos Intangibles, Pasivo, Patrimonio Neto - no está confirmado cuáles de estos temas entran puntualmente en el parcial"],
+      "bibliografia": [],
+      "indicaciones_profesor": [],
+      "peso_final": null,
+      "estado_preparacion": { "valor": "no iniciado", "nivel_fuente": 3 },
+      "prioridad": { "score": null, "componentes": {}, "nivel_fuente": 4, "nota": "Pendiente de calcular." }
+    },
+    {
+      "id": "recuperatorio-contabilidad-ii",
+      "tipo": "recuperatorio",
+      "fecha": "2026-11-13",
+      "modalidad": "presencial",
+      "contenidos": [],
+      "bibliografia": [],
+      "indicaciones_profesor": [],
+      "peso_final": null,
+      "estado_preparacion": { "valor": "no aplica todavía", "nivel_fuente": 4 },
+      "prioridad": { "score": null, "componentes": {}, "nivel_fuente": 4, "nota": "Condicional al resultado del parcial." }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "_descripcion": "Ficha general de Contabilidad y Sistemas de Información II, LAE, UCA.",
+  "course_id": "contabilidad-ii",
+  "nombre": "Contabilidad y Sistemas de Información",
+  "nombre_coloquial": "Contabilidad II",
+  "carrera": "Licenciatura en Administración de Empresas (LAE)",
+  "profesores": null,
+  "eva_id": "39888",
+  "siu_id": "GCC0122",
+  "comision": "03CM",
+  "horario": null,
+  "modalidad": "Presencial (según patrón de asistencia registrado)",
+  "cuatrimestre": "Segundo 2026",
+  "nivel_fuente": 1,
+  "fuente": "Página principal del curso en EVA (PDF exportado por el usuario) + SIU/CIU (comisión, código)",
+  "nota": "No se pudo capturar el programa real, solo la pantalla principal de EVA con enlaces. Faltan: profesores, horario, criterios de evaluación con ponderación."
+}

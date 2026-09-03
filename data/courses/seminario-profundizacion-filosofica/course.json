@@ -1,0 +1,20 @@
+{
+  "_descripcion": "Ficha general de Seminario de Profundización Filosófica, LAE, UCA.",
+  "course_id": "seminario-profundizacion-filosofica",
+  "nombre": "Seminario de Profundización Filosófica",
+  "carrera": "Licenciatura en Administración de Empresas (LAE)",
+  "profesores": ["Vivian Lombardini"],
+  "eva_id": "40775",
+  "siu_id": "GFF0902",
+  "comision": {
+    "valor": null,
+    "nivel_fuente": 4,
+    "nota_CONTRADICCION": "EVA dice 'Comisión 1MC'; el SIU/CIU (reporte de asistencia) dice 'Comisión: 03CM'. Ambas son fuentes nivel 1, pero no coinciden. No elegí una de las dos - ver state/risks.md."
+  },
+  "horario": null,
+  "modalidad": null,
+  "cuatrimestre": "Segundo 2026",
+  "nivel_fuente": 1,
+  "fuente": "Página principal del curso en EVA (PDF exportado por el usuario) + SIU/CIU",
+  "nota": "Solo se capturó el menú principal de EVA. Falta casi todo el contenido real."
+}

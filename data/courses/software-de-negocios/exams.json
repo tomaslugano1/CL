@@ -1,0 +1,18 @@
+{
+  "_descripcion": "Evaluaciones de Software de Negocios.",
+  "examenes": [
+    {
+      "id": "parciales-software-de-negocios",
+      "tipo": "parcial",
+      "fecha": null,
+      "modalidad": null,
+      "contenidos": [],
+      "bibliografia": [],
+      "indicaciones_profesor": [],
+      "peso_final": null,
+      "estado_preparacion": { "valor": "no iniciado", "nivel_fuente": 3 },
+      "prioridad": { "score": null, "componentes": {}, "nivel_fuente": 4, "nota": "No calculable: existe la sección 'Exámenes parciales y finales' en el menú (nivel 1) pero sin fechas ni cantidad de parciales confirmada." },
+      "nota_existencia": "Confirmado que existe la sección, fecha desconocida."
+    }
+  ]
+}

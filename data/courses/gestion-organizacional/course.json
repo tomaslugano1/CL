@@ -1,0 +1,20 @@
+{
+  "_descripcion": "Ficha general de Gestión Organizacional, LAE, UCA.",
+  "course_id": "gestion-organizacional",
+  "nombre": "Gestión Organizacional",
+  "carrera": "Licenciatura en Administración de Empresas (LAE)",
+  "profesores": [
+    { "nombre": "Paula De Bonis", "rol": "Profesora a cargo", "email": "pauladebonis@uca.edu.ar" },
+    { "nombre": "Paulo Feliciate", "rol": "Profesor asistente", "email": "paulofeliciate@uca.edu.ar" }
+  ],
+  "eva_id": "39738",
+  "siu_id": "GAD0200",
+  "comision": "03AM",
+  "horario": null,
+  "modalidad": "Presencial, combinada con uso activo de EVA",
+  "cuatrimestre": "Segundo 2026",
+  "actividad_central": "Trabajo de campo grupal (equipos de 6-7 alumnos, entrevistas a empresas industriales/comerciales, informes con rúbrica)",
+  "nivel_fuente": 1,
+  "fuente": "Página principal del curso en EVA (PDF exportado por el usuario, con avisos reales)",
+  "nota": "Es la materia con más contenido real capturado además de Matemática II. Falta: programa completo, cronograma con fechas, criterios de evaluación con ponderación."
+}

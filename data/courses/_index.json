@@ -12,6 +12,36 @@
       "nombre": "Matemática Aplicada II",
       "eva_id": null,
       "siu_id": "GMA0112"
+    },
+    {
+      "course_id": "contabilidad-ii",
+      "nombre": "Contabilidad y Sistemas de Información",
+      "eva_id": "39888",
+      "siu_id": "GCC0122"
+    },
+    {
+      "course_id": "macroeconomia",
+      "nombre": "Introducción a la Macroeconomía",
+      "eva_id": "40169",
+      "siu_id": "GEC0172"
+    },
+    {
+      "course_id": "seminario-profundizacion-filosofica",
+      "nombre": "Seminario de Profundización Filosófica",
+      "eva_id": "40775",
+      "siu_id": "GFF0902"
+    },
+    {
+      "course_id": "software-de-negocios",
+      "nombre": "Software de Negocios",
+      "eva_id": "39875",
+      "siu_id": "GCO0210"
+    },
+    {
+      "course_id": "gestion-organizacional",
+      "nombre": "Gestión Organizacional",
+      "eva_id": "39738",
+      "siu_id": "GAD0200"
     }
   ]
 }

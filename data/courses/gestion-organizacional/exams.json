@@ -1,0 +1,18 @@
+{
+  "_descripcion": "Evaluaciones de Gestión Organizacional.",
+  "examenes": [
+    {
+      "id": "parcial-gestion-organizacional",
+      "tipo": "parcial",
+      "fecha": null,
+      "modalidad": null,
+      "contenidos": [],
+      "bibliografia": [],
+      "indicaciones_profesor": [],
+      "peso_final": null,
+      "estado_preparacion": { "valor": "no iniciado", "nivel_fuente": 3 },
+      "prioridad": { "score": null, "componentes": {}, "nivel_fuente": 4, "nota": "No calculable todavía: sabemos que existe (aparece en el menú del curso, nivel 1) pero no la fecha." },
+      "nota_existencia": "Confirmado que existe un 'EXAMEN PARCIAL' en el menú de EVA, pero no se capturó la fecha."
+    }
+  ]
+}

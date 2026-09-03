@@ -1,0 +1,16 @@
+{
+  "_descripcion": "Ficha general de Introducción a la Macroeconomía, LAE, UCA.",
+  "course_id": "macroeconomia",
+  "nombre": "Introducción a la Macroeconomía",
+  "carrera": "Licenciatura en Administración de Empresas (LAE)",
+  "profesores": null,
+  "eva_id": "40169",
+  "siu_id": "GEC0172",
+  "comision": "03AM",
+  "horario": null,
+  "modalidad": null,
+  "cuatrimestre": "Segundo 2026",
+  "nivel_fuente": 1,
+  "fuente": "Página principal del curso en EVA (PDF exportado por el usuario)",
+  "nota": "Solo se capturó el menú de la pantalla principal (links a Cronograma, clases teóricas y prácticas), sin abrir ningún documento. Falta prácticamente todo: profesores, horario, programa, fechas de parciales."
+}

@@ -1,0 +1,24 @@
+{
+  "_descripcion": "Estado de asistencia de Gestión Organizacional.",
+  "inasistencias_registradas": [
+    { "fecha": "2026-08-11", "tipo_clase": "Teórico-Práctica", "tema": "Presentación de la materia", "justificada": false, "nivel_fuente": 1, "fuente": "SIU/CIU" },
+    { "fecha": "2026-08-13", "tipo_clase": "Teórico-Práctica", "tema": "Caso TOYOTA", "justificada": false, "nivel_fuente": 1, "fuente": "SIU/CIU" }
+  ],
+  "inasistencias_actuales": 2,
+  "porcentaje_reportado_siu": 93.75,
+  "nivel_fuente_porcentaje_siu": 1,
+  "clases_totales_calendario": null,
+  "clases_computables": null,
+  "clases_transcurridas": null,
+  "porcentaje_recalculado": null,
+  "clases_restantes": null,
+  "maximo_faltas_permitidas": null,
+  "faltas_disponibles_ahora": null,
+  "margen_seguridad": null,
+  "riesgo": "a_evaluar",
+  "incertidumbre": [
+    "Mismo problema estructural que en las demás materias: falta el calendario académico 2026 y el cronograma real de esta materia para poder recalcular el % de forma independiente."
+  ],
+  "nivel_fuente": 4,
+  "ultima_actualizacion": "2026-09-03"
+}
