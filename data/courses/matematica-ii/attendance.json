@@ -31,6 +31,7 @@
   "incertidumbre": [
     "El cronograma oficial de la materia lista 32 fechas en total para todo el cuatrimestre (incluyendo repasos, los 2 parciales, el recuperatorio y las consultas de final). Si el SIU calculara el 93.75% dividiendo sobre ESE total (32), el resultado matemático da exacto: (32-2)/32 = 93.75%. Esto es una hipótesis mía (nivel 4), no una confirmación — todavía no sé si el SIU realmente calcula así o si en realidad usa 'clases dictadas hasta la fecha' con un criterio distinto. Vale la pena confirmarlo revisando cómo el SIU explica ese porcentaje, o esperando la próxima actualización para ver si el número cambia de forma consistente con alguna de las dos hipótesis.",
     "No está definido si 'Repaso parcial', 'Primer/Segundo parcial', 'Recuperatorio' y 'Consultas final' cuentan como clases computables para asistencia, o si el régimen de 75% aplica solo sobre las clases de contenido nuevo (las que tienen Unidad/Tema asignado).",
+    "Recalculado por scripts/compute_attendance.py el 2026-09-03. El % reportado por el SIU (93.75%) coincide con la hipotesis de calculo: todos_los_eventos_del_cuatrimestre.",
     "Recalculado por scripts/compute_attendance.py el 2026-09-03. El % reportado por el SIU (93.75%) coincide con la hipotesis de calculo: todos_los_eventos_del_cuatrimestre."
   ],
   "nivel_fuente": 4,

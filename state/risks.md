@@ -45,8 +45,28 @@ poder anticiparlo sin ese dato.
 
 ## Primer parcial de Matemática II en 20 días (23/09)
 
-Cubre Unidades 1 y 2 completas. Todavía no hay estado de preparación autoevaluado.
+Cubre Unidades 1 y 2 completas. Todavía no hay estado de preparación autoevaluado. Ya tenés
+material de estudio real cargado y relacionado directamente con este parcial:
+`data/raw_captures/2026-09-03/matematica-ii/clase_2.pdf` (determinantes), `clase_3.pdf` (rango,
+matriz inversa) y `TP2.pdf` (guía de sistemas de ecuaciones, con respuestas). `clase_1.pdf`
+también está guardado pero no se pudo procesar su contenido automáticamente.
+
+## Sobrecarga detectada: fin de octubre cargado
+
+**Contabilidad II (parcial 23/10) y Matemática II (segundo parcial 29/10) caen con solo 6 días de
+diferencia.** Esto ya lo capturaba el score de "densidad de exámenes cercanos" en
+`compute_priority.py`, pero vale decirlo explícito: conviene repartir el estudio de ambas
+materias con anticipación en octubre, no dejarlas para la semana de cada parcial.
+
+## Gestión Organizacional — actividad con fecha ya vencida, estado desconocido
+
+El aviso capturado de "Caso Elefante Marino" tenía como fecha de clase/entrega el 25/08/2026, que
+ya pasó. El sistema no tiene registrado si se entregó o no (nivel 3, dato personal que no
+capturamos). Si todavía no la entregaste, convendría resolverlo cuanto antes; si ya la entregaste,
+decímelo para marcarla como completa y que deje de aparecer acá.
 
 ## Parcial de Contabilidad II — 23/10
 
-Es el segundo parcial más próximo que conocemos. Todavía no sabemos qué temas puntuales entran.
+Es el segundo examen más próximo que conocemos. Todavía no sabemos qué temas puntuales entran
+(la guía de TP lista 9 temas posibles: Caja y Bancos, Inversiones, Distribución de Utilidades,
+Créditos, Bienes de Cambio, Bienes de Uso, Intangibles, Pasivo, Patrimonio Neto).
