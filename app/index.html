@@ -7,7 +7,7 @@
 </head>
 <body>
 <title>Doña Cecilia</title>
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="manifest.webmanifest" crossorigin="use-credentials">
 <meta name="theme-color" content="#0E0E0E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Doña Cecilia">
@@ -175,7 +175,7 @@ td.link{cursor:pointer;font-weight:600}
 
 <script>
 const CATS=['Potrillos','Doma','Hechura','Jugadores','Madres'];
-const TIPOS=['Práctica','Desparasitación','Desvasada','Herrada','Vacuna','Veterinario','Tacto / Eco','Servicio','Parición','Castración','Movimiento','Revisión','Otro'];
+const TIPOS=['Práctica','Torneo','Desparasitación','Desvasada','Herrada','Vacuna','Veterinario','Tacto / Eco','Servicio','Parición','Castración','Movimiento','Revisión','Otro'];
 const TABS=[['inicio','Inicio'],['caballos','Caballos'],['madres','Madres'],['camadas','Camadas'],['sanidad','Sanidad'],['padrillos','Padrillos'],['notas','Notas']];
 const S={caballos:[],eventos:[],servicios:[],padrillos:[],notas:[],config:{despMadres:180,despResto:90,desvasar:60,herrar:45,temporada:2026},loaded:{}};
 const UI={tab:'inicio',cat:'',lugar:'',q:'',bajas:false,sel:null,camada:null,temporada:null,sanCat:'',notaFiltro:'pend',ficha:null};
@@ -197,6 +197,7 @@ function findByName(n){const k=norm(n);return k?S.caballos.find(c=>norm(c.nombre
 
 const fotoUrl=f=>(window.DC_BLOBS&&DC_BLOBS[f])||window.DC_FOTO_URL(f);
 const practicas=c=>(+c.practicasPrevias||0)+S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Práctica').length;
+const torneos=c=>(+c.torneosPrevios||0)+S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Torneo').length;
 function renderLogo(){const l=$('#logo');const id=S.config.logo;l.innerHTML=id?`<img src="${fotoUrl(id)}" alt="Doña Cecilia">`:'<span>DC</span>'}
 /* ---------- sanidad ---------- */
 function ultimo(cid,tipo){let f='';for(const e of S.eventos)if(e.caballoId===cid&&e.tipo===tipo&&e.fecha>f)f=e.fecha;return f}
@@ -259,7 +260,7 @@ function vCaballos(){
     return `<button class="hcard ${esc(c.sexo)} ${c.estado!=='Activo'?'baja':''}" data-${sel?'pick':'open'}="${c.id}">
       ${sel?`<input type="checkbox" tabindex="-1" ${sel.has(c.id)?'checked':''}>`:''}
       ${c.fotos?.length?`<img class="thumb" src="${fotoUrl(c.fotos[0])}" alt="" loading="lazy">`:''}
-      <div class="grow"><div class="nm">${esc(c.nombre)} ${c.venta?'<span class="pill p-venta">A la venta</span>':''} ${c.categoria==='Hechura'&&c.estado==='Activo'?`<span class="pill p-none">${practicas(c)} prácticas</span>`:''}</div>
+      <div class="grow"><div class="nm">${esc(c.nombre)} ${c.venta?'<span class="pill p-venta">A la venta</span>':''} ${c.categoria==='Hechura'&&c.estado==='Activo'?`<span class="pill p-none">${practicas(c)} prácticas</span>${torneos(c)?` <span class="pill p-none">${torneos(c)} torneos</span>`:''}`:''}</div>
       <div class="meta">${[e!==null?e+(e===1?' año':' años'):'',c.categoria,c.camada?'Camada '+c.camada:'',c.estado!=='Activo'?c.estado:''].filter(Boolean).join(' · ')}</div></div>
       ${c.estado==='Activo'&&enCampo(c)?`<div class="dots" title="Desparasitación · Desvasada">${ds.map(s=>`<span class="dot d-${s.st}"></span>`).join('')}</div>`:''}
       ${sel?'':'<span class="go">›</span>'}</button>`}).join('')||'<div class="empty">No hay caballos con ese filtro.</div>'}</div>
@@ -344,9 +345,10 @@ function renderFicha(){
    <div class="sheet-h"><div><h2>${esc(c.nombre)}</h2><div class="row" style="margin-top:6px"><span class="pill p-none">${esc(c.categoria)}</span>${c.lugar?`<span class="pill p-none">${esc(c.lugar)}</span>`:''}${c.venta?'<span class="pill p-venta">A la venta</span>':''}${c.estado!=='Activo'?`<span class="pill p-bad">${esc(c.estado)}${c.bajaFecha?' '+fmt(c.bajaFecha):''}</span>`:''}</div></div><button class="x" data-act="close" aria-label="Cerrar">×</button></div>
    <div class="sheet-b">
     ${c.fotos?.length?`<img class="cover" src="${fotoUrl(c.fotos[0])}" alt="${esc(c.nombre)}">`:''}
-    <div class="kv">${[...(c.domador?[['Domador',c.domador]]:[]),['Sexo',c.sexo],['Nacimiento',fmt(c.nac)+(e!==null?` (${e} ${e===1?'año':'años'})`:'')],['Camada',c.camada],['Pelaje',c.pelaje],['Alzada',c.alzada],['RP',c.rp],['N° chip',c.chip]].map(([k,v])=>`<div><span>${k}</span><b>${esc(v||'—')}</b></div>`).join('')}</div>
+    <div class="kv">${[...(c.domador?[['Domador',c.domador]]:[]),['Sexo',c.sexo],['Nacimiento',fmt(c.nac)+(e!==null?` (${e} ${e===1?'año':'años'})`:'')],['Camada',c.camada],['Pelaje',c.pelaje],['Alzada',c.alzada],['RP',c.rp],['N° chip',c.chip],...(c.ingresoDoma?[['Entró a doma',fmt(c.ingresoDoma)]]:[])].map(([k,v])=>`<div><span>${k}</span><b>${esc(v||'—')}</b></div>`).join('')}</div>
     ${c.obs?`<div><h3>Observaciones</h3><div>${esc(c.obs)}</div></div>`:''}
     ${['Hechura','Jugadores'].includes(c.categoria)&&c.estado==='Activo'?`<div class="prac"><b>${practicas(c)}</b><div class="grow" style="flex:1">prácticas<div class="small muted">${(()=>{const u=S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Práctica').sort((a,b)=>b.fecha.localeCompare(a.fecha))[0];return u?'Última: '+fmt(u.fecha):'Sin prácticas cargadas en la app'})()}</div></div>${canWrite?`<button class="btn pri" data-prac="${c.id}">+1 práctica</button>`:''}</div>`:''}
+    ${['Hechura','Jugadores'].includes(c.categoria)&&c.estado==='Activo'?`<div class="prac"><b>${torneos(c)}</b><div class="grow" style="flex:1">torneos<div class="small muted">${(()=>{const u=S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Torneo').sort((a,b)=>b.fecha.localeCompare(a.fecha))[0];return u?'Último: '+fmt(u.fecha)+(u.obs?' · '+esc(u.obs):''):'Sin torneos cargados en la app'})()}</div></div>${canWrite?`<button class="btn pri" data-torneo="${c.id}">+1 torneo</button>`:''}</div>`:''}
     ${c.estado==='Activo'?`<div><h3>Sanidad actual</h3><div class="list">${['Desparasitación','Desvasada','Herrada'].map(t=>{const s=estadoSan(c,t);return `<div class="li"><div>${t}<div class="sub">Última ${fmt(s.u)}${s.p?' · próxima '+fmt(s.p):''}</div></div><span class="pill p-${s.st}">${s.txt}</span></div>`}).join('')}</div></div>`:''}
     <div><div class="head" style="margin-bottom:6px"><h3 style="margin:0">Eventos</h3>${canWrite?`<button class="btn sm pri" data-evento="${c.id}">+ Evento</button>`:''}</div>
      <div class="list">${evs.map(x=>`<div class="li"><div><b style="font-weight:600">${esc(x.tipo)}</b>${x.detalle&&x.detalle!==x.tipo?' · '+esc(x.detalle):''}<div class="sub">${fmt(x.fecha)}${x.obs?' · '+esc(x.obs):''}${x.por?' · cargó '+esc(names[x.por]||'…'):''}</div></div>
@@ -454,11 +456,11 @@ function slugId(p){return p+'-'+Date.now().toString(36)+Math.random().toString(3
 function caballoForm(c,pre={},after){
   const v={...pre,...(c||{})};
   form(c?'Editar datos':'Alta de caballo',[
-    {k:'nombre',l:'Nombre',v:v.nombre,req:1,full:1},{k:'categoria',l:'Categoría',type:'select',opts:CATS,v:v.categoria||'Potrillos'},{k:'lugar',l:'Lugar',v:v.lugar??'Doña Cecilia',list:'dl-lug'},{k:'domador',l:'Domador',v:v.domador},{k:'alzada',l:'Alzada (ej: 1,55 m)',v:v.alzada},
+    {k:'nombre',l:'Nombre',v:v.nombre,req:1,full:1},{k:'categoria',l:'Categoría',type:'select',opts:CATS,v:v.categoria||'Potrillos'},{k:'lugar',l:'Lugar',v:v.lugar??'Doña Cecilia',list:'dl-lug'},{k:'domador',l:'Domador',v:v.domador},{k:'ingresoDoma',l:'Entrada a doma (fecha)',type:'date',v:v.ingresoDoma},{k:'alzada',l:'Alzada (ej: 1,55 m)',v:v.alzada},
     {k:'sexo',l:'Sexo',type:'select',opts:['Macho','Hembra',''],v:v.sexo||''},{k:'pelaje',l:'Pelaje',v:v.pelaje},{k:'nac',l:'Fecha de nacimiento',type:'date',v:v.nac},{k:'camada',l:'Camada (año)',type:'number',v:v.camada},
     {k:'rp',l:'RP',v:v.rp},{k:'chip',l:'N° chip',v:v.chip},{k:'padre',l:'Padre',v:v.padre,list:'dl-pad'},{k:'madre',l:'Madre',v:v.madre,list:'dl-hembras'},
     {k:'abueloP',l:'Abuelo paterno',v:v.abueloP},{k:'abuelaP',l:'Abuela paterna',v:v.abuelaP},{k:'abueloM',l:'Abuelo materno',v:v.abueloM},{k:'abuelaM',l:'Abuela materna',v:v.abuelaM},
-    {k:'practicasPrevias',l:'Prácticas antes de la app',type:'number',v:v.practicasPrevias},{k:'venta',l:'A la venta',type:'check',v:v.venta},{k:'obs',l:'Observaciones',type:'area',v:v.obs}],
+    {k:'practicasPrevias',l:'Prácticas antes de la app',type:'number',v:v.practicasPrevias},{k:'torneosPrevios',l:'Torneos antes de la app',type:'number',v:v.torneosPrevios},{k:'venta',l:'A la venta',type:'check',v:v.venta},{k:'obs',l:'Observaciones',type:'area',v:v.obs}],
     async d=>{if(!d.camada&&d.nac)d.camada=+d.nac.slice(0,4);
       if(c){await db.collection('caballos').doc(c.id).update(d);toast('Datos guardados');UI.ficha=c.id;renderFicha()}
       else{const id=slugId('c');await db.collection('caballos').doc(id).set({...d,estado:'Activo'});toast(d.nombre+' dado de alta');if(after)await after(id,d);UI.ficha=id;renderFicha()}},datalists());conectarGenealogia()}
@@ -512,7 +514,7 @@ function notaForm(n){form(n?'Editar nota':'Nueva nota',[{k:'titulo',l:'Tema',v:n
 /* ---------- events ---------- */
 let pendingDel=null;
 document.addEventListener('click',async ev=>{
-  const t=ev.target.closest('[data-venta],[data-vsave],[data-vpng],[data-vtxt],[data-go],[data-prac],[data-portada],[data-delfoto],[data-tab],[data-cat],[data-act],[data-open],[data-open-name],[data-pick],[data-temp],[data-camada],[data-sancat],[data-nf],[data-parto],[data-serv],[data-pad],[data-nota],[data-nota-toggle],[data-evento],[data-delev],[data-edit],[data-baja],[data-alta-de-nuevo],[data-delserv],[data-delnota],[data-close-ov]');
+  const t=ev.target.closest('[data-venta],[data-vsave],[data-vpng],[data-vtxt],[data-go],[data-prac],[data-torneo],[data-portada],[data-delfoto],[data-tab],[data-cat],[data-act],[data-open],[data-open-name],[data-pick],[data-temp],[data-camada],[data-sancat],[data-nf],[data-parto],[data-serv],[data-pad],[data-nota],[data-nota-toggle],[data-evento],[data-delev],[data-edit],[data-baja],[data-alta-de-nuevo],[data-delserv],[data-delnota],[data-close-ov]');
   if(!t)return;const d=t.dataset;
   if('closeOv' in d&&ev.target!==t)return;
   if('closeOv' in d){closeModal();return}
@@ -535,6 +537,7 @@ document.addEventListener('click',async ev=>{
   if(d.vsave){await guardarVenta(d.vsave);return}
   if(d.vpng){await bajarPng(d.vpng);return}
   if(d.vtxt){await copiarTxt(d.vtxt);return}
+  if(d.torneo){const c=byId(d.torneo);const t=prompt('¿Qué torneo? (podés dejarlo vacío)','');if(t===null)return;await db.collection('eventos').doc(slugId('e')).set({fecha:hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Torneo',detalle:'Torneo',obs:t.trim(),por:uid||''});toast('Torneo sumado a '+c.nombre);return}
   if(d.prac){const c=byId(d.prac);await db.collection('eventos').doc(slugId('e')).set({fecha:hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Práctica',detalle:'Práctica',obs:'',por:uid||''});toast('Práctica sumada a '+c.nombre);return}
   if(d.go){const [k,v]=d.go.split(':');UI.tab=k==='cat'?'caballos':'camadas';if(k==='cat'){UI.cat=v;UI.bajas=false}else UI.camada=+v;render();window.scrollTo(0,0);return}
   if(d.portada){const [id,f]=d.portada.split('|');const c=byId(id);await db.collection('caballos').doc(id).update({fotos:[f,...c.fotos.filter(x=>x!==f)]});toast('Portada cambiada');return}
@@ -561,7 +564,7 @@ document.addEventListener('click',async ev=>{
     case 'savecfg':{const o={};for(const k of ['despMadres','despResto','desvasar','herrar'])o[k]=+document.getElementById('k-'+k).value||S.config[k];await db.doc('config/app').set({...S.config,...o});toast('Días guardados');break}
   }
 });
-document.addEventListener('input',e=>{if(e.target.id==='q'){UI.q=e.target.value;const pos=e.target.selectionStart;render();const q=$('#q');q.focus();q.setSelectionRange(pos,pos)}});
+document.addEventListener('input',e=>{if(e.target.id==='q'){const ch=e.target.value.replace(/\D/g,'');if(ch.length>=15){const m=S.caballos.filter(c=>String(c.chip||'').replace(/\D/g,'')===ch);if(m.length===1){UI.q='';e.target.value='';UI.ficha=m[0].id;render();renderFicha();return}}UI.q=e.target.value;const pos=e.target.selectionStart;render();const q=$('#q');q.focus();q.setSelectionRange(pos,pos)}});
 document.addEventListener('change',e=>{if(e.target.id==='lugar'){UI.lugar=e.target.value;render()}});
 document.addEventListener('click',e=>{if(e.target.matches?.('input[type=file]'))e.target.onchange=onFile},true);
 async function onFile(e){
