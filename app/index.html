@@ -462,8 +462,16 @@ function caballoForm(c,pre={},after){
     {k:'abueloP',l:'Abuelo paterno',v:v.abueloP},{k:'abuelaP',l:'Abuela paterna',v:v.abuelaP},{k:'abueloM',l:'Abuelo materno',v:v.abueloM},{k:'abuelaM',l:'Abuela materna',v:v.abuelaM},
     {k:'practicasPrevias',l:'Prácticas antes de la app',type:'number',v:v.practicasPrevias},{k:'torneosPrevios',l:'Torneos antes de la app',type:'number',v:v.torneosPrevios},{k:'venta',l:'A la venta',type:'check',v:v.venta},{k:'obs',l:'Observaciones',type:'area',v:v.obs}],
     async d=>{if(!d.camada&&d.nac)d.camada=+d.nac.slice(0,4);
-      if(c){await db.collection('caballos').doc(c.id).update(d);toast('Datos guardados');UI.ficha=c.id;renderFicha()}
+      if(c){await db.collection('caballos').doc(c.id).update(d);toast('Datos guardados');UI.ficha=c.id;renderFicha();if(c.categoria!=='Doma'&&d.categoria==='Doma'&&!d.ingresoDoma)preguntarDoma(c.id)}
       else{const id=slugId('c');await db.collection('caballos').doc(id).set({...d,estado:'Activo'});toast(d.nombre+' dado de alta');if(after)await after(id,d);UI.ficha=id;renderFicha()}},datalists());conectarGenealogia()}
+
+/* Al pasar un caballo a Doma: pregunta el día, el lugar y el domador (sugiere los más usados en Doma) y lo anota en eventos. */
+function preguntarDoma(id){const c=byId(id)||{};const enDoma=S.caballos.filter(x=>x.categoria==='Doma'&&x.estado==='Activo'&&x.id!==id);
+  const masComun=k=>{const n={};enDoma.forEach(x=>{if(x[k])n[x[k]]=(n[x[k]]||0)+1});return Object.keys(n).sort((a,b)=>n[b]-n[a])[0]||''};
+  form('¿Qué día entró a doma '+(c.nombre||'')+'?',[{k:'ingresoDoma',l:'Entrada a doma',type:'date',v:hoy(),req:1},{k:'lugar',l:'Lugar',v:masComun('lugar')||c.lugar,list:'dl-lug'},{k:'domador',l:'Domador',v:c.domador||masComun('domador')}],
+    async d=>{await db.collection('caballos').doc(id).update(d);
+      await db.collection('eventos').doc(slugId('e')).set({fecha:d.ingresoDoma,caballoId:id,caballo:c.nombre||'',tipo:'Movimiento',detalle:'Entró a doma'+(d.domador?' con '+d.domador:''),obs:d.lugar?'Lugar: '+d.lugar:'',por:uid||''});
+      toast((c.nombre||'')+' entró a doma');UI.ficha=id;renderFicha()},datalists())}
 
 /* Autocompletar abuelos: al escribir Padre o Madre, busca ese caballo en lo ya cargado
    (fichas, padrillos, o hermanos que ya tengan los abuelos) y completa los casilleros vacíos. */

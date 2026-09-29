@@ -1,7 +1,7 @@
 /* Guarda la app en el celular para que abra aunque no haya señal.
    Muestra lo guardado al instante y, si hay señal, se actualiza para la próxima vez.
    Al cambiar archivos de la app, subir el número de VERSION. */
-const VERSION='dc-v2';
+const VERSION='dc-v3';
 const ARCHIVOS=['./','index.html','nube.js','supabase.js','config.js','logo.jpg','icono-192.png','icono-512.png','manifest.webmanifest'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(VERSION).then(c=>c.addAll(ARCHIVOS)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==VERSION).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
