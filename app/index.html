@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<style>html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Doña Cecilia</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0E0E0E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Doña Cecilia">
+<link rel="apple-touch-icon" href="icono-192.png">
+<link rel="icon" href="icono-192.png">
+<script>window.DC_BLOBS={"c067518b1364657d0cbe25a5f091243a":"logo.jpg"};</script>
+<script src="config.js"></script>
+<script src="supabase.js"></script>
+<script src="nube.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: barra negra con el logo DC y pestañas; debajo, una columna de trabajo (lista tipo Polo Breeders) y fichas que se abren encima. Blanco y negro como el logo; azul/rosa solo para macho/hembra. */
+:root{
+  --bg:#F5F5F3; --surface:#FFFFFF; --surface2:#EDEDEA; --line:#DCDCD8;
+  --fg:#111111; --muted:#6A6A66; --tierra:#0E0E0E; --cuero:#111111; --campo:#111111; --on-pri:#FFFFFF;
+  --on-bar:#F7F7F5; --macho:#E4EDF8; --hembra:#F8E6EC; --bar-m:#5B8FD0; --bar-h:#D8779A;
+  --ok:#2F7A3A; --ok-bg:#E0F0DF; --warn:#946300; --warn-bg:#FBEFC9; --bad:#A8322A; --bad-bg:#F7DDD8; --none:#77776F; --none-bg:#ECECE8;
+  --display:'Playfair Display',Georgia,serif; --body:'Inter',system-ui,-apple-system,sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F0F0F; --surface:#1A1A1A; --surface2:#232323; --line:#333333;
+  --fg:#F2F2F0; --muted:#A3A39E; --tierra:#000000; --cuero:#F2F2F0; --campo:#F2F2F0; --on-pri:#111111;
+  --on-bar:#F7F7F5; --macho:#1C2836; --hembra:#35202A; --bar-m:#5B8FD0; --bar-h:#C96A8D;
+  --ok:#8FCB84; --ok-bg:#1F331E; --warn:#E8C263; --warn-bg:#382E17; --bad:#EE8F7E; --bad-bg:#42211C; --none:#A8A8A0; --none-bg:#2C2C2A;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F0F0F; --surface:#1A1A1A; --surface2:#232323; --line:#333333;
+  --fg:#F2F2F0; --muted:#A3A39E; --tierra:#000000; --cuero:#F2F2F0; --campo:#F2F2F0; --on-pri:#111111;
+  --on-bar:#F7F7F5; --macho:#1C2836; --hembra:#35202A; --bar-m:#5B8FD0; --bar-h:#C96A8D;
+  --ok:#8FCB84; --ok-bg:#1F331E; --warn:#E8C263; --warn-bg:#382E17; --bad:#EE8F7E; --bad-bg:#42211C; --none:#A8A8A0; --none-bg:#2C2C2A;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45;margin:0}
+header{background:var(--tierra);color:var(--on-bar);border-bottom:1px solid #2A2A2A;position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
+.bar{max-width:1100px;margin:0 auto;padding:12px 16px 0;display:flex;flex-direction:column;gap:10px}
+.brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{width:44px;height:44px;flex:none;border:1.5px solid var(--on-bar);border-radius:6px;display:grid;place-items:center;overflow:hidden;background:#000}
+.logo span{font-family:var(--display);font-weight:700;font-size:1.15rem;letter-spacing:-.02em;color:#fff}
+.logo img{width:100%;height:100%;object-fit:contain;background:#fff}
+.brand h1{font-family:var(--display);font-size:1.55rem;margin:0;letter-spacing:.01em}
+.brand small{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+.brand .who{margin-left:auto;font-size:.75rem;opacity:.8}
+nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-bottom:10px}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:none;background:none;border:1px solid rgba(242,232,213,.3);color:var(--on-bar);padding:7px 14px;border-radius:20px;font:500 .84rem var(--body);cursor:pointer}
+nav button.on{background:var(--on-bar);border-color:var(--on-bar);color:#0E0E0E}
+main{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h2{font-family:var(--display);font-size:1.35rem;margin:0;text-wrap:balance}
+h3{font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:600}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.btn{font:600 .85rem var(--body);border-radius:8px;padding:8px 14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn.pri{background:var(--campo);border-color:var(--campo);color:var(--on-pri)}
+.btn.sm{padding:5px 10px;font-size:.78rem}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn:focus-visible,nav button:focus-visible,.chip:focus-visible,.hcard:focus-visible{outline:2px solid var(--cuero);outline-offset:2px}
+.chip{font:500 .8rem var(--body);border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:20px;padding:5px 12px;cursor:pointer}
+.chip.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+input,select,textarea{font:inherit;font-size:.92rem;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+textarea{min-height:70px;resize:vertical}
+label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;color:var(--muted);font-weight:500}
+.search{max-width:260px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:22px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.tile b{display:block;font-family:var(--display);font-size:2rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile span{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tile.alert b{color:var(--bad)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;min-width:0}
+.list{display:flex;flex-direction:column;gap:6px}
+.li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.li:last-child{border-bottom:0}
+.li .sub{color:var(--muted);font-size:.8rem}
+.hcards{display:flex;flex-direction:column;gap:8px}
+.hcard{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--r);border:1px solid var(--line);cursor:pointer;background:var(--surface);text-align:left;width:100%;font:inherit;color:inherit}
+.hcard.Macho{background:var(--macho)} .hcard.Hembra{background:var(--hembra)}
+.hcard.baja{opacity:.55}
+.hcard .nm{font-weight:600}
+.hcard .meta{font-size:.8rem;color:var(--muted)}
+.hcard .grow{flex:1;min-width:0}
+.hcard .go{color:var(--muted);font-size:1.2rem}
+.hcard input[type=checkbox]{width:20px;height:20px;flex:none}
+.pill{display:inline-block;font-size:.7rem;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:12px;white-space:nowrap}
+.p-ok{background:var(--ok-bg);color:var(--ok)} .p-warn{background:var(--warn-bg);color:var(--warn)} .p-bad{background:var(--bad-bg);color:var(--bad)} .p-none{background:var(--none-bg);color:var(--none)}
+.p-venta{background:var(--fg);color:var(--bg)}
+.dots{display:flex;gap:4px}
+.dot{width:9px;height:9px;border-radius:50%}
+.d-ok{background:var(--ok)} .d-warn{background:var(--warn)} .d-bad{background:var(--bad)} .d-none{background:var(--line)}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th{text-align:left;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:9px 10px;border-bottom:1px solid var(--line);background:var(--surface2);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.link{cursor:pointer;font-weight:600}
+.muted{color:var(--muted)} .small{font-size:.8rem}
+.empty{padding:28px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--r)}
+.selbar{position:sticky;bottom:0;margin-top:12px;background:#0E0E0E;color:var(--on-bar);border-radius:var(--r);padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+/* overlay */
+.ov{position:fixed;inset:0;background:rgba(30,20,10,.45);z-index:50;display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;padding:max(16px,env(safe-area-inset-top,0px)) 12px 40px}
+.sheet{background:var(--bg);border-radius:14px;width:100%;max-width:720px;border:1px solid var(--line);box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.sheet.narrow{max-width:520px}
+.sheet-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line);background:var(--surface);border-radius:14px 14px 0 0}
+.sheet-b{padding:16px 18px;display:flex;flex-direction:column;gap:16px}
+.x{background:none;border:0;font-size:1.5rem;line-height:1;color:var(--muted);cursor:pointer;padding:0 4px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 16px}
+.kv div span{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kv div b{font-weight:500;overflow-wrap:anywhere}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.form .full{grid-column:1/-1}
+.form .chk{flex-direction:row;align-items:center;gap:8px;font-size:.9rem;color:var(--fg)}
+.form .chk input{width:auto}
+.ped{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ped div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.85rem}
+.ped div span{display:block;font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.a{color:var(--fg);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#0E0E0E;color:var(--on-bar);padding:10px 18px;border-radius:24px;font-size:.88rem;z-index:80;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.note{font-size:.8rem;color:var(--muted)}
+.ncard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+.ncard.done{opacity:.6}
+.ncard .grow{flex:1;min-width:0}
+.thumb{width:42px;height:42px;border-radius:50%;object-fit:cover;flex:none;background:var(--surface2)}
+.cover{width:100%;max-height:340px;object-fit:cover;border-radius:var(--r);display:block;background:var(--surface2)}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.gal figure{margin:0;display:flex;flex-direction:column;gap:4px}
+.gal img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;background:var(--surface2);max-width:100%}
+.gal .row{gap:4px}
+.upl{display:inline-flex;align-items:center;cursor:pointer}
+.upl input{position:absolute;width:1px;height:1px;opacity:0}
+.tree{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(4,auto);gap:8px 14px;position:relative}
+.tree .n{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.84rem;background:var(--surface);min-width:0;overflow-wrap:anywhere;position:relative}
+.tree .n span{display:block;font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tree .n.M{background:var(--macho)} .tree .n.H{background:var(--hembra)}
+.tree .n.unk{color:var(--muted);font-style:italic}
+.tree .me{grid-column:1;grid-row:1/5;align-self:center;font-weight:600}
+.tree .p{grid-column:2;grid-row:1/3;align-self:center} .tree .m{grid-column:2;grid-row:3/5;align-self:center}
+.tree .g1{grid-column:3;grid-row:1}.tree .g2{grid-column:3;grid-row:2}.tree .g3{grid-column:3;grid-row:3}.tree .g4{grid-column:3;grid-row:4}
+.tree .p::before,.tree .m::before,.tree .g1::before,.tree .g2::before,.tree .g3::before,.tree .g4::before{content:"";position:absolute;left:-15px;top:50%;width:14px;border-top:1px solid var(--muted)}
+.bars{display:flex;flex-direction:column;gap:7px}
+.brow{display:grid;grid-template-columns:88px minmax(0,1fr) 34px;gap:10px;align-items:center;font-size:.84rem;background:none;border:0;padding:2px 0;color:inherit;font-family:inherit;text-align:left;cursor:pointer;width:100%}
+.brow:hover .track{outline:1px solid var(--line)}
+.track{display:flex;gap:2px;height:16px;border-radius:0 4px 4px 0}
+.track i{display:block;height:100%}
+.track i:last-child{border-radius:0 4px 4px 0}
+.track .m{background:var(--bar-m)} .track .h{background:var(--bar-h)} .track .x{background:var(--muted)}
+.brow b{font-variant-numeric:tabular-nums;text-align:right}
+.legend{display:flex;gap:14px;font-size:.76rem;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.prac{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px}
+.prac b{font-family:var(--display);font-size:1.8rem;line-height:1}
+@media (max-width:560px){.brand .who{display:none} .search{max-width:none;flex:1 1 100%}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header>
+  <div class="bar">
+    <div class="brand"><div class="logo" id="logo"><span>DC</span></div><h1>Doña Cecilia</h1><small>Registro de la manada</small><span class="who" id="who"></span></div>
+    <nav id="nav"></nav>
+  </div>
+</header>
+<main id="main"><div class="empty">Cargando la manada…</div></main>
+<div id="modal"></div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+const CATS=['Potrillos','Doma','Hechura','Jugadores','Madres'];
+const TIPOS=['Práctica','Desparasitación','Desvasada','Herrada','Vacuna','Veterinario','Tacto / Eco','Servicio','Parición','Castración','Movimiento','Revisión','Otro'];
+const TABS=[['inicio','Inicio'],['caballos','Caballos'],['madres','Madres'],['camadas','Camadas'],['sanidad','Sanidad'],['padrillos','Padrillos'],['notas','Notas']];
+const S={caballos:[],eventos:[],servicios:[],padrillos:[],notas:[],config:{despMadres:180,despResto:90,desvasar:60,herrar:45,temporada:2026},loaded:{}};
+const UI={tab:'inicio',cat:'',lugar:'',q:'',bajas:false,sel:null,camada:null,temporada:null,sanCat:'',notaFiltro:'pend',ficha:null};
+let db=null,user=null,uid=null,canWrite=true,names={},assets=null,downloads=null;
+try{const t=localStorage.getItem('dc-tab');if(t&&TABS.some(x=>x[0]===t))UI.tab=t}catch(e){}
+
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().trim();
+function hoy(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function fmt(s){if(!s)return '—';const [y,m,d]=s.split('-');return d+'/'+m+'/'+y}
+function addDays(s,n){const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function diff(a,b){return Math.round((new Date(a+'T12:00:00')-new Date(b+'T12:00:00'))/864e5)}
+function edad(nac){if(!nac)return null;const n=new Date(nac+'T12:00:00'),t=new Date();let a=t.getFullYear()-n.getFullYear();if(t.getMonth()<n.getMonth()||(t.getMonth()===n.getMonth()&&t.getDate()<n.getDate()))a--;return a}
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)}
+const byId=id=>S.caballos.find(c=>c.id===id);
+const activos=()=>S.caballos.filter(c=>c.estado==='Activo');
+function findByName(n){const k=norm(n);return k?S.caballos.find(c=>norm(c.nombre)===k):null}
+
+const fotoUrl=f=>(window.DC_BLOBS&&DC_BLOBS[f])||window.DC_FOTO_URL(f);
+const practicas=c=>(+c.practicasPrevias||0)+S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Práctica').length;
+function renderLogo(){const l=$('#logo');const id=S.config.logo;l.innerHTML=id?`<img src="${fotoUrl(id)}" alt="Doña Cecilia">`:'<span>DC</span>'}
+/* ---------- sanidad ---------- */
+function ultimo(cid,tipo){let f='';for(const e of S.eventos)if(e.caballoId===cid&&e.tipo===tipo&&e.fecha>f)f=e.fecha;return f}
+function intervalo(c,tipo){const k=S.config;return tipo==='Desparasitación'?(c.categoria==='Madres'?k.despMadres:k.despResto):tipo==='Desvasada'?k.desvasar:k.herrar}
+function estadoSan(c,tipo){const u=ultimo(c.id,tipo);if(!u)return{u:'',p:'',st:'none',txt:'Sin dato'};const p=addDays(u,+intervalo(c,tipo)||0),d=diff(p,hoy());
+  return{u,p,d,st:d<0?'bad':d<=15?'warn':'ok',txt:d<0?'Vencido':d<=15?'Próximo':'Al día'}}
+const enCampo=c=>c.estado==='Activo'&&c.categoria!=='Doma';
+function vencidos(){const out=[];for(const c of activos().filter(enCampo))for(const t of ['Desparasitación','Desvasada']){const s=estadoSan(c,t);if(s.st==='bad'||s.st==='warn')out.push({c,t,s})}return out.sort((a,b)=>a.s.d-b.s.d)}
+
+/* ---------- render ---------- */
+function renderNav(){$('#nav').innerHTML=TABS.map(([k,l])=>`<button class="${UI.tab===k?'on':''}" data-tab="${k}">${l}</button>`).join('')}
+function render(){renderNav();renderLogo();const m=$('#main');const f={inicio:vInicio,caballos:vCaballos,madres:vMadres,camadas:vCamadas,sanidad:vSanidad,padrillos:vPadrillos,notas:vNotas}[UI.tab];m.innerHTML=f();if(UI.ficha)renderFicha()}
+
+function temporadaActual(){return UI.temporada??(+S.config.temporada||new Date().getFullYear())}
+function vInicio(){
+  const act=activos(),t=temporadaActual(),serv=S.servicios.filter(s=>+s.temporada===t);
+  const pren=serv.filter(s=>s.estado==='Preñada').sort((a,b)=>(a.fpp||'9').localeCompare(b.fpp||'9'));
+  const prox=pren.map(s=>s.fpp?diff(s.fpp,hoy()):null).filter(d=>d!==null&&d>=-30);
+  const venc=vencidos(),vb=venc.filter(v=>v.s.st==='bad').length;
+  const pend=S.notas.filter(n=>n.estado!=='Listo').length;
+  const ult=[...S.eventos].sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,8);
+  const cnt=CATS.map(c=>[c,act.filter(x=>x.categoria===c).length]);
+  return `<div class="tiles">
+    <div class="tile"><span>Caballos propios</span><b>${act.length}</b><div class="small muted">${cnt.map(([c,n])=>n+' '+c.toLowerCase()).join(' · ')}</div></div>
+    <div class="tile"><span>Preñadas ${t}</span><b>${pren.length}</b></div>
+    <div class="tile"><span>Próximo parto</span><b>${prox.length?(Math.min(...prox)<0?'Pasado':Math.min(...prox)+' d'):'—'}</b><div class="small muted">${pren[0]?esc(pren[0].madre)+' · '+fmt(pren[0].fpp):''}</div></div>
+    <div class="tile ${vb?'alert':''}"><span>Sanidad vencida</span><b>${vb}</b><div class="small muted">${venc.length-vb} por vencer en 15 días</div></div>
+    <div class="tile"><span>Para revisar</span><b>${pend}</b></div>
+  </div>
+  <div class="grid2" style="margin-bottom:18px">
+    <div class="panel"><h3>Caballos por categoría</h3>${barras(CATS.map(c=>[c,act.filter(x=>x.categoria===c),'cat:'+c]).concat([['A la venta',act.filter(x=>x.venta),'cat:__venta']]))}${leyenda()}</div>
+    <div class="panel"><h3>Caballos vivos por camada</h3>${barras([...new Set(act.map(c=>c.camada).filter(Boolean))].sort((a,b)=>b-a).map(y=>[String(y),act.filter(x=>x.camada===y),'cam:'+y]).concat(act.some(c=>!c.camada)?[['Sin año',act.filter(c=>!c.camada),'']]:[]))}${leyenda()}</div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h3>Próximos partos</h3><div class="list">${pren.length?pren.map(s=>{const d=s.fpp?diff(s.fpp,hoy()):null;return `<div class="li"><div><span class="a" data-open-name="${esc(s.madre)}">${esc(s.madre)}</span><div class="sub">${esc(s.padrillo||'—')} · FPP ${fmt(s.fpp)}</div></div>${d===null?'':`<span class="pill ${d<0?'p-bad':d<=15?'p-warn':'p-ok'}">${d<0?'pasó hace '+(-d)+' d':'faltan '+d+' d'}</span>`}</div>
+  ${assets?`<div class="row" style="margin-top:18px"><label class="btn sm upl">${S.config.logo?'Cambiar el logo':'Subir el logo de Doña Cecilia'}<input type="file" accept="image/*" id="logo-file"></label></div>`:''}`}).join(''):'<div class="muted small">No hay preñadas cargadas esta temporada.</div>'}</div></div>
+    <div class="panel"><h3>Sanidad para atender</h3><div class="list">${venc.length?venc.slice(0,12).map(v=>`<div class="li"><div><span class="a" data-open="${v.c.id}">${esc(v.c.nombre)}</span><div class="sub">${v.t} · última ${fmt(v.s.u)}</div></div><span class="pill p-${v.s.st}">${v.s.d<0?'vencido hace '+(-v.s.d)+' d':'vence en '+v.s.d+' d'}</span></div>`).join('')+(venc.length>12?`<div class="small muted">y ${venc.length-12} más en Sanidad</div>`:''):'<div class="muted small">Todo al día.</div>'}</div></div>
+    <div class="panel"><h3>Últimos eventos cargados</h3><div class="list">${ult.map(e=>`<div class="li"><div><span class="a" data-open="${e.caballoId}">${esc(byId(e.caballoId)?.nombre||e.caballo)}</span><div class="sub">${esc(e.detalle||e.tipo)}</div></div><span class="small muted">${fmt(e.fecha)}</span></div>`).join('')||'<div class="muted small">Todavía no hay eventos.</div>'}</div></div>
+  </div>`}
+
+function barras(rows){const max=Math.max(1,...rows.map(r=>r[1].length));
+  return `<div class="bars">${rows.map(([l,list,go])=>{const m=list.filter(x=>x.sexo==='Macho').length,h=list.filter(x=>x.sexo==='Hembra').length,o=list.length-m-h;
+   return `<button class="brow" ${go?`data-go="${go}"`:''} title="${esc(l)}: ${list.length} (${m} machos, ${h} hembras${o?', '+o+' sin sexo':''})"><span>${esc(l)}</span><span class="track">${m?`<i class="m" style="width:${m/max*100}%"></i>`:''}${h?`<i class="h" style="width:${h/max*100}%"></i>`:''}${o?`<i class="x" style="width:${o/max*100}%"></i>`:''}</span><b>${list.length}</b></button>`}).join('')}</div>`}
+function leyenda(){return '<div class="legend"><span><i style="background:var(--bar-m)"></i>Machos</span><span><i style="background:var(--bar-h)"></i>Hembras</span></div>'}
+function sortCab(a,b){const ca=CATS.indexOf(a.categoria),cb=CATS.indexOf(b.categoria);return ca-cb||a.nombre.localeCompare(b.nombre,'es')}
+function lugares(){return [...new Set(S.caballos.map(c=>c.lugar).filter(Boolean))].sort()}
+function vCaballos(){
+  const q=norm(UI.q);
+  let l=S.caballos.filter(c=>(UI.bajas?c.estado!=='Activo':c.estado==='Activo')&&(!UI.cat||(UI.cat==='__venta'?c.venta:c.categoria===UI.cat))&&(!UI.lugar||c.lugar===UI.lugar)&&(!q||norm(c.nombre+' '+c.rp+' '+c.chip+' '+c.madre+' '+c.padre).includes(q)));
+  l.sort(sortCab);
+  const sel=UI.sel;
+  return `<div class="head"><h2>${UI.bajas?'Bajas':UI.cat==='__venta'?'A la venta':'Caballos'} <span class="muted small">(${l.length})</span></h2>
+    <div class="row">${canWrite?`<button class="btn pri" data-act="alta">+ Alta</button><button class="btn" data-act="selmode">${sel?'Cancelar':'+ Sanidad'}</button>`:''}</div></div>
+  <div class="row" style="margin-bottom:10px"><input id="q" class="search" type="search" placeholder="Buscar nombre, RP, chip, madre…" value="${esc(UI.q)}">
+    <select id="lugar" style="width:auto"><option value="">Todos los lugares</option>${lugares().map(x=>`<option ${UI.lugar===x?'selected':''}>${esc(x)}</option>`).join('')}</select>
+    <button class="chip ${UI.bajas?'on':''}" data-act="bajas">Ver bajas</button></div>
+  <div class="row" style="margin-bottom:14px">${['',...CATS,'__venta'].map(c=>`<button class="chip ${UI.cat===c?'on':''}" data-cat="${c}">${c==='__venta'?'A la venta':c||'Todas'}</button>`).join('')}</div>
+  ${sel?`<p class="note">Tocá los caballos a los que querés cargarles sanidad. Después elegí qué se les hizo.</p>`:''}
+  <div class="hcards">${l.map(c=>{const e=edad(c.nac);const ds=['Desparasitación','Desvasada'].map(t=>estadoSan(c,t));
+    return `<button class="hcard ${esc(c.sexo)} ${c.estado!=='Activo'?'baja':''}" data-${sel?'pick':'open'}="${c.id}">
+      ${sel?`<input type="checkbox" tabindex="-1" ${sel.has(c.id)?'checked':''}>`:''}
+      ${c.fotos?.length?`<img class="thumb" src="${fotoUrl(c.fotos[0])}" alt="" loading="lazy">`:''}
+      <div class="grow"><div class="nm">${esc(c.nombre)} ${c.venta?'<span class="pill p-venta">A la venta</span>':''} ${c.categoria==='Hechura'&&c.estado==='Activo'?`<span class="pill p-none">${practicas(c)} prácticas</span>`:''}</div>
+      <div class="meta">${[e!==null?e+(e===1?' año':' años'):'',c.categoria,c.camada?'Camada '+c.camada:'',c.estado!=='Activo'?c.estado:''].filter(Boolean).join(' · ')}</div></div>
+      ${c.estado==='Activo'&&enCampo(c)?`<div class="dots" title="Desparasitación · Desvasada">${ds.map(s=>`<span class="dot d-${s.st}"></span>`).join('')}</div>`:''}
+      ${sel?'':'<span class="go">›</span>'}</button>`}).join('')||'<div class="empty">No hay caballos con ese filtro.</div>'}</div>
+  ${sel?`<div class="selbar"><b>${sel.size} elegidos</b><button class="btn sm" data-act="selall">Elegir todos los de la lista</button><button class="btn sm pri" data-act="bulk" ${sel.size?'':'disabled'}>Cargar sanidad</button></div>`:''}`}
+
+function vMadres(){
+  const temps=[...new Set([...S.servicios.map(s=>+s.temporada),+S.config.temporada||2026])].sort((a,b)=>b-a);const t=temporadaActual();
+  const l=S.servicios.filter(s=>+s.temporada===t).sort((a,b)=>({'Preñada':0,'Parida':1,'Vacía':2}[a.estado]??3)-({'Preñada':0,'Parida':1,'Vacía':2}[b.estado]??3)||(a.fpp||'9').localeCompare(b.fpp||'9'));
+  const c=k=>l.filter(s=>s.estado===k).length;
+  return `<div class="head"><h2>Madres · temporada ${t}</h2><div class="row">${canWrite?'<button class="btn pri" data-act="servicio">+ Agregar servicio</button>':''}</div></div>
+  <div class="row" style="margin-bottom:14px">${temps.map(y=>`<button class="chip ${y===t?'on':''}" data-temp="${y}">${y}</button>`).join('')}
+    <span class="muted small" style="margin-left:6px">${c('Preñada')} preñadas · ${c('Parida')} paridas · ${c('Vacía')} vacías</span></div>
+  ${l.length?`<div class="tablewrap"><table><thead><tr><th>Madre</th><th>Servicio / tacto</th><th>Padrillo</th><th>Estado</th><th>FPP</th><th>Días al parto</th><th>Observación</th><th></th></tr></thead><tbody>
+  ${l.map(s=>{const d=s.estado==='Preñada'&&s.fpp?diff(s.fpp,hoy()):null;return `<tr><td class="link" data-open-name="${esc(s.madre)}">${esc(s.madre)}</td><td>${fmt(s.fecha)}</td><td>${esc(s.padrillo||'—')}</td>
+    <td><span class="pill ${s.estado==='Preñada'?'p-ok':s.estado==='Parida'?'p-none':'p-warn'}">${esc(s.estado||'—')}</span></td><td>${fmt(s.fpp)}</td>
+    <td>${d===null?'—':`<span class="pill ${d<0?'p-bad':d<=15?'p-warn':'p-none'}">${d}</span>`}</td><td class="small">${esc(s.obs)}</td>
+    <td>${canWrite?`<div class="row" style="flex-wrap:nowrap">${s.estado==='Preñada'?`<button class="btn sm pri" data-parto="${s.id}">Parió</button>`:''}<button class="btn sm" data-serv="${s.id}">Editar</button></div>`:''}</td></tr>`}).join('')}
+  </tbody></table></div>`:'<div class="empty">No hay servicios cargados en esta temporada. Tocá “+ Agregar servicio”.</div>'}
+  <p class="note">FPP = fecha probable de parto. “Días al parto” se actualiza solo cada día. Al tocar “Parió” se da de alta la cría y la madre queda como parida.</p>`}
+
+function vCamadas(){
+  const t=+S.config.temporada||2026;
+  const years=[...new Set([...S.caballos.map(c=>c.camada).filter(Boolean),t])].sort((a,b)=>b-a);
+  const y=UI.camada??t;
+  const l=S.caballos.filter(c=>c.camada===y).sort((a,b)=>(a.nac||'9').localeCompare(b.nac||'9'));
+  const por=y===t?S.servicios.filter(s=>+s.temporada===y&&s.estado==='Preñada'):[];
+  const viv=l.filter(c=>c.estado==='Activo');
+  return `<div class="head"><h2>Camada ${y}</h2></div>
+  <div class="row" style="margin-bottom:14px">${years.map(x=>`<button class="chip ${x===y?'on':''}" data-camada="${x}">${x}</button>`).join('')}</div>
+  <div class="tiles"><div class="tile"><span>Vivos hoy</span><b>${viv.length}</b></div><div class="tile"><span>Machos</span><b>${viv.filter(c=>c.sexo==='Macho').length}</b></div><div class="tile"><span>Hembras</span><b>${viv.filter(c=>c.sexo==='Hembra').length}</b></div>${por.length?`<div class="tile"><span>Por nacer</span><b>${por.length}</b></div>`:''}</div>
+  <div class="tablewrap"><table><thead><tr><th>Cría</th><th>Madre</th><th>Padre</th><th>Sexo</th><th>Pelaje</th><th>Nacimiento</th><th>Hoy está en</th><th>Observación</th></tr></thead><tbody>
+  ${l.map(c=>`<tr style="${c.estado!=='Activo'?'opacity:.6':''}"><td class="link" data-open="${c.id}">${esc(c.nombre)}</td><td>${esc(c.madre||'—')}</td><td>${esc(c.padre||'—')}</td><td>${esc(c.sexo||'—')}</td><td>${esc(c.pelaje||'—')}</td><td>${fmt(c.nac)}</td>
+    <td>${c.estado==='Activo'?esc(c.categoria):`<span class="pill p-bad">${esc(c.estado)}</span>`}</td><td class="small">${esc(c.obs)}</td></tr>`).join('')}
+  ${por.map(s=>`<tr><td class="muted">Por nacer</td><td>${esc(s.madre)}</td><td>${esc(s.padrillo)}</td><td>—</td><td>—</td><td class="muted">FPP ${fmt(s.fpp)}</td><td><span class="pill p-warn">Por nacer</span></td><td></td></tr>`).join('')}
+  ${!l.length&&!por.length?'<tr><td colspan="8" class="muted">No hay crías cargadas para este año.</td></tr>':''}
+  </tbody></table></div><p class="note">Los muertos quedan como historia pero no se cuentan.</p>`}
+
+function sanCell(c,t){const s=estadoSan(c,t);return `<td><div>${fmt(s.u)}</div>${s.u?`<span class="pill p-${s.st}">${s.txt} · ${fmt(s.p)}</span>`:'<span class="pill p-none">Sin dato</span>'}</td>`}
+function vSanidad(){
+  const l=activos().filter(c=>c.categoria!=='Doma'&&(!UI.sanCat||c.categoria===UI.sanCat)).sort(sortCab);const k=S.config;
+  return `<div class="head"><h2>Sanidad y trabajos</h2>${canWrite?'<button class="btn pri" data-act="gosel">+ Cargar a varios</button>':''}</div>
+  <div class="row" style="margin-bottom:14px">${['',...CATS.filter(c=>c!=='Doma')].map(c=>`<button class="chip ${UI.sanCat===c?'on':''}" data-sancat="${c}">${c||'Todas'}</button>`).join('')}</div>
+  <div class="tablewrap"><table><thead><tr><th>Caballo</th><th>Categoría</th><th>Desparasitación</th><th>Desvasada</th><th>Herrada</th></tr></thead><tbody>
+  ${l.map(c=>`<tr><td class="link" data-open="${c.id}">${esc(c.nombre)}</td><td>${esc(c.categoria)}</td>${sanCell(c,'Desparasitación')}${sanCell(c,'Desvasada')}${sanCell(c,'Herrada')}</tr>`).join('')}
+  </tbody></table></div>
+  <div class="panel" style="margin-top:16px"><h3>Cada cuántos días</h3>
+   <div class="form"><label>Desparasitar madres<input id="k-despMadres" type="number" min="1" value="${k.despMadres}" ${canWrite?'':'disabled'}></label>
+   <label>Desparasitar resto<input id="k-despResto" type="number" min="1" value="${k.despResto}" ${canWrite?'':'disabled'}></label>
+   <label>Desvasar<input id="k-desvasar" type="number" min="1" value="${k.desvasar}" ${canWrite?'':'disabled'}></label>
+   <label>Herrar<input id="k-herrar" type="number" min="1" value="${k.herrar}" ${canWrite?'':'disabled'}></label></div>
+   ${canWrite?'<div class="row" style="margin-top:10px"><button class="btn sm" data-act="savecfg">Guardar días</button></div>':''}
+   <p class="note">Rojo = vencido · Amarillo = vence en 15 días o menos · Verde = al día · Gris = sin dato. Los de Doma no aparecen porque están en ${esc([...new Set(activos().filter(c=>c.categoria==='Doma').map(c=>c.lugar).filter(Boolean))].join(', ')||'otro lugar')}.</p></div>`}
+
+function vPadrillos(){
+  const l=[...S.padrillos].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
+  return `<div class="head"><h2>Padrillos usados</h2>${canWrite?'<button class="btn pri" data-act="padrillo">+ Agregar padrillo</button>':''}</div>
+  <p class="note" style="margin:-6px 0 14px">No son caballos de Doña Cecilia: solo se usaron para servir. No entran en los totales.</p>
+  <div class="tablewrap"><table><thead><tr><th>Padrillo</th><th>Padre × Madre</th><th>Tipo</th><th>Crías vivas hoy</th><th>Cuáles</th><th></th></tr></thead><tbody>
+  ${l.map(p=>{const cr=activos().filter(c=>norm(c.padre)===norm(p.nombre));return `<tr><td><b>${esc(p.nombre)}</b></td><td class="small">${esc(p.padre||'—')} × ${esc(p.madre||'—')}</td><td>${esc(p.tipo||'—')}</td><td>${cr.length}</td>
+   <td class="small">${cr.map(c=>`<span class="a" data-open="${c.id}">${esc(c.nombre)}</span>`).join(' · ')||'<span class="muted">—</span>'}</td><td>${canWrite?`<button class="btn sm" data-pad="${p.id}">Editar</button>`:''}</td></tr>`}).join('')}
+  </tbody></table></div>`}
+
+function vNotas(){
+  const l=S.notas.filter(n=>UI.notaFiltro==='todas'||n.estado!=='Listo').sort((a,b)=>(a.estado==='Listo')-(b.estado==='Listo')||(b.fecha||'').localeCompare(a.fecha||''));
+  return `<div class="head"><h2>Notas y cosas para revisar</h2>${canWrite?'<button class="btn pri" data-act="nota">+ Nueva nota</button>':''}</div>
+  <div class="row" style="margin-bottom:14px"><button class="chip ${UI.notaFiltro==='pend'?'on':''}" data-nf="pend">Pendientes</button><button class="chip ${UI.notaFiltro==='todas'?'on':''}" data-nf="todas">Todas</button></div>
+  <div class="list" style="gap:8px">${l.map(n=>`<div class="ncard ${n.estado==='Listo'?'done':''}"><div class="grow"><b>${esc(n.titulo)}</b><div class="small">${esc(n.texto)}</div><div class="small muted">${fmt(n.fecha)}</div></div>
+   <div class="row">${canWrite?`<button class="btn sm ${n.estado==='Listo'?'':'pri'}" data-nota-toggle="${n.id}">${n.estado==='Listo'?'Reabrir':'Listo'}</button><button class="btn sm" data-nota="${n.id}">Editar</button>`:`<span class="pill ${n.estado==='Listo'?'p-ok':'p-warn'}">${esc(n.estado)}</span>`}</div></div>`).join('')||'<div class="empty">No hay notas pendientes.</div>'}</div>`}
+
+/* ---------- ficha ---------- */
+function renderFicha(){
+  const c=byId(UI.ficha);if(!c){closeModal();return}
+  const e=edad(c.nac);
+  const evs=S.eventos.filter(x=>x.caballoId===c.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const padre=findByName(c.padre),madre=findByName(c.madre);
+  const herm=S.caballos.filter(x=>x.id!==c.id&&((c.madre&&norm(x.madre)===norm(c.madre))));
+  const hijos=S.caballos.filter(x=>norm(x.madre)===norm(c.nombre)||norm(x.padre)===norm(c.nombre));
+  const serv=S.servicios.filter(s=>norm(s.madre)===norm(c.nombre)).sort((a,b)=>b.temporada-a.temporada);
+  const link=(n,obj)=>obj?`<span class="a" data-open="${obj.id}">${esc(n)}</span>`:esc(n||'Desconocido');
+  const ids=[...new Set(evs.map(x=>x.por).filter(Boolean))];loadNames(ids);
+  $('#modal').innerHTML=`<div class="ov" data-close-ov><div class="sheet" role="dialog" aria-label="Ficha">
+   <div class="sheet-h"><div><h2>${esc(c.nombre)}</h2><div class="row" style="margin-top:6px"><span class="pill p-none">${esc(c.categoria)}</span>${c.lugar?`<span class="pill p-none">${esc(c.lugar)}</span>`:''}${c.venta?'<span class="pill p-venta">A la venta</span>':''}${c.estado!=='Activo'?`<span class="pill p-bad">${esc(c.estado)}${c.bajaFecha?' '+fmt(c.bajaFecha):''}</span>`:''}</div></div><button class="x" data-act="close" aria-label="Cerrar">×</button></div>
+   <div class="sheet-b">
+    ${c.fotos?.length?`<img class="cover" src="${fotoUrl(c.fotos[0])}" alt="${esc(c.nombre)}">`:''}
+    <div class="kv">${[...(c.domador?[['Domador',c.domador]]:[]),['Sexo',c.sexo],['Nacimiento',fmt(c.nac)+(e!==null?` (${e} ${e===1?'año':'años'})`:'')],['Camada',c.camada],['Pelaje',c.pelaje],['Alzada',c.alzada],['RP',c.rp],['N° chip',c.chip]].map(([k,v])=>`<div><span>${k}</span><b>${esc(v||'—')}</b></div>`).join('')}</div>
+    ${c.obs?`<div><h3>Observaciones</h3><div>${esc(c.obs)}</div></div>`:''}
+    ${['Hechura','Jugadores'].includes(c.categoria)&&c.estado==='Activo'?`<div class="prac"><b>${practicas(c)}</b><div class="grow" style="flex:1">prácticas<div class="small muted">${(()=>{const u=S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Práctica').sort((a,b)=>b.fecha.localeCompare(a.fecha))[0];return u?'Última: '+fmt(u.fecha):'Sin prácticas cargadas en la app'})()}</div></div>${canWrite?`<button class="btn pri" data-prac="${c.id}">+1 práctica</button>`:''}</div>`:''}
+    ${c.estado==='Activo'?`<div><h3>Sanidad actual</h3><div class="list">${['Desparasitación','Desvasada','Herrada'].map(t=>{const s=estadoSan(c,t);return `<div class="li"><div>${t}<div class="sub">Última ${fmt(s.u)}${s.p?' · próxima '+fmt(s.p):''}</div></div><span class="pill p-${s.st}">${s.txt}</span></div>`}).join('')}</div></div>`:''}
+    <div><div class="head" style="margin-bottom:6px"><h3 style="margin:0">Eventos</h3>${canWrite?`<button class="btn sm pri" data-evento="${c.id}">+ Evento</button>`:''}</div>
+     <div class="list">${evs.map(x=>`<div class="li"><div><b style="font-weight:600">${esc(x.tipo)}</b>${x.detalle&&x.detalle!==x.tipo?' · '+esc(x.detalle):''}<div class="sub">${fmt(x.fecha)}${x.obs?' · '+esc(x.obs):''}${x.por?' · cargó '+esc(names[x.por]||'…'):''}</div></div>
+       ${canWrite?`<button class="btn sm" data-delev="${x.id}">Borrar</button>`:''}</div>`).join('')||'<div class="muted small">Sin eventos registrados.</div>'}</div></div>
+    ${serv.length?`<div><h3>Servicios</h3><div class="list">${serv.map(s=>`<div class="li"><div>Temporada ${s.temporada} · ${esc(s.padrillo||'—')}<div class="sub">${fmt(s.fecha)} · FPP ${fmt(s.fpp)}</div></div><span class="pill p-none">${esc(s.estado)}</span></div>`).join('')}</div></div>`:''}
+    <div><div class="head" style="margin-bottom:8px"><h3 style="margin:0">Genealogía</h3>${canWrite?`<button class="btn sm" data-edit="${c.id}">Editar genealogía</button>`:''}</div>
+     <div class="tablewrap" style="background:none;border:0;padding:2px"><div class="tree" style="min-width:330px">${arbol(c,padre,madre)}</div></div></div>
+    <div><div class="head" style="margin-bottom:8px"><h3 style="margin:0">Fotos</h3>${assets?`<label class="btn sm pri upl">+ Agregar foto<input type="file" accept="image/*" multiple data-foto="${c.id}"></label>`:''}</div>
+     ${c.fotos?.length?`<div class="gal">${c.fotos.map((f,k)=>`<figure><a href="${fotoUrl(f)}" target="_blank" rel="noopener"><img src="${fotoUrl(f)}" alt="Foto ${k+1} de ${esc(c.nombre)}" loading="lazy"></a>${assets?`<div class="row">${k?`<button class="btn sm" data-portada="${c.id}|${f}">Portada</button>`:'<span class="small muted">Portada</span>'}<button class="btn sm" data-delfoto="${c.id}|${f}">Borrar</button></div>`:''}</figure>`).join('')}</div>`:`<div class="muted small">${assets?'Todavía no hay fotos. Tocá “+ Agregar foto”, podés sacarla con el celular.':'Sin fotos.'}</div>`}</div></div>
+    ${herm.length?`<div><h3>Hermanos (misma madre)</h3><div class="small">${herm.map(h=>`<span class="a" data-open="${h.id}">${esc(h.nombre)}</span>${h.estado!=='Activo'?' (muerto)':''}`).join(' · ')}</div></div>`:''}
+    ${hijos.length?`<div><h3>Crías</h3><div class="small">${hijos.map(h=>`<span class="a" data-open="${h.id}">${esc(h.nombre)}</span>${h.estado!=='Activo'?' ('+esc(h.estado.toLowerCase())+')':''}`).join(' · ')}</div></div>`:''}
+    ${canWrite?`<div class="row" style="border-top:1px solid var(--line);padding-top:14px"><button class="btn" data-edit="${c.id}">Editar datos</button>
+      ${c.venta&&c.estado==='Activo'?`<button class="btn pri" data-venta="${c.id}">Ficha de venta</button>`:''}
+      ${c.estado==='Activo'?`<button class="btn danger" data-baja="${c.id}">Dar de baja</button>`:`<button class="btn" data-alta-de-nuevo="${c.id}">Volver a activo</button>`}</div>`:''}
+   </div></div></div>`}
+function arbol(c,padre,madre){
+  const box=(cls,rol,n,obj,sx)=>{const o=obj||findByName(n);return `<div class="n ${cls} ${sx} ${n?'':'unk'}"><span>${rol}</span>${n?(o?`<span class="a" style="display:inline;font-size:inherit;letter-spacing:0;text-transform:none;color:inherit" data-open="${o.id}">${esc(n)}</span>`:esc(n)):'Desconocido'}</div>`};
+  const aP=c.abueloP||padre?.padre,aP2=c.abuelaP||padre?.madre,aM=c.abueloM||madre?.padre,aM2=c.abuelaM||madre?.madre;
+  return `<div class="n me ${c.sexo==='Macho'?'M':c.sexo==='Hembra'?'H':''}"><span>Caballo</span>${esc(c.nombre)}</div>`
+   +box('p','Padre',c.padre,padre,'M')+box('m','Madre',c.madre,madre,'H')
+   +box('g1','Abuelo paterno',aP,null,'M')+box('g2','Abuela paterna',aP2,null,'H')+box('g3','Abuelo materno',aM,null,'M')+box('g4','Abuela materna',aM2,null,'H')}
+async function loadNames(ids){if(!user?.profiles)return;const need=ids.filter(i=>!(i in names));if(!need.length)return;try{const p=await user.profiles(need);let ch=false;for(const i of need){names[i]=p?.[i]?.name||'alguien';ch=true}if(ch&&UI.ficha)renderFicha()}catch(e){}}
+
+/* ---------- ficha de venta ---------- */
+function ventaInfo(c){const e=edad(c.nac),p=findByName(c.padre),m=findByName(c.madre);
+  const gp=[c.abueloP||p?.padre,c.abuelaP||p?.madre].filter(Boolean),gm=[c.abueloM||m?.padre,c.abuelaM||m?.madre].filter(Boolean);
+  const pr=['Hechura','Jugadores'].includes(c.categoria)?practicas(c):0;
+  const sub=[c.sexo,e!==null?e+(e===1?' año':' años'):'',c.pelaje,c.alzada?'Alzada '+c.alzada:''].filter(Boolean).join(' · ');
+  return {e,sub,pr,padre:c.padre?c.padre+(gp.length?' ('+gp.join(' × ')+')':''):'',madre:c.madre?c.madre+(gm.length?' ('+gm.join(' × ')+')':''):'',
+    cat:c.categoria==='Jugadores'?'Jugando':c.categoria==='Hechura'?'En hechura':c.categoria}}
+function ventaView(id){const c=byId(id);UI.ficha=null;
+  $('#modal').innerHTML=`<div class="ov" data-close-ov><div class="sheet" role="dialog" aria-label="Ficha de venta">
+   <div class="sheet-h"><div><h2>Ficha de venta · ${esc(c.nombre)}</h2><div class="small muted" style="margin-top:4px">Una imagen lista para mandar por WhatsApp. Es lo único que ve el comprador: no entra a la app.</div></div><button class="x" data-act="close" aria-label="Cerrar">×</button></div>
+   <div class="sheet-b">
+    <div id="vprev" style="display:flex;justify-content:center"><div class="empty" style="width:100%">Armando la imagen…</div></div>
+    <div class="row" style="justify-content:center">${downloads?`<button class="btn pri" data-vpng="${c.id}">Descargar imagen</button>`:''}<button class="btn" data-vtxt="${c.id}">Copiar texto para WhatsApp</button></div>
+    ${canWrite?`<div class="panel"><h3>Datos de la ficha</h3><div class="form">
+      <label class="full">Descripción para el comprador<textarea id="v-desc" placeholder="Ej: Yegua mansa, buena boca, lista para jugar alto. Muy buena en el taqueo.">${esc(c.descVenta)}</textarea></label>
+      <label>Precio<input id="v-precio" value="${esc(c.precio)}" placeholder="Ej: USD 8.000"></label>
+      <label class="chk" style="flex-direction:row;align-items:center;gap:8px;color:var(--fg);font-size:.9rem"><input id="v-mostrar" type="checkbox" style="width:auto" ${c.mostrarPrecio?'checked':''}>Mostrar el precio en la imagen</label>
+      <label class="full">Contacto (va en todas las fichas)<input id="v-contacto" value="${esc(S.config.contacto)}" placeholder="Ej: Consultas: Toto · 11 5555-5555"></label>
+    </div><div class="row" style="margin-top:12px"><button class="btn pri" data-vsave="${c.id}">Guardar y actualizar imagen</button></div>
+    <p class="note">La foto que sale es la portada. Para cambiarla, andá a la ficha del caballo y tocá “Portada” en otra foto.</p></div>`:''}
+   </div></div></div>`;
+  dibujarVenta(c).then(b=>{const u=URL.createObjectURL(b);$('#vprev').innerHTML=`<img src="${u}" alt="Ficha de venta de ${esc(c.nombre)}" style="width:100%;max-width:420px;border-radius:10px;border:1px solid var(--line)">`}).catch(e=>{console.error(e);$('#vprev').innerHTML='<div class="empty">No se pudo armar la imagen.</div>'})}
+async function guardarVenta(id){const c=byId(id);const d={descVenta:$('#v-desc').value.trim(),precio:$('#v-precio').value.trim(),mostrarPrecio:$('#v-mostrar').checked};const ct=$('#v-contacto').value.trim();
+  try{await db.collection('caballos').doc(id).update(d);if(ct!==(S.config.contacto||''))await db.doc('config/app').set({...S.config,contacto:ct});Object.assign(c,d);S.config.contacto=ct;toast('Guardado');ventaView(id)}catch(e){toast('No se pudo guardar.')}}
+function wrap(ctx,text,maxW){const out=[];for(const para of String(text||'').split('\n')){let line='';for(const w of para.split(/\s+/)){const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){out.push(line);line=w}else line=t}if(line)out.push(line)}return out}
+function loadImg(src){return new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=src})}
+async function dibujarVenta(c){
+  try{await Promise.all([document.fonts.load('700 72px "Playfair Display"'),document.fonts.load('500 30px Inter'),document.fonts.load('600 30px Inter')])}catch(e){}
+  const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');const I=ventaInfo(c);
+  const SER='"Playfair Display", Georgia, serif',SAN='Inter, system-ui, sans-serif';
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);
+  // barra superior
+  x.fillStyle='#0E0E0E';x.fillRect(0,0,W,120);
+  let lx=48;
+  if(S.config.logo){try{const l=await loadImg(fotoUrl(S.config.logo));x.fillStyle='#fff';x.fillRect(lx,20,80,80);const k=Math.min(72/l.width,72/l.height);x.drawImage(l,lx+40-l.width*k/2,60-l.height*k/2,l.width*k,l.height*k)}catch(e){}}
+  else{x.strokeStyle='#fff';x.lineWidth=3;x.strokeRect(lx+2,22,76,76);x.fillStyle='#fff';x.font='700 36px '+SER;x.textAlign='center';x.textBaseline='middle';x.fillText('DC',lx+40,62)}
+  x.textAlign='left';x.textBaseline='middle';x.fillStyle='#fff';x.font='600 30px '+SAN;x.letterSpacing='6px';x.fillText('DOÑA CECILIA',lx+110,62);
+  x.textAlign='right';x.font='500 24px '+SAN;x.fillText('EN VENTA',W-48,62);x.letterSpacing='0px';
+  // foto
+  const fy=120,fh=640;
+  if(c.fotos?.length){try{const im=await loadImg(fotoUrl(c.fotos[0]));const k=Math.max(W/im.width,fh/im.height);const sw=W/k,sh=fh/k;x.drawImage(im,(im.width-sw)/2,(im.height-sh)/2,sw,sh,0,fy,W,fh)}catch(e){x.fillStyle='#EDEDEA';x.fillRect(0,fy,W,fh)}}
+  else{x.fillStyle='#EDEDEA';x.fillRect(0,fy,W,fh);x.fillStyle='#8A8A85';x.textAlign='center';x.font='500 30px '+SAN;x.fillText('Sin foto',W/2,fy+fh/2)}
+  // nombre
+  let y=fy+fh+80;x.textAlign='left';x.textBaseline='alphabetic';x.fillStyle='#111';
+  let fs=76;x.font=`700 ${fs}px ${SER}`;while(x.measureText(c.nombre).width>W-96&&fs>40){fs-=4;x.font=`700 ${fs}px ${SER}`}x.fillText(c.nombre,48,y);
+  if(c.mostrarPrecio&&c.precio){x.textAlign='right';x.font='700 44px '+SAN;x.fillText(c.precio,W-48,y);x.textAlign='left'}
+  y+=50;x.font='500 30px '+SAN;x.fillStyle='#555';x.fillText([I.sub,I.cat,I.pr?I.pr+' prácticas':''].filter(Boolean).join(' · '),48,y);
+  y+=34;x.fillStyle='#111';x.fillRect(48,y,W-96,2);
+  // genealogia
+  y+=52;const col=(lab,val,cx,w)=>{x.fillStyle='#777';x.font='600 20px '+SAN;x.letterSpacing='3px';x.fillText(lab,cx,y);x.letterSpacing='0px';x.fillStyle='#111';x.font='600 30px '+SAN;
+    const ls=wrap(x,val||'Desconocido',w).slice(0,3);ls.forEach((l,i)=>x.fillText(l,cx,y+42+i*38));return ls.length};
+  const n=Math.max(col('PADRE',I.padre,48,(W-96)/2-20),col('MADRE',I.madre,W/2+10,(W-96)/2-20));
+  y+=42+n*38+20;
+  // descripcion
+  if(c.descVenta){x.fillStyle='#333';x.font='400 28px '+SAN;const ls=wrap(x,c.descVenta,W-96);const room=Math.max(0,Math.floor((H-90-y)/38));ls.slice(0,room).forEach((l,i)=>x.fillText(l,48,y+i*38))}
+  // pie
+  x.fillStyle='#0E0E0E';x.fillRect(0,H-80,W,80);x.fillStyle='#fff';x.font='500 26px '+SAN;x.textBaseline='middle';x.textAlign='left';x.fillText(S.config.contacto||'Doña Cecilia',48,H-40);
+  return await new Promise((ok,no)=>cv.toBlob(b=>b?ok(b):no(new Error('toBlob')),'image/png'))}
+async function bajarPng(id){const c=byId(id);try{const b=await dibujarVenta(c);await downloads.save({filename:'Ficha de venta '+c.nombre.replace(/[\\/:*?"<>|]/g,'')+'.png',data:b});toast('Imagen lista')}catch(e){if(e?.code!=='declined')toast('No se pudo descargar la imagen.')}}
+function ventaTexto(c){const I=ventaInfo(c);return [`*${c.nombre}* · A la venta`,[I.sub,I.cat].filter(Boolean).join(' · '),I.padre?'Padre: '+I.padre:'',I.madre?'Madre: '+I.madre:'',I.pr?'Prácticas: '+I.pr:'',c.descVenta||'',c.mostrarPrecio&&c.precio?'Precio: '+c.precio:'',S.config.contacto||'','— Doña Cecilia'].filter(Boolean).join('\n')}
+async function copiarTxt(id){const t=ventaTexto(byId(id));try{await navigator.clipboard.writeText(t);toast('Texto copiado: pegalo en WhatsApp')}catch(e){$('#vprev').insertAdjacentHTML('afterend',`<textarea readonly style="min-height:180px">${esc(t)}</textarea><p class="note">Seleccioná el texto y copialo.</p>`)}}
+
+/* ---------- forms ---------- */
+function closeModal(){UI.ficha=null;$('#modal').innerHTML=''}
+function form(title,fields,onSave,extra=''){
+  UI.ficha=null;
+  $('#modal').innerHTML=`<div class="ov" data-close-ov><form class="sheet narrow" id="f"><div class="sheet-h"><h2>${esc(title)}</h2><button type="button" class="x" data-act="close" aria-label="Cerrar">×</button></div>
+   <div class="sheet-b"><div class="form">${fields.map(f=>fieldHtml(f)).join('')}</div>${extra}
+   <div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn pri" type="submit">Guardar</button></div></div></form></div>`;
+  $('#f').onsubmit=async ev=>{ev.preventDefault();const v={};for(const f of fields){const el=document.getElementById('f-'+f.k);if(!el)continue;v[f.k]=f.type==='check'?el.checked:f.type==='number'?(el.value===''?null:+el.value):el.value.trim()}
+    const btn=$('#f button[type=submit]');btn.disabled=true;try{await onSave(v)}catch(e){console.error(e);toast(e?.code==='invalid_argument'?'No tenés permiso para cargar datos acá.':'No se pudo guardar. Probá de nuevo.');btn.disabled=false}};
+  const first=$('#f input:not([type=checkbox]),#f select');first&&first.focus()}
+function fieldHtml(f){const id='f-'+f.k,v=f.v??'';const cls=f.full?'full':'';
+  if(f.type==='select')return `<label class="${cls}">${f.l}<select id="${id}">${f.opts.map(o=>`<option ${String(o)===String(v)?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`;
+  if(f.type==='check')return `<label class="chk ${cls}"><input id="${id}" type="checkbox" ${v?'checked':''}>${f.l}</label>`;
+  if(f.type==='area')return `<label class="full">${f.l}<textarea id="${id}">${esc(v)}</textarea></label>`;
+  return `<label class="${cls}">${f.l}<input id="${id}" type="${f.type||'text'}" value="${esc(v)}" ${f.list?`list="${f.list}"`:''} ${f.req?'required':''}></label>`}
+function datalists(){return `<datalist id="dl-pad">${S.padrillos.map(p=>`<option value="${esc(p.nombre)}">`).join('')}${[...new Set(S.caballos.map(c=>c.padre).filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
+  <datalist id="dl-hembras">${S.caballos.filter(c=>c.sexo==='Hembra').map(c=>`<option value="${esc(c.nombre)}">`).join('')}</datalist><datalist id="dl-lug">${lugares().map(l=>`<option value="${esc(l)}">`).join('')}</datalist>`}
+function slugId(p){return p+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+function caballoForm(c,pre={},after){
+  const v={...pre,...(c||{})};
+  form(c?'Editar datos':'Alta de caballo',[
+    {k:'nombre',l:'Nombre',v:v.nombre,req:1,full:1},{k:'categoria',l:'Categoría',type:'select',opts:CATS,v:v.categoria||'Potrillos'},{k:'lugar',l:'Lugar',v:v.lugar??'Doña Cecilia',list:'dl-lug'},{k:'domador',l:'Domador',v:v.domador},{k:'alzada',l:'Alzada (ej: 1,55 m)',v:v.alzada},
+    {k:'sexo',l:'Sexo',type:'select',opts:['Macho','Hembra',''],v:v.sexo||''},{k:'pelaje',l:'Pelaje',v:v.pelaje},{k:'nac',l:'Fecha de nacimiento',type:'date',v:v.nac},{k:'camada',l:'Camada (año)',type:'number',v:v.camada},
+    {k:'rp',l:'RP',v:v.rp},{k:'chip',l:'N° chip',v:v.chip},{k:'padre',l:'Padre',v:v.padre,list:'dl-pad'},{k:'madre',l:'Madre',v:v.madre,list:'dl-hembras'},
+    {k:'abueloP',l:'Abuelo paterno',v:v.abueloP},{k:'abuelaP',l:'Abuela paterna',v:v.abuelaP},{k:'abueloM',l:'Abuelo materno',v:v.abueloM},{k:'abuelaM',l:'Abuela materna',v:v.abuelaM},
+    {k:'practicasPrevias',l:'Prácticas antes de la app',type:'number',v:v.practicasPrevias},{k:'venta',l:'A la venta',type:'check',v:v.venta},{k:'obs',l:'Observaciones',type:'area',v:v.obs}],
+    async d=>{if(!d.camada&&d.nac)d.camada=+d.nac.slice(0,4);
+      if(c){await db.collection('caballos').doc(c.id).update(d);toast('Datos guardados');UI.ficha=c.id;renderFicha()}
+      else{const id=slugId('c');await db.collection('caballos').doc(id).set({...d,estado:'Activo'});toast(d.nombre+' dado de alta');if(after)await after(id,d);UI.ficha=id;renderFicha()}},datalists());conectarGenealogia()}
+
+/* Autocompletar abuelos: al escribir Padre o Madre, busca ese caballo en lo ya cargado
+   (fichas, padrillos, o hermanos que ya tengan los abuelos) y completa los casilleros vacíos. */
+function padresDe(nombre){const k=norm(nombre);if(!k)return null;
+  const c=S.caballos.find(x=>norm(x.nombre)===k&&(x.padre||x.madre));if(c)return{padre:c.padre||'',madre:c.madre||'',de:'la ficha de '+c.nombre};
+  const p=S.padrillos.find(x=>norm(x.nombre)===k&&(x.padre||x.madre));if(p)return{padre:p.padre||'',madre:p.madre||'',de:'Padrillos'};
+  const h=S.caballos.find(x=>norm(x.padre)===k&&(x.abueloP||x.abuelaP));if(h)return{padre:h.abueloP||'',madre:h.abuelaP||'',de:'la ficha de '+h.nombre};
+  const m=S.caballos.find(x=>norm(x.madre)===k&&(x.abueloM||x.abuelaM));if(m)return{padre:m.abueloM||'',madre:m.abuelaM||'',de:'la ficha de '+m.nombre};
+  return null}
+function conectarGenealogia(){
+  const lado=(campo,ab,aba)=>{const el=document.getElementById('f-'+campo);if(!el)return;
+    const llenar=()=>{const g=padresDe(el.value);if(!g)return;let n=0;
+      for(const [k,v] of [[ab,g.padre],[aba,g.madre]]){const f=document.getElementById('f-'+k);if(f&&!f.value.trim()&&v){f.value=v;n++}}
+      if(n)toast('Abuelos completados con '+g.de)};
+    el.addEventListener('change',llenar);el.addEventListener('blur',llenar)};
+  lado('padre','abueloP','abuelaP');lado('madre','abueloM','abuelaM')}
+
+function eventoForm(ids,tipo){
+  const one=ids.length===1?byId(ids[0]):null;
+  form(one?'Nuevo evento · '+one.nombre:`Cargar a ${ids.length} caballos`,[{k:'tipo',l:'Qué se hizo',type:'select',opts:TIPOS,v:tipo||'Desparasitación'},{k:'fecha',l:'Fecha',type:'date',v:hoy(),req:1},{k:'detalle',l:'Detalle (producto, resultado, a dónde…)',full:1},{k:'obs',l:'Observación',type:'area'}],
+   async d=>{for(const id of ids){const c=byId(id);await db.collection('eventos').doc(slugId('e')).set({...d,detalle:d.detalle||d.tipo,caballoId:id,caballo:c?.nombre||'',por:uid||''})}
+     toast(ids.length>1?`Cargado a ${ids.length} caballos`:'Evento cargado');if(ids.length>1){UI.sel=null;closeModal();render()}else{UI.ficha=ids[0];renderFicha()}})}
+
+function bajaForm(c){form('Dar de baja · '+c.nombre,[{k:'estado',l:'Motivo',type:'select',opts:['Muerto','Vendido','Otro']},{k:'bajaFecha',l:'Fecha',type:'date',v:hoy()},{k:'bajaObs',l:'Detalle',type:'area'}],
+  async d=>{await db.collection('caballos').doc(c.id).update({estado:d.estado==='Otro'?'Baja':d.estado,bajaFecha:d.bajaFecha,bajaObs:d.bajaObs});
+   await db.collection('eventos').doc(slugId('e')).set({fecha:d.bajaFecha||hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Otro',detalle:'Baja: '+d.estado,obs:d.bajaObs,por:uid||''});toast(c.nombre+' dado de baja');UI.ficha=c.id;renderFicha()},
+  '<p class="note">No se borra: queda en “Ver bajas” y en su camada, pero deja de contarse.</p>')}
+
+function servicioForm(s){const t=temporadaActual();
+  form(s?'Editar servicio':'Agregar servicio',[{k:'madre',l:'Madre',v:s?.madre,list:'dl-hembras',req:1},{k:'temporada',l:'Temporada',type:'number',v:s?.temporada??t},{k:'fecha',l:'Fecha servicio / tacto',type:'date',v:s?.fecha},
+   {k:'padrillo',l:'Padrillo',v:s?.padrillo,list:'dl-pad'},{k:'estado',l:'Estado',type:'select',opts:['Preñada','Vacía','Parida','Servida (sin tacto)'],v:s?.estado||'Preñada'},{k:'fpp',l:'FPP',type:'date',v:s?.fpp},{k:'obs',l:'Observación',type:'area',v:s?.obs}],
+   async d=>{if(!d.fpp&&d.fecha&&d.estado==='Preñada')d.fpp=addDays(d.fecha,335);const m=findByName(d.madre);d.madreId=m?.id||'';
+     if(s)await db.collection('servicios').doc(s.id).update(d);else await db.collection('servicios').doc(slugId('s')).set(d);toast('Servicio guardado');closeModal()},
+   datalists()+(s?`<div class="row"><button type="button" class="btn sm danger" data-delserv="${s.id}">Borrar este servicio</button></div>`:'')+'<p class="note">Si dejás la FPP vacía, se calcula sola: fecha de servicio + 335 días.</p>')}
+
+function partoForm(s){const m=findByName(s.madre);const y=+s.temporada;
+  caballoForm(null,{nombre:'DC S/N '+norm(s.madre)+' '+String(y).slice(2),categoria:'Potrillos',nac:hoy(),camada:y,padre:s.padrillo,madre:norm(s.madre),lugar:m?.lugar||'Doña Cecilia'},
+   async(id,d)=>{await db.collection('servicios').doc(s.id).update({estado:'Parida',obs:[s.obs,'Parió '+fmt(d.nac)].filter(Boolean).join(' · ')});
+    if(m)await db.collection('eventos').doc(slugId('e')).set({fecha:d.nac||hoy(),caballoId:m.id,caballo:m.nombre,tipo:'Parición',detalle:'Parición: '+(d.sexo||'cría')+(d.pelaje?' '+d.pelaje:''),obs:'',por:uid||''})});
+  const h=$('#f .sheet-h h2');if(h)h.textContent='Parió '+s.madre+' · alta de la cría'}
+
+function padForm(p){form(p?'Editar padrillo':'Agregar padrillo',[{k:'nombre',l:'Nombre',v:p?.nombre,req:1,full:1},{k:'padre',l:'Padre',v:p?.padre},{k:'madre',l:'Madre',v:p?.madre},{k:'tipo',l:'Tipo',type:'select',opts:['Servicio','Inseminación','Embrión','Externo'],v:p?.tipo},{k:'obs',l:'Observación',type:'area',v:p?.obs}],
+  async d=>{if(p)await db.collection('padrillos').doc(p.id).update(d);else await db.collection('padrillos').doc(slugId('p')).set(d);toast('Padrillo guardado');closeModal()})}
+function notaForm(n){form(n?'Editar nota':'Nueva nota',[{k:'titulo',l:'Tema',v:n?.titulo,req:1,full:1},{k:'texto',l:'Qué pasa',type:'area',v:n?.texto},{k:'fecha',l:'Fecha',type:'date',v:n?.fecha||hoy()},{k:'estado',l:'Estado',type:'select',opts:['Pendiente','Listo'],v:n?.estado||'Pendiente'}],
+  async d=>{if(n)await db.collection('notas').doc(n.id).update(d);else await db.collection('notas').doc(slugId('n')).set(d);toast('Nota guardada');closeModal()},
+  n?`<div class="row"><button type="button" class="btn sm danger" data-delnota="${n.id}">Borrar nota</button></div>`:'')}
+
+/* ---------- events ---------- */
+let pendingDel=null;
+document.addEventListener('click',async ev=>{
+  const t=ev.target.closest('[data-venta],[data-vsave],[data-vpng],[data-vtxt],[data-go],[data-prac],[data-portada],[data-delfoto],[data-tab],[data-cat],[data-act],[data-open],[data-open-name],[data-pick],[data-temp],[data-camada],[data-sancat],[data-nf],[data-parto],[data-serv],[data-pad],[data-nota],[data-nota-toggle],[data-evento],[data-delev],[data-edit],[data-baja],[data-alta-de-nuevo],[data-delserv],[data-delnota],[data-close-ov]');
+  if(!t)return;const d=t.dataset;
+  if('closeOv' in d&&ev.target!==t)return;
+  if('closeOv' in d){closeModal();return}
+  if(d.tab){UI.tab=d.tab;UI.sel=null;try{localStorage.setItem('dc-tab',d.tab)}catch(e){}render();window.scrollTo(0,0);return}
+  if(d.cat!==undefined){UI.cat=d.cat;render();return}
+  if(d.temp){UI.temporada=+d.temp;render();return}
+  if(d.camada){UI.camada=+d.camada;render();return}
+  if(d.sancat!==undefined){UI.sanCat=d.sancat;render();return}
+  if(d.nf){UI.notaFiltro=d.nf;render();return}
+  if(d.open){UI.ficha=d.open;renderFicha();return}
+  if(d.openName){const c=findByName(d.openName);if(c){UI.ficha=c.id;renderFicha()}else toast('No encontré la ficha de '+d.openName);return}
+  if(d.pick){UI.sel.has(d.pick)?UI.sel.delete(d.pick):UI.sel.add(d.pick);render();return}
+  if(d.parto){partoForm(S.servicios.find(s=>s.id===d.parto));return}
+  if(d.serv){servicioForm(S.servicios.find(s=>s.id===d.serv));return}
+  if(d.pad){padForm(S.padrillos.find(s=>s.id===d.pad));return}
+  if(d.nota){notaForm(S.notas.find(s=>s.id===d.nota));return}
+  if(d.notaToggle){const n=S.notas.find(s=>s.id===d.notaToggle);await db.collection('notas').doc(n.id).update({estado:n.estado==='Listo'?'Pendiente':'Listo'});return}
+  if(d.evento){eventoForm([d.evento]);return}
+  if(d.venta){ventaView(d.venta);return}
+  if(d.vsave){await guardarVenta(d.vsave);return}
+  if(d.vpng){await bajarPng(d.vpng);return}
+  if(d.vtxt){await copiarTxt(d.vtxt);return}
+  if(d.prac){const c=byId(d.prac);await db.collection('eventos').doc(slugId('e')).set({fecha:hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Práctica',detalle:'Práctica',obs:'',por:uid||''});toast('Práctica sumada a '+c.nombre);return}
+  if(d.go){const [k,v]=d.go.split(':');UI.tab=k==='cat'?'caballos':'camadas';if(k==='cat'){UI.cat=v;UI.bajas=false}else UI.camada=+v;render();window.scrollTo(0,0);return}
+  if(d.portada){const [id,f]=d.portada.split('|');const c=byId(id);await db.collection('caballos').doc(id).update({fotos:[f,...c.fotos.filter(x=>x!==f)]});toast('Portada cambiada');return}
+  if(d.delfoto){const [id,f]=d.delfoto.split('|');if(pendingDel!==d.delfoto){pendingDel=d.delfoto;t.textContent='¿Seguro?';setTimeout(()=>{if(pendingDel===d.delfoto)pendingDel=null},4000);return}
+    pendingDel=null;const c=byId(id);await db.collection('caballos').doc(id).update({fotos:c.fotos.filter(x=>x!==f)});try{await assets.delete(f)}catch(e){}toast('Foto borrada');return}
+  if(d.logo){return}
+  if(d.edit){caballoForm(byId(d.edit));return}
+  if(d.baja){bajaForm(byId(d.baja));return}
+  if(d.altaDeNuevo){await db.collection('caballos').doc(d.altaDeNuevo).update({estado:'Activo'});toast('Volvió a activo');return}
+  if(d.delev||d.delserv||d.delnota){const key=d.delev||d.delserv||d.delnota;
+    if(pendingDel!==key){pendingDel=key;t.textContent='¿Seguro? Tocá de nuevo';setTimeout(()=>{if(pendingDel===key)pendingDel=null},4000);return}
+    pendingDel=null;await db.collection(d.delev?'eventos':d.delserv?'servicios':'notas').doc(key).delete();toast('Borrado');if(!d.delev)closeModal();return}
+  switch(d.act){
+    case 'close':closeModal();break;
+    case 'alta':caballoForm(null);break;
+    case 'selmode':UI.sel=UI.sel?null:new Set();render();break;
+    case 'gosel':UI.tab='caballos';UI.sel=new Set();render();break;
+    case 'selall':for(const b of document.querySelectorAll('[data-pick]'))UI.sel.add(b.dataset.pick);render();break;
+    case 'bulk':eventoForm([...UI.sel],'Desparasitación');break;
+    case 'bajas':UI.bajas=!UI.bajas;render();break;
+    case 'servicio':servicioForm(null);break;
+    case 'padrillo':padForm(null);break;
+    case 'nota':notaForm(null);break;
+    case 'savecfg':{const o={};for(const k of ['despMadres','despResto','desvasar','herrar'])o[k]=+document.getElementById('k-'+k).value||S.config[k];await db.doc('config/app').set({...S.config,...o});toast('Días guardados');break}
+  }
+});
+document.addEventListener('input',e=>{if(e.target.id==='q'){UI.q=e.target.value;const pos=e.target.selectionStart;render();const q=$('#q');q.focus();q.setSelectionRange(pos,pos)}});
+document.addEventListener('change',e=>{if(e.target.id==='lugar'){UI.lugar=e.target.value;render()}});
+document.addEventListener('click',e=>{if(e.target.matches?.('input[type=file]'))e.target.onchange=onFile},true);
+async function onFile(e){
+  const el=e.target;if(!(el.dataset.foto||el.id==='logo-file')||!el.files?.length||!assets)return;
+  const files=[...el.files];toast(files.length>1?`Subiendo ${files.length} fotos…`:'Subiendo foto…');
+  try{const ids=[];for(const f of files){const b=await achicar(f);const r=await assets.upload(b,{type:b.type||'image/jpeg'});ids.push(r.id)}
+    if(el.id==='logo-file'){await db.doc('config/app').set({...S.config,logo:ids[0]});toast('Logo actualizado');return}
+    const c=byId(el.dataset.foto);await db.collection('caballos').doc(c.id).update({fotos:[...(c.fotos||[]),...ids]});toast(ids.length>1?'Fotos agregadas':'Foto agregada')}
+  catch(err){console.error(err);toast(err?.code==='too_large'?'La foto es muy pesada.':err?.code==='unsupported_type'?'Ese archivo no es una foto que se pueda subir (usá JPG o PNG).':'No se pudo subir la foto. Probá de nuevo.')}
+}
+async function achicar(file){try{if(!/^image\/(jpeg|png|webp)$/.test(file.type))return file;const bmp=await createImageBitmap(file);const k=Math.min(1,1600/Math.max(bmp.width,bmp.height));if(k===1&&file.size<1.5e6)return file;
+  const cv=document.createElement('canvas');cv.width=Math.round(bmp.width*k);cv.height=Math.round(bmp.height*k);cv.getContext('2d').drawImage(bmp,0,0,cv.width,cv.height);
+  return await new Promise(r=>cv.toBlob(b=>r(b||file),'image/jpeg',.85))}catch(e){return file}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modal').innerHTML)closeModal()});
+
+/* ---------- boot ---------- */
+let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
+(async()=>{
+  renderNav();
+  try{db=await claude.use('db')}catch(e){}
+  if(!db){$('#main').innerHTML='<div class="empty">Para ver la manada tenés que entrar con tu cuenta de Claude.</div>';return}
+  try{user=await claude.use('user');if(user){uid=await user.id();const w=await user.can?.('data.write');if(w===false)canWrite=false;const me=await user.me?.();if(me?.name)$('#who').textContent=me.name}}catch(e){}
+  try{assets=await claude.use('assets')}catch(e){assets=null}
+  try{downloads=await claude.use('downloads')}catch(e){downloads=null}
+  const sub=(col,key)=>db.collection(col).onSnapshot(s=>{S[key]=s.docs.map(d=>({id:d.id,...d.data()}));S.loaded[key]=1;schedule()},e=>{console.error(e);toast('Se cortó la conexión. Recargá la página.')});
+  sub('caballos','caballos');sub('eventos','eventos');sub('servicios','servicios');sub('padrillos','padrillos');sub('notas','notas');
+  db.doc('config/app').onSnapshot(s=>{if(s.exists)S.config={...S.config,...s.data()};schedule()});
+  setTimeout(()=>{if(!S.caballos.length&&S.loaded.caballos)$('#main').innerHTML='<div class="empty">Todavía no hay caballos cargados. Tocá “Caballos” y después “+ Alta”.</div>'},4000);
+})();
+</script>
+
+</body>
+</html>
