@@ -19,6 +19,7 @@ async function exportarExcel(){
     'Nombre':c.nombre,'Estado':c.estado,'Categoría':c.categoria,'Lugar':c.lugar,'Sexo':c.sexo,'Pelaje':c.pelaje,
     'Nacimiento':fx(c.nac),'Camada':c.camada??'','RP':c.rp,'N° chip':c.chip,'Padre':c.padre,'Madre':c.madre,
     'Abuelo paterno':c.abueloP,'Abuela paterna':c.abuelaP,'Abuelo materno':c.abueloM,'Abuela materna':c.abuelaM,
+    'Bisabuelos lado padre':(()=>{const ap=c.abueloP||padresDeNombre(c.padre).padre,bp=c.abuelaP||padresDeNombre(c.padre).madre;return [ap,bp].map(n=>{const x=padresDeNombre(n);return x.padre||x.madre?(x.padre||'?')+' × '+(x.madre||'?'):''}).filter(Boolean).join(' / ')})(),
     'Domador':c.domador,'Entrada a doma':fx(c.ingresoDoma),'Alzada':c.alzada,'Prácticas':practicas(c),'Torneos':torneos(c),
     'Última desparasitación':fx(ultimo(c.id,'Desparasitación')),'Última desvasada':fx(ultimo(c.id,'Desvasada')),'Última herrada':fx(ultimo(c.id,'Herrada')),
     'A la venta':c.venta?'Sí':'','Precio':c.precio||'','Fecha de baja':fx(c.bajaFecha),'Detalle de baja':c.bajaObs||'','Observaciones':c.obs}));
@@ -120,7 +121,7 @@ EXTRA_ACTS.unificar=async d=>{const g=revisarNombres.gs[+d.k];const j=+(document
   toast(`Unificado como ${bueno} (${n} registro${n===1?'':'s'})`);setTimeout(revisarNombres,300)};
 
 /* ================= 4) Genealogía de 3 generaciones ================= */
-function padresDeNombre(n){return n?(padresDe(n)||{}):{}}
+var padresDeNombre=function(n){return n?(padresDe(n)||{}):{}};
 function arbol4(c,padre,madre){
   const gp=padre||padresDeNombre(c.padre),gm=madre||padresDeNombre(c.madre);
   const a=[c.abueloP||gp.padre||'',c.abuelaP||gp.madre||'',c.abueloM||gm.padre||'',c.abuelaM||gm.madre||''];
@@ -133,6 +134,28 @@ function arbol4(c,padre,madre){
    +box('p1','Padre',c.padre,'M')+box('p2','Madre',c.madre,'H')
    +a.map((n,i)=>box('a'+(i+1),rolA[i],n,i%2?'H':'M')).join('')
    +b.map((n,i)=>box('b'+(i+1),i%2?'Bisabuela':'Bisabuelo',n,i%2?'H':'M')).join('')+'</div>'}
+
+/* ================= Genealogía completa de padrillos ================= */
+/* Cada padrillo guarda padres, 4 abuelos y 8 bisabuelos. Con eso se arma un índice nombre → padres
+   que usan los árboles de sus hijos (y de cualquier caballo que tenga esos ancestros). */
+const PAD_GEN=[['abueloP','Abuelo paterno'],['abuelaP','Abuela paterna'],['abueloM','Abuelo materno'],['abuelaM','Abuela materna'],
+  ['bis1','Bisabuelo (padre del abuelo paterno)'],['bis2','Bisabuela (madre del abuelo paterno)'],['bis3','Bisabuelo (padre de la abuela paterna)'],['bis4','Bisabuela (madre de la abuela paterna)'],
+  ['bis5','Bisabuelo (padre del abuelo materno)'],['bis6','Bisabuela (madre del abuelo materno)'],['bis7','Bisabuelo (padre de la abuela materna)'],['bis8','Bisabuela (madre de la abuela materna)']];
+function camposGenPadrillo(p){return PAD_GEN.map(([k,l])=>({k,l,v:p?.[k]}))}
+function genCargada(p){return ['padre','madre',...PAD_GEN.map(x=>x[0])].filter(k=>String(p[k]||'').trim()).length}
+let _idx=null,_idxKey='';
+function indiceGenealogia(){const key=JSON.stringify(S.padrillos);if(_idx&&key===_idxKey)return _idx;const m=new Map();
+  const put=(n,pa,ma)=>{n=String(n||'').trim();if(!n||!(pa||ma))return;const k=norm(n);if(!m.has(k))m.set(k,{padre:pa||'',madre:ma||''})};
+  // de la generación más cercana a la más lejana: si dos planillas no coinciden, gana la más directa
+  for(const p of S.padrillos)put(p.nombre,p.padre,p.madre);
+  for(const p of S.padrillos){put(p.padre,p.abueloP,p.abuelaP);put(p.madre,p.abueloM,p.abuelaM)}
+  for(const p of S.padrillos){put(p.abueloP,p.bis1,p.bis2);put(p.abuelaP,p.bis3,p.bis4);put(p.abueloM,p.bis5,p.bis6);put(p.abuelaM,p.bis7,p.bis8)}
+  _idx=m;_idxKey=key;return m}
+padresDeNombre=function(n){if(!n)return{};const c=findByName(n);if(c&&(c.padre||c.madre))return{padre:c.padre||'',madre:c.madre||''};
+  return indiceGenealogia().get(norm(n))||padresDe(n)||{}};
+(function(){const orig=padresDe;padresDe=function(n){const k=norm(n);if(!k)return null;const c=S.caballos.find(x=>norm(x.nombre)===k&&(x.padre||x.madre));if(c)return orig(n);
+  const g=indiceGenealogia().get(k);return g?{...g,de:'la genealogía de padrillos'}:orig(n)}})();
+function arbolPadrillo(p){const c={nombre:p.nombre,sexo:'Macho',padre:p.padre,madre:p.madre,abueloP:p.abueloP,abuelaP:p.abuelaP,abueloM:p.abueloM,abuelaM:p.abuelaM};return arbol4(c,null,null)}
 
 /* ================= 7) Ficha de venta: compartir directo ================= */
 function puedeCompartirArchivos(){try{return !!navigator.canShare&&navigator.canShare({files:[new File([''],'x.png',{type:'image/png'})]})}catch(e){return false}}

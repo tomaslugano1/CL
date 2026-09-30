@@ -426,8 +426,8 @@ function vPadrillos(){
   const l=[...S.padrillos].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
   return `<div class="head"><h2>Padrillos usados</h2><div class="row">${canWrite?'<button class="btn" data-act="nombres">Revisar nombres</button><button class="btn pri" data-act="padrillo">+ Agregar padrillo</button>':''}</div></div>
   <p class="note" style="margin:-6px 0 14px">No son caballos de Doña Cecilia: solo se usaron para servir. No entran en los totales.</p>
-  <div class="tablewrap"><table><thead><tr><th>Padrillo</th><th>Padre × Madre</th><th>Tipo</th><th>Crías vivas hoy</th><th>Cuáles</th><th></th></tr></thead><tbody>
-  ${l.map(p=>{const cr=activos().filter(c=>norm(c.padre)===norm(p.nombre));return `<tr><td><b>${esc(p.nombre)}</b></td><td class="small">${esc(p.padre||'—')} × ${esc(p.madre||'—')}</td><td>${esc(p.tipo||'—')}</td><td>${cr.length}</td>
+  <div class="tablewrap"><table><thead><tr><th>Padrillo</th><th>Padre × Madre</th><th>Genealogía</th><th>Tipo</th><th>Crías vivas hoy</th><th>Cuáles</th><th></th></tr></thead><tbody>
+  ${l.map(p=>{const cr=activos().filter(c=>norm(c.padre)===norm(p.nombre));return `<tr><td><b>${esc(p.nombre)}</b></td><td class="small">${esc(p.padre||'—')} × ${esc(p.madre||'—')}</td><td class="small">${(()=>{const n=genCargada(p);return `<span class="pill ${n>=14?'p-ok':n?'p-warn':'p-none'}">${n} de 14</span>`})()}</td><td>${esc(p.tipo||'—')}</td><td>${cr.length}</td>
    <td class="small">${cr.map(c=>`<span class="a" data-open="${c.id}">${esc(c.nombre)}</span>`).join(' · ')||'<span class="muted">—</span>'}</td><td>${canWrite?`<button class="btn sm" data-pad="${p.id}">Editar</button>`:''}</td></tr>`}).join('')}
   </tbody></table></div>`}
 
@@ -630,8 +630,8 @@ function partoForm(s){const m=findByName(s.madre);const y=+s.temporada;
     if(m)await db.collection('eventos').doc(slugId('e')).set({fecha:d.nac||hoy(),caballoId:m.id,caballo:m.nombre,tipo:'Parición',detalle:'Parición: '+(d.sexo||'cría')+(d.pelaje?' '+d.pelaje:''),obs:'',por:uid||''})});
   const h=$('#f .sheet-h h2');if(h)h.textContent='Parió '+s.madre+' · alta de la cría'}
 
-function padForm(p){form(p?'Editar padrillo':'Agregar padrillo',[{k:'nombre',l:'Nombre',v:p?.nombre,req:1,full:1},{k:'padre',l:'Padre',v:p?.padre},{k:'madre',l:'Madre',v:p?.madre},{k:'tipo',l:'Tipo',type:'select',opts:['Servicio','Inseminación','Embrión','Externo'],v:p?.tipo},{k:'obs',l:'Observación',type:'area',v:p?.obs}],
-  async d=>{if(p)await db.collection('padrillos').doc(p.id).update(d);else await db.collection('padrillos').doc(slugId('p')).set(d);toast('Padrillo guardado');closeModal()})}
+function padForm(p){form(p?'Editar padrillo':'Agregar padrillo',[{k:'nombre',l:'Nombre',v:p?.nombre,req:1,full:1},{k:'padre',l:'Padre',v:p?.padre},{k:'madre',l:'Madre',v:p?.madre},...camposGenPadrillo(p),{k:'tipo',l:'Tipo',type:'select',opts:['Servicio','Inseminación','Embrión','Externo'],v:p?.tipo},{k:'obs',l:'Observación',type:'area',v:p?.obs}],
+  async d=>{if(p)await db.collection('padrillos').doc(p.id).update(d);else await db.collection('padrillos').doc(slugId('p')).set(d);toast('Padrillo guardado');closeModal()},p?`<div class="full"><h3>Árbol de ${esc(p.nombre)}</h3><div class="treewrap">${arbolPadrillo(p)}</div></div>`:'')}
 function notaForm(n){form(n?'Editar nota':'Nueva nota',[{k:'titulo',l:'Tema',v:n?.titulo,req:1,full:1},{k:'texto',l:'Qué pasa',type:'area',v:n?.texto},{k:'fecha',l:'Fecha',type:'date',v:n?.fecha||hoy()},{k:'estado',l:'Estado',type:'select',opts:['Pendiente','Listo'],v:n?.estado||'Pendiente'}],
   async d=>{if(n)await db.collection('notas').doc(n.id).update(d);else await db.collection('notas').doc(slugId('n')).set(d);toast('Nota guardada');closeModal()},
   n?`<div class="row"><button type="button" class="btn sm danger" data-delnota="${n.id}">Borrar nota</button></div>`:'')}
