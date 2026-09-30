@@ -162,6 +162,75 @@ td.link{cursor:pointer;font-weight:600}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .prac{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px}
 .prac b{font-family:var(--display);font-size:1.8rem;line-height:1}
+/* ---- Medidas y botones tipo Polo Breeders (los colores siguen siendo los de Doña Cecilia) ---- */
+header .bar{padding:10px 12px 0;gap:8px}
+.brand{min-height:44px;gap:10px}
+.logo{width:36px;height:36px;border-radius:6px}
+.brand h1{font-size:1.25rem}
+nav{gap:6px;padding-bottom:10px}
+nav button{min-height:36px;padding:8px 14px;border-radius:20px;font:600 13px var(--body);border-width:1.33px}
+main{padding:12px 12px 90px}
+.head{margin-bottom:12px;gap:8px}
+.row{gap:6px}
+.btn{font:700 13px var(--body);border-radius:10px;padding:10px;min-height:39px;border:1.33px solid var(--fg);background:transparent;color:var(--fg);display:inline-flex;align-items:center;justify-content:center;gap:6px;line-height:1.1}
+.btn.pri{background:var(--campo);border-color:var(--campo);color:var(--on-pri)}
+.btn.sm{min-height:34px;padding:6px 12px;border-radius:8px;font-size:13px}
+.btn.danger{color:var(--bad);border-color:var(--bad);background:transparent}
+.btn.icon{width:39px;min-width:39px;padding:0;border-radius:8px}
+.btn.icon svg{width:20px;height:20px}
+.btn:disabled{opacity:.45;cursor:default}
+.chip{font:600 13px var(--body);min-height:34px;padding:7px 13px;border-radius:20px;border:1.33px solid var(--line);background:var(--surface2)}
+.chip.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+input,select,textarea{font-size:16px;min-height:46px;border:1.33px solid var(--line);border-radius:10px;padding:11px 14px}
+input[type=checkbox],input[type=radio]{min-height:0}
+select{padding-right:10px}
+textarea{min-height:89px}
+label{gap:6px;font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.form{gap:14px 8px}
+.form .chk{font-size:15px;font-weight:600;letter-spacing:0;text-transform:none}
+.form .chk input{width:24px;height:24px}
+.search{max-width:none;flex:1 1 220px}
+.hcards{gap:8px}
+.hcard{min-height:70px;padding:14px;border-radius:10px;border-width:1px;gap:10px}
+.hcard .nm{font-size:16px;font-weight:700}
+.hcard .meta{font-size:13px;margin-top:2px}
+.hcard .go{font-size:24px;line-height:1;margin-right:1px}
+.hcard input[type=checkbox]{width:24px;height:24px;accent-color:var(--fg)}
+.panel,.tile{border-radius:14px;padding:16px}
+.prac{border-radius:14px;padding:12px 16px;min-height:70px}
+.prac .btn{min-height:46px;padding:10px 16px;border-radius:12px;font-size:15px}
+.ncard{border-radius:14px;padding:14px 16px}
+.li{padding:10px 0;font-size:14px;min-height:46px}
+.ov{padding:max(12px,env(safe-area-inset-top,0px)) 12px 40px;background:rgba(0,0,0,.5)}
+.sheet{border-radius:20px}
+.sheet-h{padding:16px;border-radius:20px 20px 0 0;align-items:center}
+.sheet-h h2{font-size:22px;font-weight:800}
+.sheet-b{padding:16px;gap:20px}
+.x{width:39px;height:39px;display:grid;place-items:center;font-size:26px;border-radius:10px}
+.kv{gap:0 16px}
+.kv div{padding:6px 0;border-bottom:1px solid var(--line);min-height:44px}
+.kv div span{font-size:12px}
+.kv div b{font-size:14px;font-weight:600}
+#f .sheet-b > .row:last-child{gap:8px}
+#f .sheet-b > .row:last-child .btn{min-height:46px;border-radius:12px;font-size:15px;padding:13px 20px;flex:1}
+.selbar{position:fixed;left:0;right:0;bottom:0;margin:0;border-radius:0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));gap:12px;z-index:30}
+.selbar .btn{min-height:48px;border-radius:12px;font-size:15px;font-weight:800;flex:1}
+.selbar .btn:not(.pri){background:transparent;color:var(--on-bar);border-color:var(--on-bar)}
+.toast{border-radius:12px;padding:12px 18px;bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+.scan-b{padding:32px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
+.scan-b svg{width:52px;height:52px;color:var(--fg)}
+.scan-b h2{font-size:22px;font-weight:800;margin-top:7px}
+.scan-b p{margin:0;font-size:14px}
+.scan-b input{margin-top:20px;max-width:296px;min-height:57px;text-align:center;font-size:20px;font-weight:700;letter-spacing:3px;background:var(--surface2)}
+.scan-b .row{margin-top:21px;justify-content:center}
+.scan-b .btn{min-height:47px;padding:12px 32px;border-color:var(--line);color:var(--muted);font-size:15px;font-weight:600}
+.scan-b .btn.pri{color:var(--on-pri);border-color:var(--campo)}
+@media (max-width:560px){.sheet-h h2{font-size:20px}}
+label input,label select,label textarea{font-weight:400;letter-spacing:0;text-transform:none;color:var(--fg)}
+.selbar{flex-wrap:wrap}
+.selbar b{flex-basis:100%;font-size:15px}
+.selbar .btn.pri{background:var(--on-bar);border-color:var(--on-bar);color:#0E0E0E}
+body:has(.selbar) #dc-estado{display:none}
 @media (max-width:560px){.brand .who{display:none} .search{max-width:none;flex:1 1 100%}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -198,6 +267,7 @@ const byId=id=>S.caballos.find(c=>c.id===id);
 const activos=()=>S.caballos.filter(c=>c.estado==='Activo');
 function findByName(n){const k=norm(n);return k?S.caballos.find(c=>norm(c.nombre)===k):null}
 
+const ICO_CHIP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M8.5 15.5a5 5 0 0 1 0-7M15.5 8.5a5 5 0 0 1 0 7M5.6 18.4a9 9 0 0 1 0-12.8M18.4 5.6a9 9 0 0 1 0 12.8"/></svg>';
 const fotoUrl=f=>(window.DC_BLOBS&&DC_BLOBS[f])||window.DC_FOTO_URL(f);
 const practicas=c=>(+c.practicasPrevias||0)+S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Práctica').length;
 const torneos=c=>(+c.torneosPrevios||0)+S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Torneo').length;
@@ -253,7 +323,7 @@ function vCaballos(){
   l.sort(sortCab);
   const sel=UI.sel;
   return `<div class="head"><h2>${UI.bajas?'Bajas':UI.cat==='__venta'?'A la venta':'Caballos'} <span class="muted small">(${l.length})</span></h2>
-    <div class="row">${canWrite?`<button class="btn pri" data-act="alta">+ Alta</button><button class="btn" data-act="selmode">${sel?'Cancelar':'+ Sanidad'}</button>`:''}</div></div>
+    <div class="row">${canWrite?`<button class="btn pri" data-act="alta">+ Alta</button><button class="btn" data-act="selmode">${sel?'Cancelar':'+ Sanidad'}</button>`:''}<button class="btn icon" data-act="chip" aria-label="Leer chip" title="Leer chip">${ICO_CHIP}</button></div></div>
   <div class="row" style="margin-bottom:10px"><input id="q" class="search" type="search" placeholder="Buscar nombre, RP, chip, madre…" value="${esc(UI.q)}">
     <select id="lugar" style="width:auto"><option value="">Todos los lugares</option>${lugares().map(x=>`<option ${UI.lugar===x?'selected':''}>${esc(x)}</option>`).join('')}</select>
     <button class="chip ${UI.bajas?'on':''}" data-act="bajas">Ver bajas</button></div>
@@ -438,6 +508,15 @@ function ventaTexto(c){const I=ventaInfo(c);return [`*${c.nombre}* · A la venta
 async function copiarTxt(id){const t=ventaTexto(byId(id));try{await navigator.clipboard.writeText(t);toast('Texto copiado: pegalo en WhatsApp')}catch(e){$('#vprev').insertAdjacentHTML('afterend',`<textarea readonly style="min-height:180px">${esc(t)}</textarea><p class="note">Seleccioná el texto y copialo.</p>`)}}
 
 /* ---------- forms ---------- */
+function escanerChip(){UI.ficha=null;
+  $('#modal').innerHTML=`<div class="ov" data-close-ov><div class="sheet narrow"><div class="scan-b">${ICO_CHIP}<h2>Escanee el chip</h2><p class="muted">Acercá el lector al chip del caballo. Si no tenés lector, escribí el número y apretá Enter.</p>
+    <input id="chip-in" inputmode="numeric" autocomplete="off" placeholder="····· ····· ·····"><p class="note" id="chip-msg"></p><div class="row" id="chip-acc"><button type="button" class="btn" data-act="close">Cancelar</button></div></div></div></div>`;
+  const i=$('#chip-in');i.focus();
+  const probar=forzar=>{const ch=i.value.replace(/\D/g,'');if(!ch||(!forzar&&ch.length<15))return;const m=S.caballos.filter(c=>String(c.chip||'').replace(/\D/g,'')===ch);
+    if(m.length===1){UI.ficha=m[0].id;renderFicha();return}
+    $('#chip-msg').textContent=m.length?'Hay más de un caballo con ese chip.':'Ningún caballo tiene el chip '+ch+'.';
+    if(!m.length&&canWrite){$('#chip-acc').innerHTML='<button type="button" class="btn" data-act="close">Cancelar</button><button type="button" class="btn pri" id="chip-alta">Dar de alta con este chip</button>';$('#chip-alta').onclick=()=>caballoForm(null,{chip:ch})}};
+  i.addEventListener('input',()=>probar(false));i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();probar(true)}})}
 function closeModal(){UI.ficha=null;$('#modal').innerHTML=''}
 function form(title,fields,onSave,extra=''){
   UI.ficha=null;
@@ -564,6 +643,7 @@ document.addEventListener('click',async ev=>{
   switch(d.act){
     case 'close':closeModal();break;
     case 'alta':caballoForm(null);break;
+    case 'chip':escanerChip();break;
     case 'selmode':UI.sel=UI.sel?null:new Set();render();break;
     case 'gosel':UI.tab='caballos';UI.sel=new Set();render();break;
     case 'selall':for(const b of document.querySelectorAll('[data-pick]'))UI.sel.add(b.dataset.pick);render();break;
