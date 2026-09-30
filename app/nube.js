@@ -91,6 +91,26 @@
   /* ---------- clave del calendario de recordatorios (tabla calendario_clave, ver supabase/recordatorios.sql) ---------- */
   window.DC_CLAVE_CAL=async()=>{if(!sb)return null;const {data,error}=await sb.from('calendario_clave').select('clave').limit(1);if(error)throw error;return data?.[0]?.clave||null};
 
+  /* ---------- notificaciones en el celular (Web Push) ---------- */
+  const b64u=s=>{const b=atob((s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,ch=>ch.charCodeAt(0))};
+  window.DC_PUSH={
+    soportado:()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window,
+    esIOS:()=>/iphone|ipad|ipod/i.test(navigator.userAgent),
+    instalada:()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,
+    async estado(){if(!this.soportado())return 'no';if(Notification.permission==='denied')return 'bloqueada';
+      const r=await navigator.serviceWorker.ready;return (await r.pushManager.getSubscription())?'activa':'apagada'},
+    async activar(){const p=await Notification.requestPermission();if(p!=='granted')throw new Error(p==='denied'?'bloqueada':'Sin permiso');
+      const r=await navigator.serviceWorker.ready;let s=await r.pushManager.getSubscription();
+      if(!s)s=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(CFG.vapidPublic)});
+      const j=s.toJSON();const {error}=await sb.from('push_suscripciones').upsert({endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,usuario:yo.id,aparato:navigator.userAgent.slice(0,200)},{onConflict:'endpoint'});
+      if(error){await s.unsubscribe().catch(()=>{});throw error}
+      await r.showNotification('Doña Cecilia',{body:'Listo: las notificaciones quedaron activadas en este aparato.',icon:'icono-192.png',badge:'icono-192.png'})},
+    async desactivar(){const r=await navigator.serviceWorker.ready;const s=await r.pushManager.getSubscription();
+      if(s){await sb.from('push_suscripciones').delete().eq('endpoint',s.endpoint);await s.unsubscribe()}},
+    async probar(){const {data:{session}}=await sb.auth.getSession();if(!session)throw new Error('Volvé a entrar a la app.');
+      const r=await fetch('/api/push-prueba',{method:'POST',headers:{Authorization:'Bearer '+session.access_token}});
+      const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Error '+r.status);return j}};
+
   window.DC_FOTO_URL=f=>sb?CFG.url.replace(/\/$/,'')+'/storage/v1/object/public/fotos/'+encodeURIComponent(f):'';
   const assets={
     upload:async(blob,opt)=>{
@@ -186,7 +206,7 @@
     try{const {data:{session}}=await sb.auth.getSession();if(session){entrar(session.user);return}}catch(e){}
     mostrarLogin();
   });
-  if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 
   window.claude={use:async n=>{await listo;return n==='db'?db:n==='user'?usuario:n==='assets'?(sb?assets:null):n==='downloads'?downloads:null}};
 })();

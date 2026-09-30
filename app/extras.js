@@ -187,10 +187,26 @@ async function panelRecordatorios(){UI.ficha=null;
 EXTRA_ACTS.recordatorios=panelRecordatorios;
 EXTRA_ACTS.copiarCal=async d=>{try{await navigator.clipboard.writeText(d.u);toast('Link copiado')}catch(e){toast('Seleccioná el link y copialo')}};
 
+/* ================= Notificaciones en el celular ================= */
+async function panelNotificaciones(){UI.ficha=null;const P=window.DC_PUSH;
+  $('#modal').innerHTML=`<div class="ov" data-close-ov><div class="sheet narrow"><div class="sheet-h"><h2>Notificaciones</h2><button class="x" data-act="close" aria-label="Cerrar">×</button></div><div class="sheet-b" id="not-b"><div class="empty">Revisando…</div></div></div></div>`;
+  const b=$('#not-b');const que='<p style="margin:0">Cada mañana a las <b>8:00</b> te llega un aviso al celular, como uno de WhatsApp, con lo que <b>vence hoy</b>, lo que está <b>atrasado</b> y los <b>partos</b> de la semana. Llega aunque la app esté cerrada. Se activa <b>en cada celular</b> por separado.</p>';
+  if(!P||!P.soportado()){b.innerHTML=que+(P&&P.esIOS()&&!P.instalada()?`<div class="panel"><h3>En iPhone, primero instalá la app</h3><ol style="margin:0;padding-left:18px"><li>Abrí la app en <b>Safari</b>.</li><li>Botón compartir ⬆ → <b>Agregar a inicio</b>.</li><li>Abrí la app <b>desde ese ícono</b> y volvé acá.</li></ol><p class="note">Apple solo permite notificaciones en apps agregadas a la pantalla de inicio (iOS 16.4 o más nuevo).</p></div>`:'<div class="empty">Este navegador no permite notificaciones. En Android usá Chrome.</div>');return}
+  let st='apagada';try{st=await P.estado()}catch(e){}
+  if(st==='bloqueada'){b.innerHTML=que+`<div class="panel"><h3>Están bloqueadas</h3><p class="small" style="margin:0">Alguna vez se tocó "Bloquear". Para destrabarlo: en Android, mantené apretado el ícono de la app → <b>Info de la app → Notificaciones → Permitir</b>. En la compu: el candadito al lado de la dirección → <b>Notificaciones → Permitir</b>. Después volvé acá.</p></div>`;return}
+  b.innerHTML=que+(st==='activa'
+    ?`<div class="panel"><h3>✅ Activadas en este aparato</h3><div class="row" style="margin-top:8px"><button class="btn pri" data-act="pushProbar">Mandarme una de prueba</button><button class="btn" data-act="pushOff">Desactivar</button></div><p class="note" id="not-msg"></p></div>`
+    :`<button class="btn pri" style="width:100%;min-height:48px" data-act="pushOn">Activar notificaciones en este celular</button><p class="note" id="not-msg">El celular te va a preguntar si permitís notificaciones: tocá <b>Permitir</b>.</p>`)}
+EXTRA_ACTS.notificaciones=panelNotificaciones;
+EXTRA_ACTS.pushOn=async()=>{const m=$('#not-msg');if(m)m.textContent='Activando…';try{await DC_PUSH.activar();toast('Notificaciones activadas');panelNotificaciones()}catch(e){if(e.message==='bloqueada')return panelNotificaciones();if(m)m.textContent='No se pudo activar: '+(e.message||e)+(navigator.onLine?'':' (necesitás señal)')}};
+EXTRA_ACTS.pushOff=async()=>{try{await DC_PUSH.desactivar();toast('Notificaciones desactivadas en este aparato')}catch(e){toast('No se pudo desactivar')}panelNotificaciones()};
+EXTRA_ACTS.pushProbar=async()=>{const m=$('#not-msg');if(m)m.textContent='Mandando…';try{const r=await DC_PUSH.probar();if(m)m.textContent=r.ok?'Enviada. Te tiene que llegar en unos segundos.':'No se pudo mandar a este aparato. Probá desactivar y volver a activar.'}catch(e){if(m)m.textContent=e.message||String(e)}};
+
 /* ================= Panel de herramientas en Inicio ================= */
 function panelHerramientas(){const sc=diasSinCopia();
   return `<div class="panel"><h3>Herramientas</h3><div class="list">
    <div class="li"><div>Descargar todo a Excel<div class="sub">Copia de seguridad con caballos, eventos, servicios, padrillos y notas.${sc!==null?' Última copia en este aparato: '+(sc===0?'hoy':'hace '+sc+' días')+'.':''}</div></div><button class="btn sm pri" data-act="excel">Excel</button></div>
+   <div class="li"><div>Notificaciones en el celular<div class="sub">Aviso cada mañana a las 8 con lo que vence, lo atrasado y los partos.</div></div><button class="btn sm pri" data-act="notificaciones">Activar</button></div>
    <div class="li"><div>Recordatorios en el calendario<div class="sub">Sanidad y partos en tu Google Calendar o iPhone, con aviso.</div></div><button class="btn sm" data-act="recordatorios">Activar</button></div>
    <div class="li"><div>Nombres parecidos<div class="sub">Unificar padres y madres escritos de distinta forma.</div></div><button class="btn sm" data-act="nombres">Revisar</button></div>
   </div></div>`}

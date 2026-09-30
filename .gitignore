@@ -2,3 +2,4 @@ supabase/datos-iniciales.sql
 *.local.*
 supabase/desparasitacion-*.sql
 supabase/genealogia-*.sql
+node_modules/

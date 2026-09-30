@@ -70,6 +70,17 @@ La primera vez cada uno entra con su mail y contraseña **con señal**. Después
 El calendario muestra, por día y por lugar, qué hay que desparasitar, desvasar y herrar, y los partos probables. Se actualiza solo (Google tarda unas horas en refrescar).
 Para que funcione, el sitio de Netlify tiene que estar en **público** ("Make public").
 
+## Paso 6: notificaciones en el celular (una sola vez)
+
+Cada mañana a las 8:00 llega un aviso como los de WhatsApp: lo que vence hoy, lo atrasado y los partos de la semana.
+
+1. En Supabase → **SQL Editor**: pegá `supabase/notificaciones.sql` → **Run** (necesita haber hecho el Paso 5).
+2. En Netlify → el sitio → **Site configuration → Environment variables → Add a variable**, cargá dos:
+   - `VAPID_PRIVATE_KEY`: la clave privada que te pasé aparte (**no la publiques en ningún lado**).
+   - `CLAVE_CALENDARIO`: la clave del calendario (lo que va después de `k=` en el link de Recordatorios).
+3. Netlify → **Deploys → Trigger deploy → Deploy site**, para que tome las variables.
+4. En **cada celular**: abrí la app (en iPhone, desde el ícono de la pantalla de inicio) → **Inicio → Herramientas → Notificaciones → Activar** → **Permitir**. Después tocá **"Mandarme una de prueba"**.
+
 ---
 
 ## Preguntas frecuentes
@@ -95,4 +106,5 @@ Para que funcione, el sitio de Netlify tiene que estar en **público** ("Make pu
 - `supabase/instalar.sql`: tabla, trigger, políticas RLS (solo `authenticated`) y bucket `fotos`.
 - `app/extras.js`: Excel, "Para hacer esta semana", nombres parecidos, genealogía de 3 generaciones, compartir ficha de venta y recordatorios.
 - `netlify/functions/calendario.mjs`: arma el calendario `.ics` (`/calendario.ics?k=clave`) leyendo `datos_calendario` de `supabase/recordatorios.sql`.
+- `netlify/functions/avisos-diarios.mjs` (todos los días 11:00 UTC) y `push-prueba.mjs` (`/api/push-prueba`), con la lógica en `netlify/lib/avisos.mjs`: notificaciones Web Push (librería `web-push`, ver `package.json`). Tabla y funciones en `supabase/notificaciones.sql`.
 - `netlify.toml`: publica la carpeta `app` y las funciones.
