@@ -88,6 +88,9 @@
   setInterval(()=>{if(!document.hidden)sync()},30000);
 
   /* ---------- fotos (se suben solo con señal) ---------- */
+  /* ---------- clave del calendario de recordatorios (tabla calendario_clave, ver supabase/recordatorios.sql) ---------- */
+  window.DC_CLAVE_CAL=async()=>{if(!sb)return null;const {data,error}=await sb.from('calendario_clave').select('clave').limit(1);if(error)throw error;return data?.[0]?.clave||null};
+
   window.DC_FOTO_URL=f=>sb?CFG.url.replace(/\/$/,'')+'/storage/v1/object/public/fotos/'+encodeURIComponent(f):'';
   const assets={
     upload:async(blob,opt)=>{

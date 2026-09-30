@@ -226,6 +226,40 @@ label{gap:6px;font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:
 .scan-b .btn{min-height:47px;padding:12px 32px;border-color:var(--line);color:var(--muted);font-size:15px;font-weight:600}
 .scan-b .btn.pri{color:var(--on-pri);border-color:var(--campo)}
 @media (max-width:560px){.sheet-h h2{font-size:20px}}
+/* ---- extras: para hacer, nombres, genealogía ---- */
+.tareas{margin-bottom:18px}
+.t-lugar{margin-top:10px}
+.t-lugar h4{margin:0 0 6px;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.tarea{border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-bottom:8px}
+.tarea summary{list-style:none;display:flex;align-items:center;gap:8px;padding:12px 14px;min-height:50px;cursor:pointer;font-size:15px}
+.tarea summary::-webkit-details-marker{display:none}
+.tarea summary .grow{flex:1}
+.tarea summary .go{color:var(--muted);font-size:22px;transition:transform .15s}
+.tarea[open] summary .go{transform:rotate(90deg)}
+.tarea .list{padding:0 14px}
+.tarea > .btn{margin:8px 14px 14px;width:calc(100% - 28px);min-height:46px;border-radius:12px;font-size:15px}
+.sug{grid-column:1/-1;margin-top:-8px;font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--warn-bg);color:var(--fg);border-radius:10px;padding:8px 10px}
+.sug[hidden]{display:none}
+.ngrupo{display:flex;flex-direction:column;gap:6px}
+.nopt{flex-direction:row;align-items:center;gap:10px;font-size:15px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--fg);min-height:40px}
+.nopt input{width:22px;height:22px;min-height:0;accent-color:var(--fg)}
+.treewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+.tree4{display:grid;grid-template-columns:110px repeat(3,150px);grid-template-rows:repeat(8,auto);gap:8px;min-width:584px;align-items:center}
+.tree4 .n{align-self:center}
+a.btn{text-decoration:none}
+.tree4 .n{border:1.33px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);min-width:0;overflow-wrap:anywhere;text-align:left;font:inherit;color:var(--fg);display:flex;flex-direction:column;justify-content:center;min-height:58px}
+.tree4 button.n{cursor:pointer}
+.tree4 .n span{font-size:9px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.tree4 .n b{font-size:13px;font-weight:600}
+.tree4 .n i{font-size:10px;color:var(--muted);font-style:normal;margin-top:2px}
+.tree4 .n.M{background:var(--macho);border-color:#93C5FD}
+.tree4 .n.H{background:var(--hembra);border-color:#E8A0C8}
+.tree4 .n.unk b{font-weight:400;font-style:italic;color:var(--muted);font-size:12px}
+.tree4 .me{grid-column:1;grid-row:1/9;background:var(--fg)!important;border-color:var(--fg)!important}
+.tree4 .me span,.tree4 .me b{color:var(--bg)}
+.tree4 .p1{grid-column:2;grid-row:1/5}.tree4 .p2{grid-column:2;grid-row:5/9}
+.tree4 .a1{grid-column:3;grid-row:1/3}.tree4 .a2{grid-column:3;grid-row:3/5}.tree4 .a3{grid-column:3;grid-row:5/7}.tree4 .a4{grid-column:3;grid-row:7/9}
+.tree4 .b1{grid-column:4;grid-row:1}.tree4 .b2{grid-column:4;grid-row:2}.tree4 .b3{grid-column:4;grid-row:3}.tree4 .b4{grid-column:4;grid-row:4}.tree4 .b5{grid-column:4;grid-row:5}.tree4 .b6{grid-column:4;grid-row:6}.tree4 .b7{grid-column:4;grid-row:7}.tree4 .b8{grid-column:4;grid-row:8}
 label input,label select,label textarea{font-weight:400;letter-spacing:0;text-transform:none;color:var(--fg)}
 .selbar{flex-wrap:wrap}
 .selbar b{flex-basis:100%;font-size:15px}
@@ -297,19 +331,20 @@ function vInicio(){
     <div class="tile"><span>Caballos propios</span><b>${act.length}</b><div class="small muted">${cnt.map(([c,n])=>n+' '+c.toLowerCase()).join(' · ')}</div></div>
     <div class="tile"><span>Preñadas ${t}</span><b>${pren.length}</b></div>
     <div class="tile"><span>Próximo parto</span><b>${prox.length?(Math.min(...prox)<0?'Pasado':Math.min(...prox)+' d'):'—'}</b><div class="small muted">${pren[0]?esc(pren[0].madre)+' · '+fmt(pren[0].fpp):''}</div></div>
-    <div class="tile ${vb?'alert':''}"><span>Sanidad vencida</span><b>${vb}</b><div class="small muted">${venc.length-vb} por vencer en 15 días</div></div>
+    ${(()=>{const t=contarTareas();return `<div class="tile ${t.v?'alert':''}"><span>Para hacer · 7 días</span><b>${t.n}</b><div class="small muted">${t.v} vencidos · ${t.n-t.v} esta semana</div></div>`})()}
     <div class="tile"><span>Para revisar</span><b>${pend}</b></div>
   </div>
+  ${panelTareas()}
   <div class="grid2" style="margin-bottom:18px">
     <div class="panel"><h3>Caballos por categoría</h3>${barras(CATS.map(c=>[c,act.filter(x=>x.categoria===c),'cat:'+c]).concat([['A la venta',act.filter(x=>x.venta),'cat:__venta']]))}${leyenda()}</div>
     <div class="panel"><h3>Caballos vivos por camada</h3>${barras([...new Set(act.map(c=>c.camada).filter(Boolean))].sort((a,b)=>b-a).map(y=>[String(y),act.filter(x=>x.camada===y),'cam:'+y]).concat(act.some(c=>!c.camada)?[['Sin año',act.filter(c=>!c.camada),'']]:[]))}${leyenda()}</div>
   </div>
   <div class="grid2">
-    <div class="panel"><h3>Próximos partos</h3><div class="list">${pren.length?pren.map(s=>{const d=s.fpp?diff(s.fpp,hoy()):null;return `<div class="li"><div><span class="a" data-open-name="${esc(s.madre)}">${esc(s.madre)}</span><div class="sub">${esc(s.padrillo||'—')} · FPP ${fmt(s.fpp)}</div></div>${d===null?'':`<span class="pill ${d<0?'p-bad':d<=15?'p-warn':'p-ok'}">${d<0?'pasó hace '+(-d)+' d':'faltan '+d+' d'}</span>`}</div>
-  ${assets?`<div class="row" style="margin-top:18px"><label class="btn sm upl">${S.config.logo?'Cambiar el logo':'Subir el logo de Doña Cecilia'}<input type="file" accept="image/*" id="logo-file"></label></div>`:''}`}).join(''):'<div class="muted small">No hay preñadas cargadas esta temporada.</div>'}</div></div>
-    <div class="panel"><h3>Sanidad para atender</h3><div class="list">${venc.length?venc.slice(0,12).map(v=>`<div class="li"><div><span class="a" data-open="${v.c.id}">${esc(v.c.nombre)}</span><div class="sub">${v.t} · última ${fmt(v.s.u)}</div></div><span class="pill p-${v.s.st}">${v.s.d<0?'vencido hace '+(-v.s.d)+' d':'vence en '+v.s.d+' d'}</span></div>`).join('')+(venc.length>12?`<div class="small muted">y ${venc.length-12} más en Sanidad</div>`:''):'<div class="muted small">Todo al día.</div>'}</div></div>
+    <div class="panel"><h3>Próximos partos</h3><div class="list">${pren.length?pren.map(s=>{const d=s.fpp?diff(s.fpp,hoy()):null;return `<div class="li"><div><span class="a" data-open-name="${esc(s.madre)}">${esc(s.madre)}</span><div class="sub">${esc(s.padrillo||'—')} · FPP ${fmt(s.fpp)}</div></div>${d===null?'':`<span class="pill ${d<0?'p-bad':d<=15?'p-warn':'p-ok'}">${d<0?'pasó hace '+(-d)+' d':'faltan '+d+' d'}</span>`}</div>`}).join(''):'<div class="muted small">No hay preñadas cargadas esta temporada.</div>'}</div></div>
+    ${panelHerramientas()}
     <div class="panel"><h3>Últimos eventos cargados</h3><div class="list">${ult.map(e=>`<div class="li"><div><span class="a" data-open="${e.caballoId}">${esc(byId(e.caballoId)?.nombre||e.caballo)}</span><div class="sub">${esc(e.detalle||e.tipo)}</div></div><span class="small muted">${fmt(e.fecha)}</span></div>`).join('')||'<div class="muted small">Todavía no hay eventos.</div>'}</div></div>
-  </div>`}
+  </div>
+  ${assets?`<div class="row" style="margin-top:18px"><label class="btn sm upl">${S.config.logo?'Cambiar el logo':'Subir el logo de Doña Cecilia'}<input type="file" accept="image/*" id="logo-file"></label></div>`:''}`}
 
 function barras(rows){const max=Math.max(1,...rows.map(r=>r[1].length));
   return `<div class="bars">${rows.map(([l,list,go])=>{const m=list.filter(x=>x.sexo==='Macho').length,h=list.filter(x=>x.sexo==='Hembra').length,o=list.length-m-h;
@@ -389,7 +424,7 @@ function vSanidad(){
 
 function vPadrillos(){
   const l=[...S.padrillos].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
-  return `<div class="head"><h2>Padrillos usados</h2>${canWrite?'<button class="btn pri" data-act="padrillo">+ Agregar padrillo</button>':''}</div>
+  return `<div class="head"><h2>Padrillos usados</h2><div class="row">${canWrite?'<button class="btn" data-act="nombres">Revisar nombres</button><button class="btn pri" data-act="padrillo">+ Agregar padrillo</button>':''}</div></div>
   <p class="note" style="margin:-6px 0 14px">No son caballos de Doña Cecilia: solo se usaron para servir. No entran en los totales.</p>
   <div class="tablewrap"><table><thead><tr><th>Padrillo</th><th>Padre × Madre</th><th>Tipo</th><th>Crías vivas hoy</th><th>Cuáles</th><th></th></tr></thead><tbody>
   ${l.map(p=>{const cr=activos().filter(c=>norm(c.padre)===norm(p.nombre));return `<tr><td><b>${esc(p.nombre)}</b></td><td class="small">${esc(p.padre||'—')} × ${esc(p.madre||'—')}</td><td>${esc(p.tipo||'—')}</td><td>${cr.length}</td>
@@ -428,7 +463,7 @@ function renderFicha(){
        ${canWrite?`<button class="btn sm" data-delev="${x.id}">Borrar</button>`:''}</div>`).join('')||'<div class="muted small">Sin eventos registrados.</div>'}</div></div>
     ${serv.length?`<div><h3>Servicios</h3><div class="list">${serv.map(s=>`<div class="li"><div>Temporada ${s.temporada} · ${esc(s.padrillo||'—')}<div class="sub">${fmt(s.fecha)} · FPP ${fmt(s.fpp)}</div></div><span class="pill p-none">${esc(s.estado)}</span></div>`).join('')}</div></div>`:''}
     <div><div class="head" style="margin-bottom:8px"><h3 style="margin:0">Genealogía</h3>${canWrite?`<button class="btn sm" data-edit="${c.id}">Editar genealogía</button>`:''}</div>
-     <div class="tablewrap" style="background:none;border:0;padding:2px"><div class="tree" style="min-width:330px">${arbol(c,padre,madre)}</div></div></div>
+     <div class="treewrap">${arbol4(c,padre,madre)}</div><p class="note" style="margin:6px 0 0">Deslizá para ver los bisabuelos. Tocá un caballo para abrir su ficha.</p></div>
     <div><div class="head" style="margin-bottom:8px"><h3 style="margin:0">Fotos</h3>${assets?`<label class="btn sm pri upl">+ Agregar foto<input type="file" accept="image/*" multiple data-foto="${c.id}"></label>`:''}</div>
      ${c.fotos?.length?`<div class="gal">${c.fotos.map((f,k)=>`<figure><a href="${fotoUrl(f)}" target="_blank" rel="noopener"><img src="${fotoUrl(f)}" alt="Foto ${k+1} de ${esc(c.nombre)}" loading="lazy"></a>${assets?`<div class="row">${k?`<button class="btn sm" data-portada="${c.id}|${f}">Portada</button>`:'<span class="small muted">Portada</span>'}<button class="btn sm" data-delfoto="${c.id}|${f}">Borrar</button></div>`:''}</figure>`).join('')}</div>`:`<div class="muted small">${assets?'Todavía no hay fotos. Tocá “+ Agregar foto”, podés sacarla con el celular.':'Sin fotos.'}</div>`}</div></div>
     ${herm.length?`<div><h3>Hermanos (misma madre)</h3><div class="small">${herm.map(h=>`<span class="a" data-open="${h.id}">${esc(h.nombre)}</span>${h.estado!=='Activo'?' (muerto)':''}`).join(' · ')}</div></div>`:''}
@@ -448,16 +483,16 @@ async function loadNames(ids){if(!user?.profiles)return;const need=ids.filter(i=
 /* ---------- ficha de venta ---------- */
 function ventaInfo(c){const e=edad(c.nac),p=findByName(c.padre),m=findByName(c.madre);
   const gp=[c.abueloP||p?.padre,c.abuelaP||p?.madre].filter(Boolean),gm=[c.abueloM||m?.padre,c.abuelaM||m?.madre].filter(Boolean);
-  const pr=['Hechura','Jugadores'].includes(c.categoria)?practicas(c):0;
+  const pr=['Hechura','Jugadores'].includes(c.categoria)?practicas(c):0,tr=['Hechura','Jugadores'].includes(c.categoria)?torneos(c):0;
   const sub=[c.sexo,e!==null?e+(e===1?' año':' años'):'',c.pelaje,c.alzada?'Alzada '+c.alzada:''].filter(Boolean).join(' · ');
-  return {e,sub,pr,padre:c.padre?c.padre+(gp.length?' ('+gp.join(' × ')+')':''):'',madre:c.madre?c.madre+(gm.length?' ('+gm.join(' × ')+')':''):'',
+  return {e,sub,pr,tr,padre:c.padre?c.padre+(gp.length?' ('+gp.join(' × ')+')':''):'',madre:c.madre?c.madre+(gm.length?' ('+gm.join(' × ')+')':''):'',
     cat:c.categoria==='Jugadores'?'Jugando':c.categoria==='Hechura'?'En hechura':c.categoria}}
 function ventaView(id){const c=byId(id);UI.ficha=null;
   $('#modal').innerHTML=`<div class="ov" data-close-ov><div class="sheet" role="dialog" aria-label="Ficha de venta">
    <div class="sheet-h"><div><h2>Ficha de venta · ${esc(c.nombre)}</h2><div class="small muted" style="margin-top:4px">Una imagen lista para mandar por WhatsApp. Es lo único que ve el comprador: no entra a la app.</div></div><button class="x" data-act="close" aria-label="Cerrar">×</button></div>
    <div class="sheet-b">
     <div id="vprev" style="display:flex;justify-content:center"><div class="empty" style="width:100%">Armando la imagen…</div></div>
-    <div class="row" style="justify-content:center">${downloads?`<button class="btn pri" data-vpng="${c.id}">Descargar imagen</button>`:''}<button class="btn" data-vtxt="${c.id}">Copiar texto para WhatsApp</button></div>
+    <div class="row" style="justify-content:center">${puedeCompartirArchivos()?`<button class="btn pri" data-act="vshare" data-id="${c.id}">Compartir por WhatsApp</button>`:''}${downloads?`<button class="btn ${puedeCompartirArchivos()?'':'pri'}" data-vpng="${c.id}">Descargar imagen</button>`:''}<button class="btn" data-vtxt="${c.id}">Copiar texto para WhatsApp</button></div>
     ${canWrite?`<div class="panel"><h3>Datos de la ficha</h3><div class="form">
       <label class="full">Descripción para el comprador<textarea id="v-desc" placeholder="Ej: Yegua mansa, buena boca, lista para jugar alto. Muy buena en el taqueo.">${esc(c.descVenta)}</textarea></label>
       <label>Precio<input id="v-precio" value="${esc(c.precio)}" placeholder="Ej: USD 8.000"></label>
@@ -470,7 +505,7 @@ function ventaView(id){const c=byId(id);UI.ficha=null;
 async function guardarVenta(id){const c=byId(id);const d={descVenta:$('#v-desc').value.trim(),precio:$('#v-precio').value.trim(),mostrarPrecio:$('#v-mostrar').checked};const ct=$('#v-contacto').value.trim();
   try{await db.collection('caballos').doc(id).update(d);if(ct!==(S.config.contacto||''))await db.doc('config/app').set({...S.config,contacto:ct});Object.assign(c,d);S.config.contacto=ct;toast('Guardado');ventaView(id)}catch(e){toast('No se pudo guardar.')}}
 function wrap(ctx,text,maxW){const out=[];for(const para of String(text||'').split('\n')){let line='';for(const w of para.split(/\s+/)){const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){out.push(line);line=w}else line=t}if(line)out.push(line)}return out}
-function loadImg(src){return new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=src})}
+function loadImg(src){return new Promise((ok,no)=>{const i=new Image();if(/^https?:/.test(src)&&!src.startsWith(location.origin)){i.crossOrigin='anonymous';src+=(src.includes('?')?'&':'?')+'cors=1'}i.onload=()=>ok(i);i.onerror=no;i.src=src})}
 async function dibujarVenta(c){
   try{await Promise.all([document.fonts.load('700 72px "Playfair Display"'),document.fonts.load('500 30px Inter'),document.fonts.load('600 30px Inter')])}catch(e){}
   const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');const I=ventaInfo(c);
@@ -491,7 +526,7 @@ async function dibujarVenta(c){
   let y=fy+fh+80;x.textAlign='left';x.textBaseline='alphabetic';x.fillStyle='#111';
   let fs=76;x.font=`700 ${fs}px ${SER}`;while(x.measureText(c.nombre).width>W-96&&fs>40){fs-=4;x.font=`700 ${fs}px ${SER}`}x.fillText(c.nombre,48,y);
   if(c.mostrarPrecio&&c.precio){x.textAlign='right';x.font='700 44px '+SAN;x.fillText(c.precio,W-48,y);x.textAlign='left'}
-  y+=50;x.font='500 30px '+SAN;x.fillStyle='#555';x.fillText([I.sub,I.cat,I.pr?I.pr+' prácticas':''].filter(Boolean).join(' · '),48,y);
+  y+=50;x.font='500 30px '+SAN;x.fillStyle='#555';x.fillText([I.sub,I.cat,I.pr?I.pr+' prácticas':'',I.tr?I.tr+' torneos':''].filter(Boolean).join(' · '),48,y);
   y+=34;x.fillStyle='#111';x.fillRect(48,y,W-96,2);
   // genealogia
   y+=52;const col=(lab,val,cx,w)=>{x.fillStyle='#777';x.font='600 20px '+SAN;x.letterSpacing='3px';x.fillText(lab,cx,y);x.letterSpacing='0px';x.fillStyle='#111';x.font='600 30px '+SAN;
@@ -504,7 +539,7 @@ async function dibujarVenta(c){
   x.fillStyle='#0E0E0E';x.fillRect(0,H-80,W,80);x.fillStyle='#fff';x.font='500 26px '+SAN;x.textBaseline='middle';x.textAlign='left';x.fillText(S.config.contacto||'Doña Cecilia',48,H-40);
   return await new Promise((ok,no)=>cv.toBlob(b=>b?ok(b):no(new Error('toBlob')),'image/png'))}
 async function bajarPng(id){const c=byId(id);try{const b=await dibujarVenta(c);await downloads.save({filename:'Ficha de venta '+c.nombre.replace(/[\\/:*?"<>|]/g,'')+'.png',data:b});toast('Imagen lista')}catch(e){if(e?.code!=='declined')toast('No se pudo descargar la imagen.')}}
-function ventaTexto(c){const I=ventaInfo(c);return [`*${c.nombre}* · A la venta`,[I.sub,I.cat].filter(Boolean).join(' · '),I.padre?'Padre: '+I.padre:'',I.madre?'Madre: '+I.madre:'',I.pr?'Prácticas: '+I.pr:'',c.descVenta||'',c.mostrarPrecio&&c.precio?'Precio: '+c.precio:'',S.config.contacto||'','— Doña Cecilia'].filter(Boolean).join('\n')}
+function ventaTexto(c){const I=ventaInfo(c);return [`*${c.nombre}* · A la venta`,[I.sub,I.cat].filter(Boolean).join(' · '),I.padre?'Padre: '+I.padre:'',I.madre?'Madre: '+I.madre:'',I.pr?'Prácticas: '+I.pr:'',I.tr?'Torneos: '+I.tr:'',c.descVenta||'',c.mostrarPrecio&&c.precio?'Precio: '+c.precio:'',S.config.contacto||'','— Doña Cecilia'].filter(Boolean).join('\n')}
 async function copiarTxt(id){const t=ventaTexto(byId(id));try{await navigator.clipboard.writeText(t);toast('Texto copiado: pegalo en WhatsApp')}catch(e){$('#vprev').insertAdjacentHTML('afterend',`<textarea readonly style="min-height:180px">${esc(t)}</textarea><p class="note">Seleccioná el texto y copialo.</p>`)}}
 
 /* ---------- forms ---------- */
@@ -545,7 +580,7 @@ function caballoForm(c,pre={},after){
     {k:'practicasPrevias',l:'Prácticas antes de la app',type:'number',v:v.practicasPrevias},{k:'torneosPrevios',l:'Torneos antes de la app',type:'number',v:v.torneosPrevios},{k:'venta',l:'A la venta',type:'check',v:v.venta},{k:'obs',l:'Observaciones',type:'area',v:v.obs}],
     async d=>{if(!d.camada&&d.nac)d.camada=+d.nac.slice(0,4);
       if(c){await db.collection('caballos').doc(c.id).update(d);toast('Datos guardados');UI.ficha=c.id;renderFicha();if(c.categoria!=='Doma'&&d.categoria==='Doma'&&!d.ingresoDoma)preguntarDoma(c.id)}
-      else{const id=slugId('c');await db.collection('caballos').doc(id).set({...d,estado:'Activo'});toast(d.nombre+' dado de alta');if(after)await after(id,d);UI.ficha=id;renderFicha()}},datalists());conectarGenealogia()}
+      else{const id=slugId('c');await db.collection('caballos').doc(id).set({...d,estado:'Activo'});toast(d.nombre+' dado de alta');if(after)await after(id,d);UI.ficha=id;renderFicha()}},datalists());conectarGenealogia();conectarSugerencias()}
 
 /* Al pasar un caballo a Doma: pregunta el día, el lugar y el domador (sugiere los más usados en Doma) y lo anota en eventos. */
 function preguntarDoma(id){const c=byId(id)||{};const enDoma=S.caballos.filter(x=>x.categoria==='Doma'&&x.estado==='Activo'&&x.id!==id);
@@ -640,6 +675,7 @@ document.addEventListener('click',async ev=>{
   if(d.delev||d.delserv||d.delnota){const key=d.delev||d.delserv||d.delnota;
     if(pendingDel!==key){pendingDel=key;t.textContent='¿Seguro? Tocá de nuevo';setTimeout(()=>{if(pendingDel===key)pendingDel=null},4000);return}
     pendingDel=null;await db.collection(d.delev?'eventos':d.delserv?'servicios':'notas').doc(key).delete();toast('Borrado');if(!d.delev)closeModal();return}
+  if(d.act&&window.EXTRA_ACTS&&EXTRA_ACTS[d.act]){await EXTRA_ACTS[d.act](d,t);return}
   switch(d.act){
     case 'close':closeModal();break;
     case 'alta':caballoForm(null);break;
@@ -686,6 +722,7 @@ let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;ren
   setTimeout(()=>{if(!S.caballos.length&&S.loaded.caballos)$('#main').innerHTML='<div class="empty">Todavía no hay caballos cargados. Tocá “Caballos” y después “+ Alta”.</div>'},4000);
 })();
 </script>
+<script src="extras.js"></script>
 
 </body>
 </html>

@@ -60,6 +60,16 @@ Cada vez que yo haga un cambio y lo suba a GitHub, Netlify actualiza la app sola
 
 La primera vez cada uno entra con su mail y contraseña **con señal**. Después abre aunque no haya señal.
 
+## Paso 5: activar los recordatorios en el calendario (una sola vez)
+
+1. En Supabase → **SQL Editor** → *New query*: pegá todo `supabase/recordatorios.sql` → **Run** → tiene que decir *Success*.
+2. En la app: **Inicio → Herramientas → Recordatorios → Activar**.
+3. **Desde la compu** tocá **"Agregar a Google Calendar"** → en Google Calendar tocá **Agregar**. En iPhone usá el botón de iPhone.
+4. En Google Calendar, en la configuración de ese calendario ("Doña Cecilia"), poné una notificación **"1 día antes a las 8:00"**, así te avisa en el celular.
+
+El calendario muestra, por día y por lugar, qué hay que desparasitar, desvasar y herrar, y los partos probables. Se actualiza solo (Google tarda unas horas en refrescar).
+Para que funcione, el sitio de Netlify tiene que estar en **público** ("Make public").
+
 ---
 
 ## Preguntas frecuentes
@@ -67,6 +77,8 @@ La primera vez cada uno entra con su mail y contraseña **con señal**. Después
 **¿Qué pasa si dos personas cambian el mismo caballo sin señal?** Queda el último que se sincronizó. Cada evento (parición, práctica, herraje) es un registro aparte, así que esos nunca se pisan.
 
 **¿Se puede borrar algo sin querer y perderlo?** En la base nada se borra de verdad: queda marcado como borrado y se puede recuperar desde Supabase (tabla `registros`, columna `borrado`).
+
+**¿Cómo hago una copia de seguridad?** Inicio → Herramientas → **Excel**. Baja un archivo con todos los caballos, eventos, servicios, padrillos y notas. Conviene hacerlo una vez por mes (la app te avisa).
 
 **¿Y las fotos?** Se suben solo con señal. El resto de los datos sí se carga sin señal.
 
@@ -81,4 +93,6 @@ La primera vez cada uno entra con su mail y contraseña **con señal**. Después
 - `app/`: la app (HTML + JS, sin compilación). `nube.js` reemplaza al guardado local: mantiene una copia en `localStorage`, una cola de cambios pendientes y sincroniza con la tabla `registros` de Supabase (push con upsert y pull incremental por `actualizado`, con 2 minutos de solapamiento; gana la última escritura por documento).
 - `app/sw.js`: service worker para abrir sin señal. Subir `VERSION` al cambiar archivos.
 - `supabase/instalar.sql`: tabla, trigger, políticas RLS (solo `authenticated`) y bucket `fotos`.
-- `netlify.toml`: publica la carpeta `app`.
+- `app/extras.js`: Excel, "Para hacer esta semana", nombres parecidos, genealogía de 3 generaciones, compartir ficha de venta y recordatorios.
+- `netlify/functions/calendario.mjs`: arma el calendario `.ics` (`/calendario.ics?k=clave`) leyendo `datos_calendario` de `supabase/recordatorios.sql`.
+- `netlify.toml`: publica la carpeta `app` y las funciones.
