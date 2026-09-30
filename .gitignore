@@ -1,2 +1,3 @@
 supabase/datos-iniciales.sql
 *.local.*
+supabase/desparasitacion-*.sql
