@@ -20,7 +20,7 @@ async function exportarExcel(){
     'Nacimiento':fx(c.nac),'Camada':c.camada??'','RP':c.rp,'N° chip':c.chip,'Padre':c.padre,'Madre':c.madre,
     'Abuelo paterno':c.abueloP,'Abuela paterna':c.abuelaP,'Abuelo materno':c.abueloM,'Abuela materna':c.abuelaM,
     'Bisabuelos lado padre':(()=>{const ap=c.abueloP||padresDeNombre(c.padre).padre,bp=c.abuelaP||padresDeNombre(c.padre).madre;return [ap,bp].map(n=>{const x=padresDeNombre(n);return x.padre||x.madre?(x.padre||'?')+' × '+(x.madre||'?'):''}).filter(Boolean).join(' / ')})(),
-    'Domador':c.domador,'Ritmo':['Hechura','Jugadores'].includes(c.categoria)?(RITMOS.find(r=>r[0]===((c.ritmo==='normal'?'fuerte':c.ritmo)||(c.categoria==='Jugadores'?'fuerte':'')))?.[1]||''):'','Entrada a doma':fx(c.ingresoDoma),'Alzada':c.alzada,'Prácticas':practicas(c),'Torneos':torneos(c),
+    'Domador':c.domador,'Ritmo':['Hechura','Jugadores'].includes(c.categoria)?(RITMOS.find(r=>r[0]===((c.ritmo==='fuerte'?'normal':c.ritmo)||(c.categoria==='Jugadores'?'normal':'')))?.[1]||''):'','Entrada a doma':fx(c.ingresoDoma),'Alzada':c.alzada,'Prácticas':practicas(c),'Torneos':torneos(c),
     'Última desparasitación':fx(ultimo(c.id,'Desparasitación')),'Última desvasada':fx(ultimo(c.id,'Desvasada')),'Última herrada':fx(ultimo(c.id,'Herrada')),
     'A la venta':c.venta?'Sí':'','Precio':c.precio||'','Fecha de baja':fx(c.bajaFecha),'Detalle de baja':c.bajaObs||'','Observaciones':c.obs}));
   XLSX.utils.book_append_sheet(wb,hoja(cab),'Caballos');
@@ -204,16 +204,16 @@ EXTRA_ACTS.pushProbar=async()=>{const m=$('#not-msg');if(m)m.textContent='Mandan
 
 /* ================= Ritmo de trabajo, días y precios del herrero ================= */
 function bloqueRitmo(c){if(!['Hechura','Jugadores'].includes(c.categoria)||c.estado!=='Activo')return '';
-  const actual=(c.ritmo==='normal'?'fuerte':c.ritmo)||(c.categoria==='Jugadores'?'fuerte':'');const dv=intervalo(c,'Desvasada'),hr=intervalo(c,'Herrada');
+  const actual=(c.ritmo==='fuerte'?'normal':c.ritmo)||(c.categoria==='Jugadores'?'normal':'');const dv=intervalo(c,'Desvasada'),hr=intervalo(c,'Herrada');
   return `<div class="ritmo"><div><b style="font-size:15px">Ritmo de trabajo</b><div class="small muted">Desvasar cada ${dv} días · ${+hr?'herrar cada '+hr+' días':'no se hierra'}</div></div>
    <div class="row">${c.categoria==='Hechura'?`<button class="chip ${!c.ritmo?'on':''}" data-act="ritmo" data-id="${c.id}" data-r="">Hechura</button>`:''}${RITMOS.map(([k,l])=>`<button class="chip ${actual===k?'on':''}" data-act="ritmo" data-id="${c.id}" data-r="${k}" ${canWrite?'':'disabled'}>${l}</button>`).join('')}</div></div>`}
 EXTRA_ACTS.ritmo=async d=>{if(!canWrite)return;const c=byId(d.id);await db.collection('caballos').doc(c.id).update({ritmo:d.r});toast(c.nombre+': ritmo '+(RITMOS.find(r=>r[0]===d.r)?.[1]||'de hechura').toLowerCase());UI.ficha=c.id;renderFicha()};
 function panelDias(){const t=tablaInt(),k=S.config,p=precios(),dis=canWrite?'':'disabled';
-  const filas=[['Potrillos','Potrillos'],['Madres','Madres'],['Hechura','Hechura'],['descanso','Descanso'],['apretar','Apretar'],['fuerte','Fuerte']];
+  const filas=[['Potrillos','Potrillos'],['Madres','Madres'],['Hechura','Hechura'],['descanso','Descanso'],['normal','Normal'],['apretar','Apretar']];
   return `<div class="tablewrap"><table class="dias"><thead><tr><th></th><th>Desvasar cada</th><th>Herrar cada</th></tr></thead><tbody>
    ${filas.map(([g,l])=>`<tr><td><b>${l}</b></td><td><input id="i-${g}-desv" type="number" min="1" value="${t[g].desv}" ${dis}> días</td><td>${g==='Potrillos'||g==='Madres'?'<span class="muted small">no se hierran</span>':`<input id="i-${g}-herr" type="number" min="0" value="${t[g].herr||''}" placeholder="no" ${dis}> días`}</td></tr>`).join('')}
   </tbody></table></div>
-  <p class="note">El ritmo (Descanso, Apretar, Fuerte) se elige en la ficha de cada caballo de hechura o jugador. Jugadores sin ritmo elegido = Fuerte. Vacío en "Herrar" = no se hierra. Solo se avisa el herraje de los caballos que ya se herraron alguna vez.</p>
+  <p class="note">El ritmo (Descanso, Normal, Apretar) se elige en la ficha de cada caballo de hechura o jugador. Jugadores sin ritmo elegido = Normal. Vacío en "Herrar" = no se hierra. Solo se avisa el herraje de los caballos que ya se herraron alguna vez.</p>
   <div class="form" style="margin-top:10px"><label>Desparasitar madres (días)<input id="k-despMadres" type="number" min="1" value="${k.despMadres}" ${dis}></label>
    <label>Desparasitar resto (días)<input id="k-despResto" type="number" min="1" value="${k.despResto}" ${dis}></label>
    <label>Precio desvase ($)<input id="p-Desvasada" type="number" min="0" value="${p['Desvasada']}" ${dis}></label>
