@@ -23,8 +23,11 @@ export function armarCalendario(filas, hoy = hoyAR()) {
   const intervalo = reglas(D.config);
   const ultimo = {};
   for (const e of D.eventos) {
-    const key = e.caballoId + '|' + e.tipo;
-    if (e.fecha && (!ultimo[key] || e.fecha > ultimo[key])) ultimo[key] = e.fecha;
+    // cuando se hierra también se desvasa: la herrada cuenta como desvase
+    for (const t of e.tipo === 'Herrada' ? ['Herrada', 'Desvasada'] : [e.tipo]) {
+      const key = e.caballoId + '|' + t;
+      if (e.fecha && (!ultimo[key] || e.fecha > ultimo[key])) ultimo[key] = e.fecha;
+    }
   }
   const hasta = addDays(hoy, DIAS_ADELANTE);
 
@@ -36,6 +39,7 @@ export function armarCalendario(filas, hoy = hoyAR()) {
       const u = ultimo[c.id + '|' + t];
       const n = intervalo(c, t);
       if (!u || !n) continue; // sin dato, nunca herrado, o no se hierra: no se agenda
+      if (t === 'Herrada' && (ultimo[c.id + '|Desherrada'] || '') >= u) continue; // desherrado
       const p = addDays(u, n);
       if (p > hasta) continue;
       const vencido = p < hoy, dia = vencido ? hoy : p, lugar = c.lugar || 'Sin lugar';

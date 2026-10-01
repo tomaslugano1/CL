@@ -7,7 +7,7 @@ export const SB_URL = process.env.SUPABASE_URL || 'https://rqmibapllqfvxgsawyox.
 export const SB_ANON = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxbWliYXBsbHFmdnhnc2F3eW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTc2NTMsImV4cCI6MjEwNjI5MzY1M30.QH3vsZUmp2MXFq-2rPLgDmvoTGsRz4NojyGeGxvSRH0';
 
 // Mismas reglas que la app (index.html: INTERV_DEF, grupoInt, intervalo). Si se cambian allá, cambiarlas acá.
-const INTERV_DEF = { Potrillos: { desv: 45, herr: 0 }, Madres: { desv: 75, herr: 0 }, Hechura: { desv: 60, herr: 45 }, descanso: { desv: 75, herr: 0 }, normal: { desv: 60, herr: 50 }, apretar: { desv: 60, herr: 40 } };
+const INTERV_DEF = { Potrillos: { desv: 45, herr: 0 }, Madres: { desv: 75, herr: 0 }, Hechura: { desv: 60, herr: 45 }, descanso: { desv: 75, herr: 0 }, normal: { desv: 60, herr: 50 }, apretar: { desv: 60, herr: 50 } };
 export function reglas(config = {}) {
   const k = { despMadres: 180, despResto: 90, desvasar: 60, herrar: 45, ...config };
   const tabla = {}; for (const g in INTERV_DEF) tabla[g] = { ...INTERV_DEF[g], ...((k.intervalos || {})[g] || {}) };
@@ -46,12 +46,16 @@ function preparar(filas) {
   }
   const intervalo = reglas(D.config);
   const ultimo = {};
-  for (const e of D.eventos) { const key = e.caballoId + '|' + e.tipo; if (e.fecha && (!ultimo[key] || e.fecha > ultimo[key])) ultimo[key] = e.fecha; }
+  for (const e of D.eventos) {
+    // cuando se hierra también se desvasa: la herrada cuenta como desvase
+    for (const t of e.tipo === 'Herrada' ? ['Herrada', 'Desvasada'] : [e.tipo]) { const key = e.caballoId + '|' + t; if (e.fecha && (!ultimo[key] || e.fecha > ultimo[key])) ultimo[key] = e.fecha; }
+  }
   const vence = [];   // { t, c, p }
   for (const c of D.caballos) {
     if (c.estado !== 'Activo' || c.categoria === 'Doma') continue;
     for (const t of Object.keys(VERBO)) {
       const u = ultimo[c.id + '|' + t]; const n = intervalo(c, t); if (!u || !n) continue;
+      if (t === 'Herrada' && (ultimo[c.id + '|Desherrada'] || '') >= u) continue; // desherrado
       vence.push({ t, c, p: addDays(u, n) });
     }
   }

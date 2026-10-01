@@ -21,7 +21,7 @@ async function exportarExcel(){
     'Abuelo paterno':c.abueloP,'Abuela paterna':c.abuelaP,'Abuelo materno':c.abueloM,'Abuela materna':c.abuelaM,
     'Bisabuelos lado padre':(()=>{const ap=c.abueloP||padresDeNombre(c.padre).padre,bp=c.abuelaP||padresDeNombre(c.padre).madre;return [ap,bp].map(n=>{const x=padresDeNombre(n);return x.padre||x.madre?(x.padre||'?')+' × '+(x.madre||'?'):''}).filter(Boolean).join(' / ')})(),
     'Domador':c.domador,'Ritmo':['Hechura','Jugadores'].includes(c.categoria)?(RITMOS.find(r=>r[0]===((c.ritmo==='fuerte'?'normal':c.ritmo)||(c.categoria==='Jugadores'?'normal':'')))?.[1]||''):'','Entrada a doma':fx(c.ingresoDoma),'Alzada':c.alzada,'Prácticas':practicas(c),'Torneos':torneos(c),
-    'Última desparasitación':fx(ultimo(c.id,'Desparasitación')),'Última desvasada':fx(ultimo(c.id,'Desvasada')),'Última herrada':fx(ultimo(c.id,'Herrada')),
+    'Última desparasitación':fx(ultimo(c.id,'Desparasitación')),'Último desvase o herraje':fx(ultimo(c.id,'Desvasada')),'Última herrada':fx(ultimo(c.id,'Herrada')),
     'A la venta':c.venta?'Sí':'','Precio':c.precio||'','Fecha de baja':fx(c.bajaFecha),'Detalle de baja':c.bajaObs||'','Observaciones':c.obs}));
   XLSX.utils.book_append_sheet(wb,hoja(cab),'Caballos');
   const ev=[...S.eventos].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(e=>({'Fecha':fx(e.fecha),'Caballo':byId(e.caballoId)?.nombre||e.caballo,'Tipo':e.tipo,'Detalle':e.detalle,'Observación':e.obs,'Precio':+e.precio||'','Cargó':e.por?(quien[e.por]?.name||''):''}));
@@ -207,6 +207,8 @@ function bloqueRitmo(c){if(!['Hechura','Jugadores'].includes(c.categoria)||c.est
   const actual=(c.ritmo==='fuerte'?'normal':c.ritmo)||(c.categoria==='Jugadores'?'normal':'');const dv=intervalo(c,'Desvasada'),hr=intervalo(c,'Herrada');
   return `<div class="ritmo"><div><b style="font-size:15px">Ritmo de trabajo</b><div class="small muted">Desvasar cada ${dv} días · ${+hr?'herrar cada '+hr+' días':'no se hierra'}</div></div>
    <div class="row">${c.categoria==='Hechura'?`<button class="chip ${!c.ritmo?'on':''}" data-act="ritmo" data-id="${c.id}" data-r="">Hechura</button>`:''}${RITMOS.map(([k,l])=>`<button class="chip ${actual===k?'on':''}" data-act="ritmo" data-id="${c.id}" data-r="${k}" ${canWrite?'':'disabled'}>${l}</button>`).join('')}</div></div>`}
+EXTRA_ACTS.desherrar=async d=>{const c=byId(d.id);if(!confirm(`¿Le sacaron las herraduras a ${c.nombre}? La app deja de avisar el herraje hasta que se vuelva a herrar.`))return;
+  await db.collection('eventos').doc(slugId('e')).set({fecha:hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Desherrada',detalle:'Desherrado',obs:'',por:uid||''});toast(c.nombre+': desherrado');UI.ficha=c.id;renderFicha()};
 EXTRA_ACTS.ritmo=async d=>{if(!canWrite)return;const c=byId(d.id);await db.collection('caballos').doc(c.id).update({ritmo:d.r});toast(c.nombre+': ritmo '+(RITMOS.find(r=>r[0]===d.r)?.[1]||'de hechura').toLowerCase());UI.ficha=c.id;renderFicha()};
 function panelDias(){const t=tablaInt(),k=S.config,p=precios(),dis=canWrite?'':'disabled';
   const filas=[['Potrillos','Potrillos'],['Madres','Madres'],['Hechura','Hechura'],['descanso','Descanso'],['normal','Normal'],['apretar','Apretar']];
