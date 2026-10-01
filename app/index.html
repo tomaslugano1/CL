@@ -237,6 +237,19 @@ label{gap:6px;font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:
 .tarea{border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-bottom:8px}
 .tarea summary{list-style:none;display:flex;align-items:center;gap:8px;padding:12px 14px;min-height:50px;cursor:pointer;font-size:15px}
 .tarea summary::-webkit-details-marker{display:none}
+.senas{background:var(--warn-bg);border-radius:10px;padding:10px 12px;display:grid;gap:6px;font-size:15px}
+.senas span{display:block;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--warn);font-weight:700}
+.desp{border-bottom:1px solid var(--line)}
+.desp summary{list-style:none;display:flex;align-items:center;gap:10px;padding:10px 0;min-height:48px;cursor:pointer;font-size:.9rem}
+.desp summary::-webkit-details-marker{display:none}
+.desp summary .sub{color:var(--muted);font-size:.8rem}
+.desp summary .go{color:var(--muted);font-size:20px;transition:transform .15s}
+.desp[open] summary .go{transform:rotate(90deg)}
+.desp .hist{padding:0 0 10px 12px;border-left:2px solid var(--line);margin-left:4px}
+.desp .hist .btn{margin-top:8px}
+.desp.mas{border-bottom:0}
+.desp.mas summary{font-weight:600;min-height:44px}
+.hcard .obsl{font-size:.8rem;color:var(--warn);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .tarea summary .grow{flex:1}
 .tarea summary .go{color:var(--muted);font-size:22px;transition:transform .15s}
 .tarea[open] summary .go{transform:rotate(90deg)}
@@ -285,10 +298,12 @@ body:has(.selbar) #dc-estado{display:none}
 
 <script>
 const CATS=['Potrillos','Doma','Hechura','Jugadores','Madres'];
-const TIPOS=['Práctica','Torneo','Desparasitación','Desvasada','Herrada','Desherrada','Vacuna','Veterinario','Tacto / Eco','Servicio','Parición','Castración','Movimiento','Revisión','Otro'];
+const TIPOS=['Práctica','Torneo','Desparasitación','Desvasada','Herrada','Desherrada','Vacuna','Anemia','Muelas','Veterinario','Tacto / Eco','Servicio','Parición','Castración','Movimiento','Revisión','Otro'];
 const TABS=[['inicio','Inicio'],['caballos','Caballos'],['madres','Madres'],['camadas','Camadas'],['sanidad','Sanidad'],['padrillos','Padrillos'],['notas','Notas']];
 const S={caballos:[],eventos:[],servicios:[],padrillos:[],notas:[],config:{despMadres:180,despResto:90,desvasar:60,herrar:45,temporada:2026},loaded:{}};
-const UI={tab:'inicio',cat:'',lugar:'',q:'',bajas:false,sel:null,camada:null,temporada:null,sanCat:'',notaFiltro:'pend',ficha:null};
+const UI={tab:'inicio',cat:'',lugar:'',q:'',bajas:false,sel:null,camada:null,temporada:null,sanCat:'',notaFiltro:'pend',ficha:null,abiertos:new Set()};
+// Recuerda qué desplegables de la ficha están abiertos (para que no se cierren al actualizar)
+document.addEventListener('toggle',e=>{const k=e.target?.dataset?.k;if(!k)return;e.target.open?UI.abiertos.add(k):UI.abiertos.delete(k)},true);
 let db=null,user=null,uid=null,canWrite=true,names={},assets=null,downloads=null;
 try{const t=localStorage.getItem('dc-tab');if(t&&TABS.some(x=>x[0]===t))UI.tab=t}catch(e){}
 
@@ -372,12 +387,12 @@ function sortCab(a,b){const ca=CATS.indexOf(a.categoria),cb=CATS.indexOf(b.categ
 function lugares(){return [...new Set(S.caballos.map(c=>c.lugar).filter(Boolean))].sort()}
 function vCaballos(){
   const q=norm(UI.q);
-  let l=S.caballos.filter(c=>(UI.bajas?c.estado!=='Activo':c.estado==='Activo')&&(!UI.cat||(UI.cat==='__venta'?c.venta:c.categoria===UI.cat))&&(!UI.lugar||c.lugar===UI.lugar)&&(!q||norm(c.nombre+' '+(c.apodo||'')+' '+c.rp+' '+c.chip+' '+c.madre+' '+c.padre).includes(q)));
+  let l=S.caballos.filter(c=>(UI.bajas?c.estado!=='Activo':c.estado==='Activo')&&(!UI.cat||(UI.cat==='__venta'?c.venta:c.categoria===UI.cat))&&(!UI.lugar||c.lugar===UI.lugar)&&(!q||norm(c.nombre+' '+(c.apodo||'')+' '+(c.obs||'')+' '+c.rp+' '+c.chip+' '+c.madre+' '+c.padre).includes(q)));
   l.sort(sortCab);
   const sel=UI.sel;
   return `<div class="head"><h2>${UI.bajas?'Bajas':UI.cat==='__venta'?'A la venta':'Caballos'} <span class="muted small">(${l.length})</span></h2>
     <div class="row">${canWrite?`<button class="btn pri" data-act="alta">+ Alta</button><button class="btn" data-act="selmode">${sel?'Cancelar':'+ Sanidad'}</button>`:''}<button class="btn icon" data-act="chip" aria-label="Leer chip" title="Leer chip">${ICO_CHIP}</button></div></div>
-  <div class="row" style="margin-bottom:10px"><input id="q" class="search" type="search" placeholder="Buscar nombre, RP, chip, madre…" value="${esc(UI.q)}">
+  <div class="row" style="margin-bottom:10px"><input id="q" class="search" type="search" placeholder="Buscar nombre, RP, chip, madre, seña…" value="${esc(UI.q)}">
     <select id="lugar" style="width:auto"><option value="">Todos los lugares</option>${lugares().map(x=>`<option ${UI.lugar===x?'selected':''}>${esc(x)}</option>`).join('')}</select>
     <button class="chip ${UI.bajas?'on':''}" data-act="bajas">Ver bajas</button></div>
   <div class="row" style="margin-bottom:14px">${['',...CATS,'__venta'].map(c=>`<button class="chip ${UI.cat===c?'on':''}" data-cat="${c}">${c==='__venta'?'A la venta':c||'Todas'}</button>`).join('')}</div>
@@ -387,7 +402,7 @@ function vCaballos(){
       ${sel?`<input type="checkbox" tabindex="-1" ${sel.has(c.id)?'checked':''}>`:''}
       ${c.fotos?.length?`<img class="thumb" src="${fotoUrl(c.fotos[0])}" alt="" loading="lazy">`:''}
       <div class="grow"><div class="nm">${esc(c.nombre)} ${c.venta?'<span class="pill p-venta">A la venta</span>':''} ${c.ritmo&&['Hechura','Jugadores'].includes(c.categoria)&&!['normal','fuerte'].includes(c.ritmo)?`<span class="pill p-none">${esc(RITMOS.find(r=>r[0]===c.ritmo)?.[1]||'')}</span>`:''} ${c.categoria==='Hechura'&&c.estado==='Activo'?`<span class="pill p-none">${practicas(c)} prácticas</span>${torneos(c)?` <span class="pill p-none">${torneos(c)} torneos</span>`:''}`:''}</div>
-      <div class="meta">${[e!==null?e+(e===1?' año':' años'):'',c.categoria,c.camada?'Camada '+c.camada:'',c.estado!=='Activo'?c.estado:''].filter(Boolean).join(' · ')}</div></div>
+      <div class="meta">${[e!==null?e+(e===1?' año':' años'):'',c.categoria,c.camada?'Camada '+c.camada:'',c.estado!=='Activo'?c.estado:''].filter(Boolean).join(' · ')}</div>${c.obs&&c.categoria!=='Jugadores'?`<div class="obsl">${esc(c.obs)}</div>`:''}</div>
       ${c.estado==='Activo'&&enCampo(c)?`<div class="dots" title="Desparasitación · Desvasada">${ds.map(s=>`<span class="dot d-${s.st}"></span>`).join('')}</div>`:''}
       ${sel?'':'<span class="go">›</span>'}</button>`}).join('')||'<div class="empty">No hay caballos con ese filtro.</div>'}</div>
   ${sel?`<div class="selbar"><b>${sel.size} elegidos</b><button class="btn sm" data-act="selall">Elegir todos los de la lista</button><button class="btn sm pri" data-act="bulk" ${sel.size?'':'disabled'}>Cargar sanidad</button></div>`:''}`}
@@ -466,16 +481,20 @@ function renderFicha(){
   $('#modal').innerHTML=`<div class="ov" data-close-ov><div class="sheet" role="dialog" aria-label="Ficha">
    <div class="sheet-h"><div><h2>${esc(c.nombre)}</h2><div class="row" style="margin-top:6px"><span class="pill p-none">${esc(c.categoria)}</span>${c.lugar?`<span class="pill p-none">${esc(c.lugar)}</span>`:''}${c.venta?'<span class="pill p-venta">A la venta</span>':''}${c.estado!=='Activo'?`<span class="pill p-bad">${esc(c.estado)}${c.bajaFecha?' '+fmt(c.bajaFecha):''}</span>`:''}</div></div><button class="x" data-act="close" aria-label="Cerrar">×</button></div>
    <div class="sheet-b">
+    ${c.obs||c.embocadura?`<div class="senas">${c.obs?`<div><span>Observación</span>${esc(c.obs)}</div>`:''}${c.embocadura?`<div><span>Embocadura</span>${esc(c.embocadura)}</div>`:''}</div>`:''}
     ${c.fotos?.length?`<img class="cover" src="${fotoUrl(c.fotos[0])}" alt="${esc(c.nombre)}">`:''}
     <div class="kv">${[...(c.apodo?[['Apodo',c.apodo]]:[]),...(c.domador?[['Domador',c.domador]]:[]),['Sexo',c.sexo],['Nacimiento',fmt(c.nac)+(e!==null?` (${e} ${e===1?'año':'años'})`:'')],['Camada',c.camada],['Pelaje',c.pelaje],['Alzada',c.alzada],['RP',c.rp],['N° chip',c.chip],...(c.ingresoDoma?[['Entró a doma',fmt(c.ingresoDoma)]]:[])].map(([k,v])=>`<div><span>${k}</span><b>${esc(v||'—')}</b></div>`).join('')}</div>
-    ${c.obs?`<div><h3>Observaciones</h3><div>${esc(c.obs)}</div></div>`:''}
     ${['Hechura','Jugadores'].includes(c.categoria)&&c.estado==='Activo'?`<div class="prac"><b>${practicas(c)}</b><div class="grow" style="flex:1">prácticas<div class="small muted">${(()=>{const u=S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Práctica').sort((a,b)=>b.fecha.localeCompare(a.fecha))[0];return u?'Última: '+fmt(u.fecha):'Sin prácticas cargadas en la app'})()}</div></div>${canWrite?`<button class="btn pri" data-prac="${c.id}">+1 práctica</button>`:''}</div>`:''}
     ${['Hechura','Jugadores'].includes(c.categoria)&&c.estado==='Activo'?`<div class="prac"><b>${torneos(c)}</b><div class="grow" style="flex:1">torneos<div class="small muted">${(()=>{const u=S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Torneo').sort((a,b)=>b.fecha.localeCompare(a.fecha))[0];return u?'Último: '+fmt(u.fecha)+(u.obs?' · '+esc(u.obs):''):'Sin torneos cargados en la app'})()}</div></div>${canWrite?`<button class="btn pri" data-torneo="${c.id}">+1 torneo</button>`:''}</div>`:''}
     ${bloqueRitmo(c)}
-    ${c.estado==='Activo'?`<div><h3>Sanidad actual</h3><div class="list">${['Desparasitación','Desvasada','Herrada'].map(t=>{const s=estadoSan(c,t);return `<div class="li"><div>${t}<div class="sub">Última ${fmt(s.u)}${s.p?' · próxima '+fmt(s.p):''}</div></div>${t==='Herrada'&&s.p&&canWrite?`<button class="btn sm" data-act="desherrar" data-id="${c.id}">Ya no está herrado</button>`:''}<span class="pill p-${s.st}">${s.txt}</span></div>`}).join('')}</div></div>`:''}
+    ${c.estado==='Activo'?`<div><h3>Sanidad actual</h3><div class="list">${['Desparasitación','Desvasada','Herrada'].map(t=>{const s=estadoSan(c,t);const h=evs.filter(x=>x.tipo===t||(t==='Desvasada'&&x.tipo==='Herrada')||(t==='Herrada'&&x.tipo==='Desherrada'));const k='san-'+c.id+'-'+t;
+      return `<details class="desp" data-k="${k}" ${UI.abiertos?.has(k)?'open':''}><summary><div class="grow">${t}<div class="sub">Última ${fmt(s.u)}${s.p?' · próxima '+fmt(s.p):''}</div></div><span class="pill p-${s.st}">${s.txt}</span><span class="go">›</span></summary>
+       <div class="hist">${h.map(x=>`<div class="li"><div>${fmt(x.fecha)}${x.tipo!==t?' · '+esc(x.tipo):''}${x.obs?`<div class="sub">${esc(x.obs)}</div>`:''}</div>${x.precio?`<span class="small muted">${$$(x.precio)}</span>`:''}</div>`).join('')||'<div class="muted small">Sin registros.</div>'}
+       ${t==='Herrada'&&s.p&&canWrite?`<button class="btn sm" data-act="desherrar" data-id="${c.id}">Ya no está herrado</button>`:''}</div></details>`}).join('')}</div></div>`:''}
     <div><div class="head" style="margin-bottom:6px"><h3 style="margin:0">Eventos</h3>${canWrite?`<button class="btn sm pri" data-evento="${c.id}">+ Evento</button>`:''}</div>
-     <div class="list">${evs.map(x=>`<div class="li"><div><b style="font-weight:600">${esc(x.tipo)}</b>${x.detalle&&x.detalle!==x.tipo?' · '+esc(x.detalle):''}<div class="sub">${fmt(x.fecha)}${x.obs?' · '+esc(x.obs):''}${x.por?' · cargó '+esc(names[x.por]||'…'):''}</div></div>
-       ${canWrite?`<button class="btn sm" data-delev="${x.id}">Borrar</button>`:''}</div>`).join('')||'<div class="muted small">Sin eventos registrados.</div>'}</div></div>
+     ${(()=>{const fila=x=>`<div class="li"><div><b style="font-weight:600">${esc(x.tipo)}</b>${x.detalle&&x.detalle!==x.tipo?' · '+esc(x.detalle):''}<div class="sub">${fmt(x.fecha)}${x.obs?' · '+esc(x.obs):''}${x.por?' · cargó '+esc(names[x.por]||'…'):''}</div></div>
+       ${canWrite?`<button class="btn sm" data-delev="${x.id}">Borrar</button>`:''}</div>`;if(!evs.length)return '<div class="muted small">Sin eventos registrados.</div>';
+      const k='ev-'+c.id;return `<div class="list">${fila(evs[0])}</div>${evs.length>1?`<details class="desp mas" data-k="${k}" ${UI.abiertos?.has(k)?'open':''}><summary><div class="grow">Ver todos los eventos (${evs.length})</div><span class="go">›</span></summary><div class="hist list">${evs.slice(1).map(fila).join('')}</div></details>`:''}`})()}</div>
     ${serv.length?`<div><h3>Servicios</h3><div class="list">${serv.map(s=>`<div class="li"><div>Temporada ${s.temporada} · ${esc(s.padrillo||'—')}<div class="sub">${fmt(s.fecha)} · FPP ${fmt(s.fpp)}</div></div><span class="pill p-none">${esc(s.estado)}</span></div>`).join('')}</div></div>`:''}
     <div><div class="head" style="margin-bottom:8px"><h3 style="margin:0">Genealogía</h3>${canWrite?`<button class="btn sm" data-edit="${c.id}">Editar genealogía</button>`:''}</div>
      <div class="treewrap">${arbol4(c,padre,madre)}</div><p class="note" style="margin:6px 0 0">Deslizá para ver los bisabuelos. Tocá un caballo para abrir su ficha.</p></div>
@@ -592,7 +611,7 @@ function caballoForm(c,pre={},after){
     {k:'sexo',l:'Sexo',type:'select',opts:['Macho','Hembra',''],v:v.sexo||''},{k:'pelaje',l:'Pelaje',v:v.pelaje},{k:'nac',l:'Fecha de nacimiento',type:'date',v:v.nac},{k:'camada',l:'Camada (año)',type:'number',v:v.camada},
     {k:'rp',l:'RP',v:v.rp},{k:'chip',l:'N° chip',v:v.chip},{k:'padre',l:'Padre',v:v.padre,list:'dl-pad'},{k:'madre',l:'Madre',v:v.madre,list:'dl-hembras'},
     {k:'abueloP',l:'Abuelo paterno',v:v.abueloP},{k:'abuelaP',l:'Abuela paterna',v:v.abuelaP},{k:'abueloM',l:'Abuelo materno',v:v.abueloM},{k:'abuelaM',l:'Abuela materna',v:v.abuelaM},
-    {k:'practicasPrevias',l:'Prácticas antes de la app',type:'number',v:v.practicasPrevias},{k:'torneosPrevios',l:'Torneos antes de la app',type:'number',v:v.torneosPrevios},{k:'venta',l:'A la venta',type:'check',v:v.venta},{k:'obs',l:'Observaciones',type:'area',v:v.obs}],
+    {k:'practicasPrevias',l:'Prácticas antes de la app',type:'number',v:v.practicasPrevias},{k:'torneosPrevios',l:'Torneos antes de la app',type:'number',v:v.torneosPrevios},{k:'venta',l:'A la venta',type:'check',v:v.venta},{k:'embocadura',l:'Embocadura / cómo se ensilla (ej: sin riendillas, 4 riendas)',v:v.embocadura,full:1},{k:'obs',l:'Observaciones / señas (ej: cara blanca, pata blanca)',type:'area',v:v.obs}],
     async d=>{if(!d.camada&&d.nac)d.camada=+d.nac.slice(0,4);
       if(c){await db.collection('caballos').doc(c.id).update(d);toast('Datos guardados');UI.ficha=c.id;renderFicha();if(c.categoria!=='Doma'&&d.categoria==='Doma'&&!d.ingresoDoma)preguntarDoma(c.id)}
       else{const id=slugId('c');await db.collection('caballos').doc(id).set({...d,estado:'Activo'});toast(d.nombre+' dado de alta');if(after)await after(id,d);UI.ficha=id;renderFicha()}},datalists());conectarGenealogia();conectarSugerencias()}

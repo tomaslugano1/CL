@@ -22,7 +22,7 @@ async function exportarExcel(){
     'Bisabuelos lado padre':(()=>{const ap=c.abueloP||padresDeNombre(c.padre).padre,bp=c.abuelaP||padresDeNombre(c.padre).madre;return [ap,bp].map(n=>{const x=padresDeNombre(n);return x.padre||x.madre?(x.padre||'?')+' × '+(x.madre||'?'):''}).filter(Boolean).join(' / ')})(),
     'Domador':c.domador,'Ritmo':['Hechura','Jugadores'].includes(c.categoria)?(RITMOS.find(r=>r[0]===((c.ritmo==='fuerte'?'normal':c.ritmo)||(c.categoria==='Jugadores'?'normal':'')))?.[1]||''):'','Entrada a doma':fx(c.ingresoDoma),'Alzada':c.alzada,'Prácticas':practicas(c),'Torneos':torneos(c),
     'Última desparasitación':fx(ultimo(c.id,'Desparasitación')),'Último desvase o herraje':fx(ultimo(c.id,'Desvasada')),'Última herrada':fx(ultimo(c.id,'Herrada')),
-    'A la venta':c.venta?'Sí':'','Precio':c.precio||'','Fecha de baja':fx(c.bajaFecha),'Detalle de baja':c.bajaObs||'','Observaciones':c.obs}));
+    'A la venta':c.venta?'Sí':'','Precio':c.precio||'','Fecha de baja':fx(c.bajaFecha),'Detalle de baja':c.bajaObs||'','Embocadura':c.embocadura||'','Observaciones':c.obs}));
   XLSX.utils.book_append_sheet(wb,hoja(cab),'Caballos');
   const ev=[...S.eventos].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(e=>({'Fecha':fx(e.fecha),'Caballo':byId(e.caballoId)?.nombre||e.caballo,'Tipo':e.tipo,'Detalle':e.detalle,'Observación':e.obs,'Precio':+e.precio||'','Cargó':e.por?(quien[e.por]?.name||''):''}));
   XLSX.utils.book_append_sheet(wb,hoja(ev),'Eventos');
@@ -216,9 +216,33 @@ const AJUSTES={
   'desvase-80-madres-descanso':async()=>{const g=S.config.intervalos;if(!g)return;const n={...g};let ch=false;
     for(const k of ['Madres','descanso'])if(n[k]&&+n[k].desv===75){n[k]={...n[k],desv:80};ch=true}
     if(ch){await db.doc('config/app').set({...S.config,intervalos:n});S.config.intervalos=n}},
+  // ---- Datos rescatados del chat de WhatsApp "Doña Cecilia Polo" (1/10/2026) ----
+  // Muelas: mensaje de Pancho del 7/4/2026 "Estas se hicieron muelas"
+  'chat-muelas-2026-04-07':()=>cargarGrupo('2026-04-07','Muelas','Muelas (dentista)','Del chat: "Estas se hicieron muelas" (Pancho, 7/4/2026)',
+    ['SUSANA','MORIA','CHINA','VEDETTE','PARANOICA','PACHANGA','PSICODELICA','BLUSERA','RUBIA T','VIEJA LOCA','VILMA','ROCKERA','25']),
+  // Anemias: lista "Palermo" que mandó Juanchi el 1/4/2026 pidiendo las anemias (fecha aproximada)
+  'chat-anemias-2026-04-01':()=>cargarGrupo('2026-04-01','Anemia','Anemia (para viajar)','Del chat: lista "Palermo", Juanchi pidió las anemias el 1/4/2026 · fecha aproximada',
+    ['ROMAN','HAMMER','FALUCHO','GRACIELA','MARIMORENA','CONTIENDA','SUSANA','MORIA','ALEGRA','PODEROSA','GUERRERA','VEDETTE']),
+  // Embocaduras que aparecen en el chat (solo si el caballo no tiene una cargada)
+  'chat-embocaduras':async()=>{for(const [n,e] of [['PACHANGA','Sin riendillas · 4 riendas'],['PARANOICA','Levantador · 4 riendas'],['25','Levantador · 4 riendas'],
+      ['SUSANA','Sin riendillas · 4 riendas (dato de jun-2025)'],['MORIA','Sin riendillas · 4 riendas (dato de jun-2025)']]){
+      const c=S.caballos.find(x=>norm(x.nombre)===norm(n));if(c&&!c.embocadura)await db.collection('caballos').doc(c.id).update({embocadura:e})}},
+  // Susana es ruana (nombres de las yeguas nuevas, 8/6/2025) · Psicodélica: estrella en la frente (1/9/2026)
+  'chat-susana-psicodelica':async()=>{
+    const su=S.caballos.find(x=>norm(x.nombre)==='SUSANA');if(su&&(!su.pelaje||su.pelaje==='Alazán'))await db.collection('caballos').doc(su.id).update({pelaje:'Ruano'});
+    const ps=S.caballos.find(x=>norm(x.nombre)==='PSICODELICA');if(ps&&!/estrella/i.test(ps.obs||''))await db.collection('caballos').doc(ps.id).update({obs:[ps.obs,'Estrella en la frente'].filter(Boolean).join(' · ')})},
+  // Partos: lo que dijo Juan el 14/9/2026 (no se cambia la FPP, queda anotado) + nota de la Primadona
+  'chat-partos-primadona':async()=>{
+    const nota=(m,t)=>{const s=S.servicios.find(x=>norm(x.madre)===m&&x.estado==='Preñada');if(s&&!(s.obs||'').includes('Juan (14/9)'))return db.collection('servicios').doc(s.id).update({obs:[s.obs,t].filter(Boolean).join(' · ')})};
+    await nota('BAYA','Juan (14/9) dice que pare el 13/10');await nota('COLORADA POTRA','Juan (14/9) dice que pare el 13/10');await nota('PIPA','Juan (14/9) dijo que paría "el 31" (fin de septiembre): confirmar si ya parió');
+    await db.collection('notas').doc(slugId('n')).set({titulo:'Primadona: ¿descarte o se le da servicio?',texto:'El 15/9 Pancho preguntó si es descarte. Juan iba a hacerla revisar con Santiago (junto con la Gorda). Falta decidir.',fecha:'2026-09-15',estado:'Pendiente'})},
 };
+// Carga un mismo evento a varios caballos por nombre (si ya está cargado ese día, no lo repite)
+async function cargarGrupo(fecha,tipo,detalle,obs,nombres){for(const n of nombres){const c=S.caballos.find(x=>norm(x.nombre)===norm(n)&&x.estado==='Activo');if(!c)continue;
+  if(S.eventos.some(e=>e.caballoId===c.id&&e.tipo===tipo&&e.fecha===fecha))continue;
+  await db.collection('eventos').doc(slugId('e')).set({fecha,caballoId:c.id,caballo:c.nombre,tipo,detalle,obs,por:uid||''})}}
 let _ajustando=false;
-async function ajustesUnicos(){if(_ajustando||!canWrite||!db||!window.DC_NUBE_LISTA||!S.loaded.caballos||!S.loaded.eventos||!S.loaded.config||!S.caballos.length)return;
+async function ajustesUnicos(){if(_ajustando||!canWrite||!db||!window.DC_NUBE_LISTA||!S.loaded.caballos||!S.loaded.eventos||!S.loaded.config||!S.loaded.servicios||!S.caballos.length)return;
   const hechos=new Set(S.config.ajustes||[]),pend=Object.keys(AJUSTES).filter(k=>!hechos.has(k));if(!pend.length)return;
   _ajustando=true;try{for(const k of pend){await AJUSTES[k]();hechos.add(k)}
     await db.doc('config/app').set({...S.config,ajustes:[...hechos]});S.config.ajustes=[...hechos]}
