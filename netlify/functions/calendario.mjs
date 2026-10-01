@@ -6,6 +6,8 @@
 const SB_URL = process.env.SUPABASE_URL || 'https://rqmibapllqfvxgsawyox.supabase.co';
 const SB_ANON = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxbWliYXBsbHFmdnhnc2F3eW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTc2NTMsImV4cCI6MjEwNjI5MzY1M30.QH3vsZUmp2MXFq-2rPLgDmvoTGsRz4NojyGeGxvSRH0';
 
+import { reglas } from '../lib/avisos.mjs';
+
 const DIAS_ADELANTE = 120;
 const VERBO = { 'Desparasitación': 'Desparasitar', 'Desvasada': 'Desvasar', 'Herrada': 'Herrar' };
 
@@ -18,13 +20,12 @@ export function armarCalendario(filas, hoy = hoyAR()) {
     if (r.coleccion === 'config') { if (r.id === 'app') D.config = r.data || {}; }
     else if (D[r.coleccion]) D[r.coleccion].push({ id: r.id, ...r.data });
   }
-  const k = { despMadres: 180, despResto: 90, desvasar: 60, herrar: 45, ...D.config };
+  const intervalo = reglas(D.config);
   const ultimo = {};
   for (const e of D.eventos) {
     const key = e.caballoId + '|' + e.tipo;
     if (e.fecha && (!ultimo[key] || e.fecha > ultimo[key])) ultimo[key] = e.fecha;
   }
-  const intervalo = (c, t) => +(t === 'Desparasitación' ? (c.categoria === 'Madres' ? k.despMadres : k.despResto) : t === 'Desvasada' ? k.desvasar : k.herrar) || 0;
   const hasta = addDays(hoy, DIAS_ADELANTE);
 
   // Sanidad: agrupada por día + tarea + lugar. Lo vencido va al día de hoy.
@@ -33,8 +34,9 @@ export function armarCalendario(filas, hoy = hoyAR()) {
     if (c.estado !== 'Activo' || c.categoria === 'Doma') continue;
     for (const t of ['Desparasitación', 'Desvasada', 'Herrada']) {
       const u = ultimo[c.id + '|' + t];
-      if (!u) continue; // sin dato (o nunca herrado): no se agenda
-      const p = addDays(u, intervalo(c, t));
+      const n = intervalo(c, t);
+      if (!u || !n) continue; // sin dato, nunca herrado, o no se hierra: no se agenda
+      const p = addDays(u, n);
       if (p > hasta) continue;
       const vencido = p < hoy, dia = vencido ? hoy : p, lugar = c.lugar || 'Sin lugar';
       const g = grupos[dia + '|' + t + '|' + lugar + '|' + vencido] ||= { dia, t, lugar, vencido, caballos: [] };

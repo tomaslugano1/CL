@@ -20,11 +20,11 @@ async function exportarExcel(){
     'Nacimiento':fx(c.nac),'Camada':c.camada??'','RP':c.rp,'N° chip':c.chip,'Padre':c.padre,'Madre':c.madre,
     'Abuelo paterno':c.abueloP,'Abuela paterna':c.abuelaP,'Abuelo materno':c.abueloM,'Abuela materna':c.abuelaM,
     'Bisabuelos lado padre':(()=>{const ap=c.abueloP||padresDeNombre(c.padre).padre,bp=c.abuelaP||padresDeNombre(c.padre).madre;return [ap,bp].map(n=>{const x=padresDeNombre(n);return x.padre||x.madre?(x.padre||'?')+' × '+(x.madre||'?'):''}).filter(Boolean).join(' / ')})(),
-    'Domador':c.domador,'Entrada a doma':fx(c.ingresoDoma),'Alzada':c.alzada,'Prácticas':practicas(c),'Torneos':torneos(c),
+    'Domador':c.domador,'Ritmo':['Hechura','Jugadores'].includes(c.categoria)?(RITMOS.find(r=>r[0]===(c.ritmo||(c.categoria==='Jugadores'?'normal':'')))?.[1]||''):'','Entrada a doma':fx(c.ingresoDoma),'Alzada':c.alzada,'Prácticas':practicas(c),'Torneos':torneos(c),
     'Última desparasitación':fx(ultimo(c.id,'Desparasitación')),'Última desvasada':fx(ultimo(c.id,'Desvasada')),'Última herrada':fx(ultimo(c.id,'Herrada')),
     'A la venta':c.venta?'Sí':'','Precio':c.precio||'','Fecha de baja':fx(c.bajaFecha),'Detalle de baja':c.bajaObs||'','Observaciones':c.obs}));
   XLSX.utils.book_append_sheet(wb,hoja(cab),'Caballos');
-  const ev=[...S.eventos].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(e=>({'Fecha':fx(e.fecha),'Caballo':byId(e.caballoId)?.nombre||e.caballo,'Tipo':e.tipo,'Detalle':e.detalle,'Observación':e.obs,'Cargó':e.por?(quien[e.por]?.name||''):''}));
+  const ev=[...S.eventos].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(e=>({'Fecha':fx(e.fecha),'Caballo':byId(e.caballoId)?.nombre||e.caballo,'Tipo':e.tipo,'Detalle':e.detalle,'Observación':e.obs,'Precio':+e.precio||'','Cargó':e.por?(quien[e.por]?.name||''):''}));
   XLSX.utils.book_append_sheet(wb,hoja(ev),'Eventos');
   const sv=[...S.servicios].sort((a,b)=>b.temporada-a.temporada||String(a.madre).localeCompare(b.madre)).map(s=>({'Temporada':s.temporada,'Madre':s.madre,'Padrillo':s.padrillo,'Fecha de servicio':fx(s.fecha),'Parto probable (FPP)':fx(s.fpp),'Estado':s.estado,'Observación':s.obs}));
   XLSX.utils.book_append_sheet(wb,hoja(sv),'Servicios');
@@ -201,6 +201,38 @@ EXTRA_ACTS.notificaciones=panelNotificaciones;
 EXTRA_ACTS.pushOn=async()=>{const m=$('#not-msg');if(m)m.textContent='Activando…';try{await DC_PUSH.activar();toast('Notificaciones activadas');panelNotificaciones()}catch(e){if(e.message==='bloqueada')return panelNotificaciones();if(m)m.textContent='No se pudo activar: '+(e.message||e)+(navigator.onLine?'':' (necesitás señal)')}};
 EXTRA_ACTS.pushOff=async()=>{try{await DC_PUSH.desactivar();toast('Notificaciones desactivadas en este aparato')}catch(e){toast('No se pudo desactivar')}panelNotificaciones()};
 EXTRA_ACTS.pushProbar=async()=>{const m=$('#not-msg');if(m)m.textContent='Mandando…';try{const r=await DC_PUSH.probar();if(m)m.textContent=r.ok?'Enviada. Te tiene que llegar en unos segundos.':'No se pudo mandar a este aparato. Probá desactivar y volver a activar.'}catch(e){if(m)m.textContent=e.message||String(e)}};
+
+/* ================= Ritmo de trabajo, días y precios del herrero ================= */
+function bloqueRitmo(c){if(!['Hechura','Jugadores'].includes(c.categoria)||c.estado!=='Activo')return '';
+  const actual=c.ritmo||(c.categoria==='Jugadores'?'normal':'');const dv=intervalo(c,'Desvasada'),hr=intervalo(c,'Herrada');
+  return `<div class="ritmo"><div><b style="font-size:15px">Ritmo de trabajo</b><div class="small muted">Desvasar cada ${dv} días · ${+hr?'herrar cada '+hr+' días':'no se hierra'}</div></div>
+   <div class="row">${c.categoria==='Hechura'?`<button class="chip ${!c.ritmo?'on':''}" data-act="ritmo" data-id="${c.id}" data-r="">Hechura</button>`:''}${RITMOS.map(([k,l])=>`<button class="chip ${actual===k?'on':''}" data-act="ritmo" data-id="${c.id}" data-r="${k}" ${canWrite?'':'disabled'}>${l}</button>`).join('')}</div></div>`}
+EXTRA_ACTS.ritmo=async d=>{if(!canWrite)return;const c=byId(d.id);await db.collection('caballos').doc(c.id).update({ritmo:d.r});toast(c.nombre+': ritmo '+(RITMOS.find(r=>r[0]===d.r)?.[1]||'de hechura').toLowerCase());UI.ficha=c.id;renderFicha()};
+function panelDias(){const t=tablaInt(),k=S.config,p=precios(),dis=canWrite?'':'disabled';
+  const filas=[['Potrillos','Potrillos'],['Madres','Madres'],['Hechura','Hechura'],['descanso','Jugadores · Descanso'],['normal','Jugadores · Normal'],['apretar','Apretar'],['fuerte','Jugadores · Fuerte']];
+  return `<div class="tablewrap"><table class="dias"><thead><tr><th></th><th>Desvasar cada</th><th>Herrar cada</th></tr></thead><tbody>
+   ${filas.map(([g,l])=>`<tr><td><b>${l}</b></td><td><input id="i-${g}-desv" type="number" min="1" value="${t[g].desv}" ${dis}> días</td><td>${g==='Potrillos'||g==='Madres'?'<span class="muted small">no se hierran</span>':`<input id="i-${g}-herr" type="number" min="0" value="${t[g].herr||''}" placeholder="no" ${dis}> días`}</td></tr>`).join('')}
+  </tbody></table></div>
+  <p class="note">El ritmo (Descanso, Normal, Apretar, Fuerte) se elige en la ficha de cada caballo de hechura o jugador. Jugadores sin ritmo elegido = Normal. Vacío en "Herrar" = no se hierra. Solo se avisa el herraje de los caballos que ya se herraron alguna vez.</p>
+  <div class="form" style="margin-top:10px"><label>Desparasitar madres (días)<input id="k-despMadres" type="number" min="1" value="${k.despMadres}" ${dis}></label>
+   <label>Desparasitar resto (días)<input id="k-despResto" type="number" min="1" value="${k.despResto}" ${dis}></label>
+   <label>Precio desvase ($)<input id="p-Desvasada" type="number" min="0" value="${p['Desvasada']}" ${dis}></label>
+   <label>Precio herrada ($)<input id="p-Herrada" type="number" min="0" value="${p['Herrada']}" ${dis}></label></div>
+  ${canWrite?'<div class="row" style="margin-top:10px"><button class="btn sm pri" data-act="savecfg">Guardar días y precios</button></div>':''}`}
+/* En "Nuevo evento": completa el precio del herrero según el tipo (se puede cambiar) */
+function conectarPrecio(){const t=document.getElementById('f-tipo'),p=document.getElementById('f-precio');if(!t||!p)return;
+  const lab=p.closest('label');const poner=()=>{const v=precios()[t.value];if(p.dataset.tocado)return;p.value=v??'';lab.hidden=v===undefined&&!p.value};
+  p.addEventListener('input',()=>{p.dataset.tocado=1});t.addEventListener('change',poner);poner()}
+const $$=n=>'$'+Math.round(n||0).toLocaleString('es-AR');
+function panelHerrero(){const lim=addDays(hoy(),30),p=precios();let nd=0,nh=0;
+  for(const c of activos().filter(enCampo))for(const t of ['Desvasada','Herrada']){if(!ultimo(c.id,t))continue;const s=estadoSan(c,t);if(s.p&&s.p<=lim)t==='Desvasada'?nd++:nh++}
+  const anio=hoy().slice(0,4),ev=S.eventos.filter(e=>e.fecha>=anio+'-01-01'&&['Desvasada','Herrada'].includes(e.tipo));
+  const gast=ev.reduce((a,e)=>a+(+e.precio||0),0),sinP=ev.filter(e=>!(+e.precio)).length;
+  const mes=ev.filter(e=>e.fecha.slice(0,7)===hoy().slice(0,7)).reduce((a,e)=>a+(+e.precio||0),0);
+  return `<div class="panel" style="margin-bottom:18px"><h3>Herrero</h3><div class="list">
+   <div class="li"><div><b>Próximos 30 días</b><div class="sub">${nd} desvase${nd===1?'':'s'} × ${$$(p['Desvasada'])} + ${nh} herraje${nh===1?'':'s'} × ${$$(p['Herrada'])} (incluye lo atrasado)</div></div><b style="font-size:17px">≈ ${$$(nd*p['Desvasada']+nh*p['Herrada'])}</b></div>
+   <div class="li"><div><b>Gastado en ${anio}</b><div class="sub">${ev.length} trabajos cargados${sinP?` · ${sinP} sin precio`:''} · este mes ${$$(mes)}</div></div><b style="font-size:17px">${$$(gast)}</b></div>
+  </div><p class="note" style="margin:6px 0 0">Precios actuales: desvase ${$$(p['Desvasada'])}, herrada ${$$(p['Herrada'])}. Se cambian en Sanidad → Cada cuántos días.</p></div>`}
 
 /* ================= Panel de herramientas en Inicio ================= */
 function panelHerramientas(){const sc=diasSinCopia();

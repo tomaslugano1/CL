@@ -3,3 +3,4 @@ supabase/datos-iniciales.sql
 supabase/desparasitacion-*.sql
 supabase/genealogia-*.sql
 node_modules/
+supabase/historial-*.sql
