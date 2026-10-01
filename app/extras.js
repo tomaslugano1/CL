@@ -202,6 +202,28 @@ EXTRA_ACTS.pushOn=async()=>{const m=$('#not-msg');if(m)m.textContent='Activando�
 EXTRA_ACTS.pushOff=async()=>{try{await DC_PUSH.desactivar();toast('Notificaciones desactivadas en este aparato')}catch(e){toast('No se pudo desactivar')}panelNotificaciones()};
 EXTRA_ACTS.pushProbar=async()=>{const m=$('#not-msg');if(m)m.textContent='Mandando…';try{const r=await DC_PUSH.probar();if(m)m.textContent=r.ok?'Enviada. Te tiene que llegar en unos segundos.':'No se pudo mandar a este aparato. Probá desactivar y volver a activar.'}catch(e){if(m)m.textContent=e.message||String(e)}};
 
+/* ================= Ajustes de datos que se hacen una sola vez =================
+   Corren solos al abrir la app (con datos cargados y permiso de escritura) y quedan anotados en
+   config.ajustes para no repetirse. Así se corrigen datos sin tocar la base a mano. */
+const AJUSTES={
+  // Vieja Loca quedó desvasada y sin herraduras: no hay que herrarla
+  'vieja-loca-desherrada':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='VIEJA LOCA');if(!c)return;
+    if(ultimo(c.id,'Herrada')&&ultimo(c.id,'Desherrada')<ultimo(c.id,'Herrada'))
+      await db.collection('eventos').doc(slugId('e')).set({fecha:hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Desherrada',detalle:'Desherrado',obs:'Quedó desvasada, no hay que herrarla',por:uid||''})},
+  // La 25 es la que Martín llama "Avispa"
+  'apodo-25-avispa':async()=>{const c=S.caballos.find(x=>x.nombre==='25');if(c&&!c.apodo)await db.collection('caballos').doc(c.id).update({apodo:'AVISPA'})},
+  // Madres y jugadores en descanso: desvasar cada 80 días (si quedó guardado el 75 de antes)
+  'desvase-80-madres-descanso':async()=>{const g=S.config.intervalos;if(!g)return;const n={...g};let ch=false;
+    for(const k of ['Madres','descanso'])if(n[k]&&+n[k].desv===75){n[k]={...n[k],desv:80};ch=true}
+    if(ch){await db.doc('config/app').set({...S.config,intervalos:n});S.config.intervalos=n}},
+};
+let _ajustando=false;
+async function ajustesUnicos(){if(_ajustando||!canWrite||!db||!window.DC_NUBE_LISTA||!S.loaded.caballos||!S.loaded.eventos||!S.loaded.config||!S.caballos.length)return;
+  const hechos=new Set(S.config.ajustes||[]),pend=Object.keys(AJUSTES).filter(k=>!hechos.has(k));if(!pend.length)return;
+  _ajustando=true;try{for(const k of pend){await AJUSTES[k]();hechos.add(k)}
+    await db.doc('config/app').set({...S.config,ajustes:[...hechos]});S.config.ajustes=[...hechos]}
+  catch(e){console.error('ajustes',e)}finally{_ajustando=false}}
+
 /* ================= Ritmo de trabajo, días y precios del herrero ================= */
 function bloqueRitmo(c){if(!['Hechura','Jugadores'].includes(c.categoria)||c.estado!=='Activo')return '';
   const actual=(c.ritmo==='fuerte'?'normal':c.ritmo)||(c.categoria==='Jugadores'?'normal':'');const dv=intervalo(c,'Desvasada'),hr=intervalo(c,'Herrada');

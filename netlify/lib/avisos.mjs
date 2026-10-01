@@ -7,7 +7,7 @@ export const SB_URL = process.env.SUPABASE_URL || 'https://rqmibapllqfvxgsawyox.
 export const SB_ANON = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxbWliYXBsbHFmdnhnc2F3eW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTc2NTMsImV4cCI6MjEwNjI5MzY1M30.QH3vsZUmp2MXFq-2rPLgDmvoTGsRz4NojyGeGxvSRH0';
 
 // Mismas reglas que la app (index.html: INTERV_DEF, grupoInt, intervalo). Si se cambian allá, cambiarlas acá.
-const INTERV_DEF = { Potrillos: { desv: 45, herr: 0 }, Madres: { desv: 75, herr: 0 }, Hechura: { desv: 60, herr: 45 }, descanso: { desv: 75, herr: 0 }, normal: { desv: 60, herr: 50 }, apretar: { desv: 60, herr: 50 } };
+const INTERV_DEF = { Potrillos: { desv: 45, herr: 0 }, Madres: { desv: 80, herr: 0 }, Hechura: { desv: 60, herr: 45 }, descanso: { desv: 80, herr: 0 }, normal: { desv: 60, herr: 50 }, apretar: { desv: 60, herr: 50 } };
 export function reglas(config = {}) {
   const k = { despMadres: 180, despResto: 90, desvasar: 60, herrar: 45, ...config };
   const tabla = {}; for (const g in INTERV_DEF) tabla[g] = { ...INTERV_DEF[g], ...((k.intervalos || {})[g] || {}) };

@@ -78,7 +78,7 @@
       }
       if(max)guardar(LS_ULT,max);
       persistir();if(cambio)avisar();
-      ultimoError='';ultimaOk=new Date().toISOString();guardar('dc-nube-ultima-ok',ultimaOk);
+      ultimoError='';ultimaOk=new Date().toISOString();if(!window.DC_NUBE_LISTA){window.DC_NUBE_LISTA=true;avisar()}guardar('dc-nube-ultima-ok',ultimaOk);
     }catch(e){console.error(e);ultimoError=e?.message||'error';}
     finally{sincronizando=false;estado();if(otraVez){otraVez=false;programarSync(500)}}
   }

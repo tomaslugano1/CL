@@ -316,7 +316,7 @@ function ultimo(cid,tipo){const ts=tipo==='Desvasada'?['Desvasada','Herrada']:[t
 /* Días entre desvases y herrajes: dependen de la categoría y, en hechura y jugadores, del ritmo de trabajo.
    0 en herrar = esa categoría o ritmo no se hierra. Se cambian en Sanidad → "Cada cuántos días". */
 const RITMOS=[['descanso','Descanso'],['normal','Normal'],['apretar','Apretar']];
-const INTERV_DEF={Potrillos:{desv:45,herr:0},Madres:{desv:75,herr:0},Hechura:{desv:60,herr:45},descanso:{desv:75,herr:0},normal:{desv:60,herr:50},apretar:{desv:60,herr:50}};
+const INTERV_DEF={Potrillos:{desv:45,herr:0},Madres:{desv:80,herr:0},Hechura:{desv:60,herr:45},descanso:{desv:80,herr:0},normal:{desv:60,herr:50},apretar:{desv:60,herr:50}};
 const PRECIOS_DEF={'Desvasada':20000,'Herrada':35000};
 function tablaInt(){const t={},g=S.config.intervalos||{};for(const k in INTERV_DEF)t[k]={...INTERV_DEF[k],...(g[k]||{})};return t}
 /* Jugadores sin ritmo elegido = Normal ("fuerte" de una versión anterior también cuenta como Normal) */
@@ -333,7 +333,7 @@ function vencidos(){const out=[];for(const c of activos().filter(enCampo))for(co
 
 /* ---------- render ---------- */
 function renderNav(){$('#nav').innerHTML=TABS.map(([k,l])=>`<button class="${UI.tab===k?'on':''}" data-tab="${k}">${l}</button>`).join('')}
-function render(){renderNav();renderLogo();const m=$('#main');const f={inicio:vInicio,caballos:vCaballos,madres:vMadres,camadas:vCamadas,sanidad:vSanidad,padrillos:vPadrillos,notas:vNotas}[UI.tab];m.innerHTML=f();if(UI.ficha)renderFicha()}
+function render(){renderNav();try{ajustesUnicos()}catch(e){console.error(e)}renderLogo();const m=$('#main');const f={inicio:vInicio,caballos:vCaballos,madres:vMadres,camadas:vCamadas,sanidad:vSanidad,padrillos:vPadrillos,notas:vNotas}[UI.tab];m.innerHTML=f();if(UI.ficha)renderFicha()}
 
 function temporadaActual(){return UI.temporada??(+S.config.temporada||new Date().getFullYear())}
 function vInicio(){
@@ -736,7 +736,7 @@ let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;ren
   try{downloads=await claude.use('downloads')}catch(e){downloads=null}
   const sub=(col,key)=>db.collection(col).onSnapshot(s=>{S[key]=s.docs.map(d=>({id:d.id,...d.data()}));S.loaded[key]=1;schedule()},e=>{console.error(e);toast('Se cortó la conexión. Recargá la página.')});
   sub('caballos','caballos');sub('eventos','eventos');sub('servicios','servicios');sub('padrillos','padrillos');sub('notas','notas');
-  db.doc('config/app').onSnapshot(s=>{if(s.exists)S.config={...S.config,...s.data()};schedule()});
+  db.doc('config/app').onSnapshot(s=>{if(s.exists)S.config={...S.config,...s.data()};S.loaded.config=1;schedule()});
   setTimeout(()=>{if(!S.caballos.length&&S.loaded.caballos)$('#main').innerHTML='<div class="empty">Todavía no hay caballos cargados. Tocá “Caballos” y después “+ Alta”.</div>'},4000);
 })();
 </script>
