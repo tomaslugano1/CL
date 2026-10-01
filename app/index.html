@@ -372,7 +372,7 @@ function sortCab(a,b){const ca=CATS.indexOf(a.categoria),cb=CATS.indexOf(b.categ
 function lugares(){return [...new Set(S.caballos.map(c=>c.lugar).filter(Boolean))].sort()}
 function vCaballos(){
   const q=norm(UI.q);
-  let l=S.caballos.filter(c=>(UI.bajas?c.estado!=='Activo':c.estado==='Activo')&&(!UI.cat||(UI.cat==='__venta'?c.venta:c.categoria===UI.cat))&&(!UI.lugar||c.lugar===UI.lugar)&&(!q||norm(c.nombre+' '+c.rp+' '+c.chip+' '+c.madre+' '+c.padre).includes(q)));
+  let l=S.caballos.filter(c=>(UI.bajas?c.estado!=='Activo':c.estado==='Activo')&&(!UI.cat||(UI.cat==='__venta'?c.venta:c.categoria===UI.cat))&&(!UI.lugar||c.lugar===UI.lugar)&&(!q||norm(c.nombre+' '+(c.apodo||'')+' '+c.rp+' '+c.chip+' '+c.madre+' '+c.padre).includes(q)));
   l.sort(sortCab);
   const sel=UI.sel;
   return `<div class="head"><h2>${UI.bajas?'Bajas':UI.cat==='__venta'?'A la venta':'Caballos'} <span class="muted small">(${l.length})</span></h2>
@@ -467,7 +467,7 @@ function renderFicha(){
    <div class="sheet-h"><div><h2>${esc(c.nombre)}</h2><div class="row" style="margin-top:6px"><span class="pill p-none">${esc(c.categoria)}</span>${c.lugar?`<span class="pill p-none">${esc(c.lugar)}</span>`:''}${c.venta?'<span class="pill p-venta">A la venta</span>':''}${c.estado!=='Activo'?`<span class="pill p-bad">${esc(c.estado)}${c.bajaFecha?' '+fmt(c.bajaFecha):''}</span>`:''}</div></div><button class="x" data-act="close" aria-label="Cerrar">×</button></div>
    <div class="sheet-b">
     ${c.fotos?.length?`<img class="cover" src="${fotoUrl(c.fotos[0])}" alt="${esc(c.nombre)}">`:''}
-    <div class="kv">${[...(c.domador?[['Domador',c.domador]]:[]),['Sexo',c.sexo],['Nacimiento',fmt(c.nac)+(e!==null?` (${e} ${e===1?'año':'años'})`:'')],['Camada',c.camada],['Pelaje',c.pelaje],['Alzada',c.alzada],['RP',c.rp],['N° chip',c.chip],...(c.ingresoDoma?[['Entró a doma',fmt(c.ingresoDoma)]]:[])].map(([k,v])=>`<div><span>${k}</span><b>${esc(v||'—')}</b></div>`).join('')}</div>
+    <div class="kv">${[...(c.apodo?[['Apodo',c.apodo]]:[]),...(c.domador?[['Domador',c.domador]]:[]),['Sexo',c.sexo],['Nacimiento',fmt(c.nac)+(e!==null?` (${e} ${e===1?'año':'años'})`:'')],['Camada',c.camada],['Pelaje',c.pelaje],['Alzada',c.alzada],['RP',c.rp],['N° chip',c.chip],...(c.ingresoDoma?[['Entró a doma',fmt(c.ingresoDoma)]]:[])].map(([k,v])=>`<div><span>${k}</span><b>${esc(v||'—')}</b></div>`).join('')}</div>
     ${c.obs?`<div><h3>Observaciones</h3><div>${esc(c.obs)}</div></div>`:''}
     ${['Hechura','Jugadores'].includes(c.categoria)&&c.estado==='Activo'?`<div class="prac"><b>${practicas(c)}</b><div class="grow" style="flex:1">prácticas<div class="small muted">${(()=>{const u=S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Práctica').sort((a,b)=>b.fecha.localeCompare(a.fecha))[0];return u?'Última: '+fmt(u.fecha):'Sin prácticas cargadas en la app'})()}</div></div>${canWrite?`<button class="btn pri" data-prac="${c.id}">+1 práctica</button>`:''}</div>`:''}
     ${['Hechura','Jugadores'].includes(c.categoria)&&c.estado==='Activo'?`<div class="prac"><b>${torneos(c)}</b><div class="grow" style="flex:1">torneos<div class="small muted">${(()=>{const u=S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Torneo').sort((a,b)=>b.fecha.localeCompare(a.fecha))[0];return u?'Último: '+fmt(u.fecha)+(u.obs?' · '+esc(u.obs):''):'Sin torneos cargados en la app'})()}</div></div>${canWrite?`<button class="btn pri" data-torneo="${c.id}">+1 torneo</button>`:''}</div>`:''}
@@ -588,7 +588,7 @@ function slugId(p){return p+'-'+Date.now().toString(36)+Math.random().toString(3
 function caballoForm(c,pre={},after){
   const v={...pre,...(c||{})};
   form(c?'Editar datos':'Alta de caballo',[
-    {k:'nombre',l:'Nombre',v:v.nombre,req:1,full:1},{k:'categoria',l:'Categoría',type:'select',opts:CATS,v:v.categoria||'Potrillos'},{k:'lugar',l:'Lugar',v:v.lugar??'Doña Cecilia',list:'dl-lug'},{k:'domador',l:'Domador',v:v.domador},{k:'ingresoDoma',l:'Entrada a doma (fecha)',type:'date',v:v.ingresoDoma},{k:'alzada',l:'Alzada (ej: 1,55 m)',v:v.alzada},
+    {k:'nombre',l:'Nombre',v:v.nombre,req:1,full:1},{k:'apodo',l:'Apodo / otro nombre (ej: como le dice el herrero)',v:v.apodo,full:1},{k:'categoria',l:'Categoría',type:'select',opts:CATS,v:v.categoria||'Potrillos'},{k:'lugar',l:'Lugar',v:v.lugar??'Doña Cecilia',list:'dl-lug'},{k:'domador',l:'Domador',v:v.domador},{k:'ingresoDoma',l:'Entrada a doma (fecha)',type:'date',v:v.ingresoDoma},{k:'alzada',l:'Alzada (ej: 1,55 m)',v:v.alzada},
     {k:'sexo',l:'Sexo',type:'select',opts:['Macho','Hembra',''],v:v.sexo||''},{k:'pelaje',l:'Pelaje',v:v.pelaje},{k:'nac',l:'Fecha de nacimiento',type:'date',v:v.nac},{k:'camada',l:'Camada (año)',type:'number',v:v.camada},
     {k:'rp',l:'RP',v:v.rp},{k:'chip',l:'N° chip',v:v.chip},{k:'padre',l:'Padre',v:v.padre,list:'dl-pad'},{k:'madre',l:'Madre',v:v.madre,list:'dl-hembras'},
     {k:'abueloP',l:'Abuelo paterno',v:v.abueloP},{k:'abuelaP',l:'Abuela paterna',v:v.abuelaP},{k:'abueloM',l:'Abuelo materno',v:v.abueloM},{k:'abuelaM',l:'Abuela materna',v:v.abuelaM},

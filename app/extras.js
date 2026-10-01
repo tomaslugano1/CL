@@ -16,7 +16,7 @@ async function exportarExcel(){
   try{quien=await user?.profiles?.(porIds)||{}}catch(e){}
   const wb=XLSX.utils.book_new();
   const cab=[...S.caballos].sort((a,b)=>(a.estado==='Activo'?0:1)-(b.estado==='Activo'?0:1)||sortCab(a,b)).map(c=>({
-    'Nombre':c.nombre,'Estado':c.estado,'Categoría':c.categoria,'Lugar':c.lugar,'Sexo':c.sexo,'Pelaje':c.pelaje,
+    'Nombre':c.nombre,'Apodo':c.apodo||'','Estado':c.estado,'Categoría':c.categoria,'Lugar':c.lugar,'Sexo':c.sexo,'Pelaje':c.pelaje,
     'Nacimiento':fx(c.nac),'Camada':c.camada??'','RP':c.rp,'N° chip':c.chip,'Padre':c.padre,'Madre':c.madre,
     'Abuelo paterno':c.abueloP,'Abuela paterna':c.abuelaP,'Abuelo materno':c.abueloM,'Abuela materna':c.abuelaM,
     'Bisabuelos lado padre':(()=>{const ap=c.abueloP||padresDeNombre(c.padre).padre,bp=c.abuelaP||padresDeNombre(c.padre).madre;return [ap,bp].map(n=>{const x=padresDeNombre(n);return x.padre||x.madre?(x.padre||'?')+' × '+(x.madre||'?'):''}).filter(Boolean).join(' / ')})(),
