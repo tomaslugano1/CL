@@ -72,7 +72,7 @@ Para que funcione, el sitio de Netlify tiene que estar en **público** ("Make pu
 
 ## Paso 6: notificaciones en el celular (una sola vez)
 
-Cada mañana a las 8:00 llega un aviso como los de WhatsApp: lo que vence hoy, lo atrasado y los partos de la semana.
+A las 8:00 llega un aviso como los de WhatsApp: el día que vence algo y 7 días antes (también partos), y los lunes un resumen de la semana con lo atrasado.
 No hay claves para copiar: la app genera las suyas y las guarda en Supabase.
 
 1. En Supabase → **SQL Editor**: correr `supabase/notificaciones.sql` y después `supabase/notificaciones-2.sql` (necesitan el Paso 5). El segundo crea el "despertador" de las 8:00.

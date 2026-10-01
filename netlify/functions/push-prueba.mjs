@@ -1,6 +1,6 @@
 // Doña Cecilia — "Mandarme una de prueba" desde la app: manda un aviso solo a los celulares de quien lo pide.
 // Usa el token de sesión del usuario para pedirle los datos a Supabase.
-import { rpc, resumenDelDia, enviar, json } from '../lib/avisos.mjs';
+import { rpc, avisoSemanal, enviar, json } from '../lib/avisos.mjs';
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ error: 'Usar POST' }, 405);
@@ -10,8 +10,8 @@ export default async (req) => {
   try { d = await rpc('push_datos_mios', {}, token); } catch (e) { return json({ error: 'Sesión no válida. Volvé a entrar a la app.' }, 401); }
   if (!d) return json({ error: 'Sesión no válida. Volvé a entrar a la app.' }, 401);
   if (!d.subs?.length) return json({ error: 'Este usuario no tiene celulares con notificaciones activadas.' }, 404);
-  const resumen = resumenDelDia(d.filas);
-  const aviso = { title: 'Doña Cecilia · Prueba ✅', body: resumen ? 'Así te va a llegar cada mañana:\n' + resumen.body : 'Las notificaciones funcionan. Hoy no hay nada pendiente.', url: '/' };
+  const semana = avisoSemanal(d.filas);
+  const aviso = { title: 'Doña Cecilia · Prueba ✅', body: semana ? 'Así te llega el resumen de los lunes:\n' + semana.body : 'Las notificaciones funcionan. Esta semana no hay nada pendiente.', url: '/' };
   try { const r = await enviar(d, aviso); return json({ ok: r.ok, fallos: r.fallos }); }
   catch (e) { return json({ error: e.message }, 500); }
 };

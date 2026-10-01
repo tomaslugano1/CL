@@ -1,6 +1,7 @@
-// Doña Cecilia — aviso diario al celular.
+// Doña Cecilia — avisos al celular.
 // Lo llama Supabase todos los días a las 8:00 (ver supabase/notificaciones-2.sql) con la clave del calendario.
-import { rpc, resumenDelDia, enviar, json } from '../lib/avisos.mjs';
+// Todos los días: lo que vence hoy y lo que vence en 7 días. Los lunes, además, el resumen de la semana.
+import { rpc, avisosDelDia, enviar, json } from '../lib/avisos.mjs';
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ error: 'Usar POST' }, 405);
@@ -8,12 +9,18 @@ export default async (req) => {
   if (!clave) return json({ error: 'Falta la clave' }, 400);
   const d = await rpc('push_datos', { p_clave: clave });
   if (!d) return json({ error: 'Clave incorrecta' }, 403);
-  const aviso = resumenDelDia(d.filas);
-  if (!aviso) return json({ enviado: false, motivo: 'Nada para avisar hoy' });
-  const r = await enviar(d, aviso);
-  for (const e of r.muertos) { try { await rpc('borrar_suscripcion_push', { p_clave: clave, p_endpoint: e }); } catch {} }
-  console.log(`Aviso enviado a ${r.ok} celular(es), ${r.fallos} con error`);
-  return json({ enviado: true, ok: r.ok, fallos: r.fallos });
+  const avisos = avisosDelDia(d.filas);
+  if (!avisos.length) return json({ enviados: 0, motivo: 'Nada para avisar hoy' });
+  let ok = 0, fallos = 0;
+  const muertos = new Set();
+  for (const aviso of avisos) {
+    const r = await enviar(d, aviso);
+    ok += r.ok; fallos += r.fallos; r.muertos.forEach((e) => muertos.add(e));
+    d.subs = d.subs.filter((s) => !muertos.has(s.endpoint));
+  }
+  for (const e of muertos) { try { await rpc('borrar_suscripcion_push', { p_clave: clave, p_endpoint: e }); } catch {} }
+  console.log(`${avisos.length} aviso(s): ${ok} entregas, ${fallos} con error`);
+  return json({ enviados: avisos.length, ok, fallos });
 };
 
 export const config = { path: '/api/avisos' };

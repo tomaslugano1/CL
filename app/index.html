@@ -314,11 +314,12 @@ function renderLogo(){const l=$('#logo');const id=S.config.logo;l.innerHTML=id?`
 function ultimo(cid,tipo){let f='';for(const e of S.eventos)if(e.caballoId===cid&&e.tipo===tipo&&e.fecha>f)f=e.fecha;return f}
 /* Días entre desvases y herrajes: dependen de la categoría y, en hechura y jugadores, del ritmo de trabajo.
    0 en herrar = esa categoría o ritmo no se hierra. Se cambian en Sanidad → "Cada cuántos días". */
-const RITMOS=[['descanso','Descanso'],['normal','Normal'],['apretar','Apretar'],['fuerte','Fuerte']];
-const INTERV_DEF={Potrillos:{desv:45,herr:0},Madres:{desv:75,herr:0},Hechura:{desv:60,herr:45},descanso:{desv:75,herr:0},normal:{desv:60,herr:50},apretar:{desv:60,herr:40},fuerte:{desv:55,herr:35}};
+const RITMOS=[['descanso','Descanso'],['apretar','Apretar'],['fuerte','Fuerte']];
+const INTERV_DEF={Potrillos:{desv:45,herr:0},Madres:{desv:75,herr:0},Hechura:{desv:60,herr:45},descanso:{desv:75,herr:0},apretar:{desv:60,herr:40},fuerte:{desv:55,herr:35}};
 const PRECIOS_DEF={'Desvasada':20000,'Herrada':35000};
 function tablaInt(){const t={},g=S.config.intervalos||{};for(const k in INTERV_DEF)t[k]={...INTERV_DEF[k],...(g[k]||{})};return t}
-function grupoInt(c){if(c.ritmo&&['Hechura','Jugadores'].includes(c.categoria))return c.ritmo;return c.categoria==='Jugadores'?'normal':c.categoria}
+/* Jugadores sin ritmo elegido = Fuerte ("normal" de versiones anteriores también cuenta como Fuerte) */
+function grupoInt(c){const r=c.ritmo==='normal'?'fuerte':c.ritmo;if(r&&['Hechura','Jugadores'].includes(c.categoria))return r;return c.categoria==='Jugadores'?'fuerte':c.categoria}
 function precios(){return {...PRECIOS_DEF,...(S.config.precios||{})}}
 function intervalo(c,tipo){const k=S.config;if(tipo==='Desparasitación')return c.categoria==='Madres'?k.despMadres:k.despResto;
   const g=tablaInt()[grupoInt(c)];if(!g)return tipo==='Desvasada'?k.desvasar:k.herrar;return tipo==='Desvasada'?g.desv:g.herr}
@@ -383,7 +384,7 @@ function vCaballos(){
     return `<button class="hcard ${esc(c.sexo)} ${c.estado!=='Activo'?'baja':''}" data-${sel?'pick':'open'}="${c.id}">
       ${sel?`<input type="checkbox" tabindex="-1" ${sel.has(c.id)?'checked':''}>`:''}
       ${c.fotos?.length?`<img class="thumb" src="${fotoUrl(c.fotos[0])}" alt="" loading="lazy">`:''}
-      <div class="grow"><div class="nm">${esc(c.nombre)} ${c.venta?'<span class="pill p-venta">A la venta</span>':''} ${c.ritmo&&['Hechura','Jugadores'].includes(c.categoria)&&c.ritmo!=='normal'?`<span class="pill p-none">${esc(RITMOS.find(r=>r[0]===c.ritmo)?.[1]||'')}</span>`:''} ${c.categoria==='Hechura'&&c.estado==='Activo'?`<span class="pill p-none">${practicas(c)} prácticas</span>${torneos(c)?` <span class="pill p-none">${torneos(c)} torneos</span>`:''}`:''}</div>
+      <div class="grow"><div class="nm">${esc(c.nombre)} ${c.venta?'<span class="pill p-venta">A la venta</span>':''} ${c.ritmo&&['Hechura','Jugadores'].includes(c.categoria)&&!['normal','fuerte'].includes(c.ritmo)?`<span class="pill p-none">${esc(RITMOS.find(r=>r[0]===c.ritmo)?.[1]||'')}</span>`:''} ${c.categoria==='Hechura'&&c.estado==='Activo'?`<span class="pill p-none">${practicas(c)} prácticas</span>${torneos(c)?` <span class="pill p-none">${torneos(c)} torneos</span>`:''}`:''}</div>
       <div class="meta">${[e!==null?e+(e===1?' año':' años'):'',c.categoria,c.camada?'Camada '+c.camada:'',c.estado!=='Activo'?c.estado:''].filter(Boolean).join(' · ')}</div></div>
       ${c.estado==='Activo'&&enCampo(c)?`<div class="dots" title="Desparasitación · Desvasada">${ds.map(s=>`<span class="dot d-${s.st}"></span>`).join('')}</div>`:''}
       ${sel?'':'<span class="go">›</span>'}</button>`}).join('')||'<div class="empty">No hay caballos con ese filtro.</div>'}</div>

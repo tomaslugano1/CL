@@ -7,11 +7,11 @@ export const SB_URL = process.env.SUPABASE_URL || 'https://rqmibapllqfvxgsawyox.
 export const SB_ANON = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxbWliYXBsbHFmdnhnc2F3eW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTc2NTMsImV4cCI6MjEwNjI5MzY1M30.QH3vsZUmp2MXFq-2rPLgDmvoTGsRz4NojyGeGxvSRH0';
 
 // Mismas reglas que la app (index.html: INTERV_DEF, grupoInt, intervalo). Si se cambian allá, cambiarlas acá.
-const INTERV_DEF = { Potrillos: { desv: 45, herr: 0 }, Madres: { desv: 75, herr: 0 }, Hechura: { desv: 60, herr: 45 }, descanso: { desv: 75, herr: 0 }, normal: { desv: 60, herr: 50 }, apretar: { desv: 60, herr: 40 }, fuerte: { desv: 55, herr: 35 } };
+const INTERV_DEF = { Potrillos: { desv: 45, herr: 0 }, Madres: { desv: 75, herr: 0 }, Hechura: { desv: 60, herr: 45 }, descanso: { desv: 75, herr: 0 }, apretar: { desv: 60, herr: 40 }, fuerte: { desv: 55, herr: 35 } };
 export function reglas(config = {}) {
   const k = { despMadres: 180, despResto: 90, desvasar: 60, herrar: 45, ...config };
   const tabla = {}; for (const g in INTERV_DEF) tabla[g] = { ...INTERV_DEF[g], ...((k.intervalos || {})[g] || {}) };
-  const grupo = (c) => (c.ritmo && ['Hechura', 'Jugadores'].includes(c.categoria)) ? c.ritmo : (c.categoria === 'Jugadores' ? 'normal' : c.categoria);
+  const grupo = (c) => { const rt = c.ritmo === 'normal' ? 'fuerte' : c.ritmo; return (rt && ['Hechura', 'Jugadores'].includes(c.categoria)) ? rt : (c.categoria === 'Jugadores' ? 'fuerte' : c.categoria); };
   return (c, t) => {
     if (t === 'Desparasitación') return +(c.categoria === 'Madres' ? k.despMadres : k.despResto) || 0;
     const g = tabla[grupo(c)];
@@ -37,8 +37,8 @@ export async function rpc(nombre, body = {}, token = SB_ANON) {
   return t ? JSON.parse(t) : null;
 }
 
-// Arma el texto del aviso del día. Devuelve null si no hay nada que avisar.
-export function resumenDelDia(filas, hoy = hoyAR()) {
+// Prepara lo que hace falta para armar los avisos: cuándo vence cada cosa y las preñadas.
+function preparar(filas) {
   const D = { caballos: [], eventos: [], servicios: [], config: {} };
   for (const r of filas || []) {
     if (r.coleccion === 'config') { if (r.id === 'app') D.config = r.data || {}; }
@@ -47,28 +47,50 @@ export function resumenDelDia(filas, hoy = hoyAR()) {
   const intervalo = reglas(D.config);
   const ultimo = {};
   for (const e of D.eventos) { const key = e.caballoId + '|' + e.tipo; if (e.fecha && (!ultimo[key] || e.fecha > ultimo[key])) ultimo[key] = e.fecha; }
-
-  const hoyN = {}, vencN = {};
+  const vence = [];   // { t, c, p }
   for (const c of D.caballos) {
     if (c.estado !== 'Activo' || c.categoria === 'Doma') continue;
     for (const t of Object.keys(VERBO)) {
       const u = ultimo[c.id + '|' + t]; const n = intervalo(c, t); if (!u || !n) continue;
-      const p = addDays(u, n);
-      if (p === hoy) hoyN[t] = (hoyN[t] || 0) + 1; else if (p < hoy) vencN[t] = (vencN[t] || 0) + 1;
+      vence.push({ t, c, p: addDays(u, n) });
     }
   }
-  const partos = D.servicios.filter(s => s.estado === 'Preñada' && s.fpp && diff(s.fpp, hoy) >= -7 && diff(s.fpp, hoy) <= 7)
-    .sort((a, b) => a.fpp.localeCompare(b.fpp))
-    .map(s => { const d = diff(s.fpp, hoy); return `${s.madre} ${d === 0 ? 'hoy' : d > 0 ? `en ${d} día${d > 1 ? 's' : ''}` : `(pasó hace ${-d} d)`}`; });
+  return { vence, prenadas: D.servicios.filter(s => s.estado === 'Preñada' && s.fpp) };
+}
+const fmtCorta = (s) => { const [, m, d] = s.split('-'); return `${+d}/${+m}`; };
+const porTipo = (xs) => Object.keys(VERBO).map(t => [t, xs.filter(x => x.t === t)]).filter(([, l]) => l.length);
+const quien = (xs) => xs.length <= 4 ? ': ' + xs.map(x => x.c.nombre).join(', ') : ` ${xs.length} caballos`;
 
-  const lineas = [];
-  const hoyTxt = Object.entries(hoyN).map(([t, n]) => `${VERBO[t]} ${n}`);
-  if (hoyTxt.length) lineas.push('Vence hoy: ' + hoyTxt.join(' · '));
-  const vencTxt = Object.entries(vencN).map(([t, n]) => `${VERBO[t]} ${n}`);
-  if (vencTxt.length) lineas.push('Atrasado: ' + vencTxt.join(' · '));
-  if (partos.length) lineas.push('Partos: ' + partos.join(', '));
-  if (!lineas.length) return null;
-  return { title: 'Doña Cecilia · Para hoy', body: lineas.join('\n'), url: '/' };
+// Aviso diario: lo que vence HOY y lo que vence EN 7 DÍAS (y partos de hoy o en 7 días). null si no hay nada.
+export function avisoDiario(filas, hoy = hoyAR()) {
+  const { vence, prenadas } = preparar(filas), en7 = addDays(hoy, 7), lineas = [];
+  const hoyL = porTipo(vence.filter(x => x.p === hoy)).map(([t, l]) => VERBO[t] + quien(l));
+  const antes = porTipo(vence.filter(x => x.p === en7)).map(([t, l]) => VERBO[t] + quien(l));
+  const ph = prenadas.filter(s => s.fpp === hoy).map(s => s.madre), p7 = prenadas.filter(s => s.fpp === en7).map(s => s.madre);
+  if (hoyL.length) lineas.push('Vence HOY → ' + hoyL.join(' · '));
+  if (ph.length) lineas.push('Parto probable HOY: ' + ph.join(', '));
+  if (antes.length) lineas.push('En 7 días (' + fmtCorta(en7) + ') → ' + antes.join(' · '));
+  if (p7.length) lineas.push('Parto probable en 7 días: ' + p7.join(', '));
+  return lineas.length ? { title: 'Doña Cecilia · Hoy', body: lineas.join('\n'), url: '/', tag: 'dc-diario' } : null;
+}
+
+// Resumen de la semana (se manda los lunes): lo atrasado + lo que vence en los próximos 7 días + partos.
+export function avisoSemanal(filas, hoy = hoyAR()) {
+  const { vence, prenadas } = preparar(filas), en7 = addDays(hoy, 7);
+  const ls = porTipo(vence.filter(x => x.p <= en7)).map(([t, l]) => {
+    const atr = l.filter(x => x.p < hoy).length;
+    return `${VERBO[t]} ${l.length}${atr ? ` (${atr} atrasado${atr > 1 ? 's' : ''})` : ''}`;
+  });
+  const partos = prenadas.filter(s => s.fpp >= addDays(hoy, -7) && s.fpp <= en7).sort((a, b) => a.fpp.localeCompare(b.fpp)).map(s => `${s.madre} ${fmtCorta(s.fpp)}`);
+  if (partos.length) ls.push('Partos: ' + partos.join(', '));
+  return ls.length ? { title: 'Doña Cecilia · Esta semana', body: 'Para hacer hasta el ' + fmtCorta(en7) + ':\n' + ls.join('\n'), url: '/', tag: 'dc-semana' } : null;
+}
+
+// Todos los avisos de un día: el diario, y los lunes también el semanal.
+export function avisosDelDia(filas, hoy = hoyAR()) {
+  const out = [avisoDiario(filas, hoy)];
+  if (new Date(hoy + 'T12:00:00Z').getUTCDay() === 1) out.push(avisoSemanal(filas, hoy));
+  return out.filter(Boolean);
 }
 
 // Manda un aviso a una lista de celulares. Devuelve los que ya no existen para borrarlos.
