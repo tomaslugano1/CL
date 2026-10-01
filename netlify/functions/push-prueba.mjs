@@ -1,22 +1,19 @@
-// Doña Cecilia — "Probar notificación" desde la app: manda un aviso a los celulares de quien lo pide.
-// Recibe el token de sesión de Supabase para saber quién es.
-import { SB_URL, SB_ANON, faltaConfig, leerDatos, leerSuscripciones, resumenDelDia, enviar } from '../lib/avisos.mjs';
-
-const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { 'Content-Type': 'application/json' } });
+// Doña Cecilia — "Mandarme una de prueba" desde la app: manda un aviso solo a los celulares de quien lo pide.
+// Usa el token de sesión del usuario para pedirle los datos a Supabase.
+import { rpc, resumenDelDia, enviar, json } from '../lib/avisos.mjs';
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ error: 'Usar POST' }, 405);
-  const falta = faltaConfig();
-  if (falta.length) return json({ error: 'Faltan configurar en Netlify: ' + falta.join(', ') }, 500);
   const token = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
-  const u = await fetch(`${SB_URL}/auth/v1/user`, { headers: { apikey: SB_ANON, Authorization: 'Bearer ' + token } });
-  if (!u.ok) return json({ error: 'Sesión no válida. Volvé a entrar a la app.' }, 401);
-  const yo = await u.json();
-  const mias = (await leerSuscripciones()).filter((s) => s.usuario === yo.id);
-  if (!mias.length) return json({ error: 'Este usuario no tiene celulares con notificaciones activadas.' }, 404);
-  const resumen = resumenDelDia(await leerDatos());
+  if (!token) return json({ error: 'Volvé a entrar a la app.' }, 401);
+  let d;
+  try { d = await rpc('push_datos_mios', {}, token); } catch (e) { return json({ error: 'Sesión no válida. Volvé a entrar a la app.' }, 401); }
+  if (!d) return json({ error: 'Sesión no válida. Volvé a entrar a la app.' }, 401);
+  if (!d.subs?.length) return json({ error: 'Este usuario no tiene celulares con notificaciones activadas.' }, 404);
+  const resumen = resumenDelDia(d.filas);
   const aviso = { title: 'Doña Cecilia · Prueba ✅', body: resumen ? 'Así te va a llegar cada mañana:\n' + resumen.body : 'Las notificaciones funcionan. Hoy no hay nada pendiente.', url: '/' };
-  return json(await enviar(mias, aviso));
+  try { const r = await enviar(d, aviso); return json({ ok: r.ok, fallos: r.fallos }); }
+  catch (e) { return json({ error: e.message }, 500); }
 };
 
 export const config = { path: '/api/push-prueba' };

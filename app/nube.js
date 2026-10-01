@@ -93,6 +93,13 @@
 
   /* ---------- notificaciones en el celular (Web Push) ---------- */
   const b64u=s=>{const b=atob((s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,ch=>ch.charCodeAt(0))};
+  const b64e=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  /* La primera vez que alguien activa las notificaciones, la app genera el par de claves y lo guarda en Supabase.
+     La privada no sale nunca de ahí (solo la usan las funciones del aviso). */
+  async function claveVapid(){let {data:pub,error}=await sb.rpc('vapid_publica');if(error)throw error;if(pub)return pub;
+    const kp=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign']);
+    const raw=b64e(await crypto.subtle.exportKey('raw',kp.publicKey)),d=(await crypto.subtle.exportKey('jwk',kp.privateKey)).d;
+    const r=await sb.rpc('guardar_vapid',{p_publica:raw,p_privada:d});if(r.error)throw r.error;return r.data}
   window.DC_PUSH={
     soportado:()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window,
     esIOS:()=>/iphone|ipad|ipod/i.test(navigator.userAgent),
@@ -100,8 +107,10 @@
     async estado(){if(!this.soportado())return 'no';if(Notification.permission==='denied')return 'bloqueada';
       const r=await navigator.serviceWorker.ready;return (await r.pushManager.getSubscription())?'activa':'apagada'},
     async activar(){const p=await Notification.requestPermission();if(p!=='granted')throw new Error(p==='denied'?'bloqueada':'Sin permiso');
+      const pub=await claveVapid();
       const r=await navigator.serviceWorker.ready;let s=await r.pushManager.getSubscription();
-      if(!s)s=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(CFG.vapidPublic)});
+      if(s&&s.options&&s.options.applicationServerKey){const k=new Uint8Array(s.options.applicationServerKey);const p=b64u(pub);if(k.length!==p.length||k.some((x,i)=>x!==p[i])){await s.unsubscribe();s=null}}
+      if(!s)s=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(pub)});
       const j=s.toJSON();const {error}=await sb.from('push_suscripciones').upsert({endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,usuario:yo.id,aparato:navigator.userAgent.slice(0,200)},{onConflict:'endpoint'});
       if(error){await s.unsubscribe().catch(()=>{});throw error}
       await r.showNotification('Doña Cecilia',{body:'Listo: las notificaciones quedaron activadas en este aparato.',icon:'icono-192.png',badge:'icono-192.png'})},
