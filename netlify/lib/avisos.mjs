@@ -79,7 +79,7 @@ export function avisoDiario(filas, hoy = hoyAR()) {
   if (hoyL.length) lineas.push('Vence HOY → ' + linea(hoyL));
   if (pProx.length) lineas.push('Partos en 7 días: ' + pProx.map(s => `${s.madre} ${fmtCorta(s.fpp)}`).join(', '));
   if (prox.length) lineas.push('Próximos 7 días → ' + linea(prox));
-  return lineas.length ? { title: 'Doña Cecilia · Para hacer', body: lineas.join('\n'), url: '/', tag: 'dc-diario' } : null;
+  return lineas.length ? { title: 'Doña Cecilia · Para hacer esta semana', body: lineas.join('\n'), url: '/', tag: 'dc-diario' } : null;
 }
 
 // Resumen de la semana (se manda los lunes): lo atrasado + lo que vence en los próximos 7 días + partos.

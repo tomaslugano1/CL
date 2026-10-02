@@ -78,7 +78,7 @@
       }
       if(max)guardar(LS_ULT,max);
       persistir();if(cambio)avisar();
-      ultimoError='';ultimaOk=new Date().toISOString();if(!window.DC_NUBE_LISTA){window.DC_NUBE_LISTA=true;avisar()}guardar('dc-nube-ultima-ok',ultimaOk);
+      ultimoError='';ultimaOk=new Date().toISOString();if(!window.DC_NUBE_LISTA){window.DC_NUBE_LISTA=true;avisar();revisarPush()}guardar('dc-nube-ultima-ok',ultimaOk);
     }catch(e){console.error(e);ultimoError=e?.message||'error';}
     finally{sincronizando=false;estado();if(otraVez){otraVez=false;programarSync(500)}}
   }
@@ -96,10 +96,14 @@
   const b64e=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   /* La primera vez que alguien activa las notificaciones, la app genera el par de claves y lo guarda en Supabase.
      La privada no sale nunca de ahí (solo la usan las funciones del aviso). */
-  async function claveVapid(){let {data:pub,error}=await sb.rpc('vapid_publica');if(error)throw error;if(pub)return pub;
+  let vapidNueva=false;
+  async function claveVapid(){let {data:pub,error}=await sb.rpc('vapid_publica');if(error)throw error;if(pub)return pub;vapidNueva=true;
     const kp=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign']);
     const raw=b64e(await crypto.subtle.exportKey('raw',kp.publicKey)),d=(await crypto.subtle.exportKey('jwk',kp.privateKey)).d;
     const r=await sb.rpc('guardar_vapid',{p_publica:raw,p_privada:d});if(r.error)throw r.error;return r.data}
+  /* Si este aparato ya tiene notificaciones, revisa al entrar que todo esté bien (claves y suscripción guardadas). */
+  function revisarPush(){setTimeout(async()=>{try{if(!window.DC_PUSH.soportado()||Notification.permission!=='granted')return;
+    const r=await navigator.serviceWorker.ready;if(await r.pushManager.getSubscription())await window.DC_PUSH.asegurar()}catch(e){console.warn('push',e)}},3000)}
   window.DC_PUSH={
     soportado:()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window,
     esIOS:()=>/iphone|ipad|ipod/i.test(navigator.userAgent),
@@ -107,16 +111,21 @@
     async estado(){if(!this.soportado())return 'no';if(Notification.permission==='denied')return 'bloqueada';
       const r=await navigator.serviceWorker.ready;return (await r.pushManager.getSubscription())?'activa':'apagada'},
     async activar(){const p=await Notification.requestPermission();if(p!=='granted')throw new Error(p==='denied'?'bloqueada':'Sin permiso');
-      const pub=await claveVapid();
+      const r=await this.asegurar();
+      await r.showNotification('Doña Cecilia',{body:'Listo: las notificaciones quedaron activadas en este aparato.',icon:'icono-192.png',badge:'icono-192.png'})},
+    /* Deja este aparato bien suscripto: crea las claves si faltan (si se crean de nuevo, vuelve a suscribir) y guarda la suscripción en la nube. */
+    async asegurar(){vapidNueva=false;const pub=await claveVapid();
       const r=await navigator.serviceWorker.ready;let s=await r.pushManager.getSubscription();
+      if(s&&vapidNueva){await s.unsubscribe();s=null}
       if(s&&s.options&&s.options.applicationServerKey){const k=new Uint8Array(s.options.applicationServerKey);const p=b64u(pub);if(k.length!==p.length||k.some((x,i)=>x!==p[i])){await s.unsubscribe();s=null}}
       if(!s)s=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(pub)});
       const j=s.toJSON();const {error}=await sb.from('push_suscripciones').upsert({endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,usuario:yo.id,aparato:navigator.userAgent.slice(0,200)},{onConflict:'endpoint'});
       if(error){await s.unsubscribe().catch(()=>{});throw error}
-      await r.showNotification('Doña Cecilia',{body:'Listo: las notificaciones quedaron activadas en este aparato.',icon:'icono-192.png',badge:'icono-192.png'})},
+      return r},
     async desactivar(){const r=await navigator.serviceWorker.ready;const s=await r.pushManager.getSubscription();
       if(s){await sb.from('push_suscripciones').delete().eq('endpoint',s.endpoint);await s.unsubscribe()}},
     async probar(){const {data:{session}}=await sb.auth.getSession();if(!session)throw new Error('Volvé a entrar a la app.');
+      if(Notification.permission==='granted')await this.asegurar();
       const r=await fetch('/api/push-prueba',{method:'POST',headers:{Authorization:'Bearer '+session.access_token}});
       const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Error '+r.status);return j}};
 
