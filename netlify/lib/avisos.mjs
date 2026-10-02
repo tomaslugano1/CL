@@ -111,7 +111,8 @@ export async function enviar({ publica, privada, subs }, aviso) {
       ok++;
     } catch (e) {
       fallos++;
-      if (e.statusCode === 404 || e.statusCode === 410) muertos.push(s.endpoint);
+      // 404/410: el celular ya no existe · 403: quedó anotado con claves viejas (al abrir la app se vuelve a anotar bien)
+      if (e.statusCode === 404 || e.statusCode === 410 || e.statusCode === 403) muertos.push(s.endpoint);
       else console.error('push', e.statusCode, e.body || e.message);
     }
   }));

@@ -116,8 +116,9 @@
     /* Deja este aparato bien suscripto: crea las claves si faltan (si se crean de nuevo, vuelve a suscribir) y guarda la suscripción en la nube. */
     async asegurar(){vapidNueva=false;const pub=await claveVapid();
       const r=await navigator.serviceWorker.ready;let s=await r.pushManager.getSubscription();
-      if(s&&vapidNueva){await s.unsubscribe();s=null}
-      if(s&&s.options&&s.options.applicationServerKey){const k=new Uint8Array(s.options.applicationServerKey);const p=b64u(pub);if(k.length!==p.length||k.some((x,i)=>x!==p[i])){await s.unsubscribe();s=null}}
+      const tirar=async()=>{await sb.from('push_suscripciones').delete().eq('endpoint',s.endpoint);await s.unsubscribe();s=null};
+      if(s&&vapidNueva)await tirar();
+      if(s&&s.options&&s.options.applicationServerKey){const k=new Uint8Array(s.options.applicationServerKey);const p=b64u(pub);if(k.length!==p.length||k.some((x,i)=>x!==p[i]))await tirar()}
       if(!s)s=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(pub)});
       const j=s.toJSON();const {error}=await sb.from('push_suscripciones').upsert({endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,usuario:yo.id,aparato:navigator.userAgent.slice(0,200)},{onConflict:'endpoint'});
       if(error){await s.unsubscribe().catch(()=>{});throw error}
