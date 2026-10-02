@@ -1,6 +1,6 @@
 // Doña Cecilia — avisos al celular.
 // Lo llama Supabase todos los días a las 8:00 (ver supabase/notificaciones-2.sql) con la clave del calendario.
-// Todos los días: lo que vence hoy y lo que vence en 7 días. Los lunes, además, el resumen de la semana.
+// Todos los días: lo atrasado, lo que vence hoy y en los próximos 7 días, y los partos.
 import { rpc, avisosDelDia, enviar, json } from '../lib/avisos.mjs';
 
 export default async (req) => {

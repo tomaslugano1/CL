@@ -66,17 +66,20 @@ const fmtCorta = (s) => { const [, m, d] = s.split('-'); return `${+d}/${+m}`; }
 const porTipo = (xs) => Object.keys(VERBO).map(t => [t, xs.filter(x => x.t === t)]).filter(([, l]) => l.length);
 const quien = (xs) => xs.length <= 4 ? ': ' + xs.map(x => x.c.nombre).join(', ') : ` ${xs.length} caballos`;
 
-// Aviso diario: lo que vence HOY y lo que vence EN 7 DÍAS (y partos de hoy o en 7 días). null si no hay nada.
+// Aviso diario: lo ATRASADO, lo que vence HOY y lo que vence en los PRÓXIMOS 7 DÍAS, más los partos
+// (los que pasaron la fecha y los que vienen). Se repite todos los días mientras haya algo pendiente. null si no hay nada.
 export function avisoDiario(filas, hoy = hoyAR()) {
   const { vence, prenadas } = preparar(filas), en7 = addDays(hoy, 7), lineas = [];
-  const hoyL = porTipo(vence.filter(x => x.p === hoy)).map(([t, l]) => VERBO[t] + quien(l));
-  const antes = porTipo(vence.filter(x => x.p === en7)).map(([t, l]) => VERBO[t] + quien(l));
-  const ph = prenadas.filter(s => s.fpp === hoy).map(s => s.madre), p7 = prenadas.filter(s => s.fpp === en7).map(s => s.madre);
-  if (hoyL.length) lineas.push('Vence HOY → ' + hoyL.join(' · '));
-  if (ph.length) lineas.push('Parto probable HOY: ' + ph.join(', '));
-  if (antes.length) lineas.push('En 7 días (' + fmtCorta(en7) + ') → ' + antes.join(' · '));
-  if (p7.length) lineas.push('Parto probable en 7 días: ' + p7.join(', '));
-  return lineas.length ? { title: 'Doña Cecilia · Hoy', body: lineas.join('\n'), url: '/', tag: 'dc-diario' } : null;
+  const linea = (xs) => porTipo(xs).map(([t, l]) => VERBO[t] + quien(l)).join(' · ');
+  const atr = vence.filter(x => x.p < hoy), hoyL = vence.filter(x => x.p === hoy), prox = vence.filter(x => x.p > hoy && x.p <= en7);
+  const pAtr = prenadas.filter(s => s.fpp < hoy), pHoy = prenadas.filter(s => s.fpp === hoy), pProx = prenadas.filter(s => s.fpp > hoy && s.fpp <= en7);
+  if (pAtr.length) lineas.push('Parto atrasado: ' + pAtr.map(s => `${s.madre} (FPP ${fmtCorta(s.fpp)})`).join(', '));
+  if (pHoy.length) lineas.push('Parto probable HOY: ' + pHoy.map(s => s.madre).join(', '));
+  if (atr.length) lineas.push('Atrasado → ' + linea(atr));
+  if (hoyL.length) lineas.push('Vence HOY → ' + linea(hoyL));
+  if (pProx.length) lineas.push('Partos en 7 días: ' + pProx.map(s => `${s.madre} ${fmtCorta(s.fpp)}`).join(', '));
+  if (prox.length) lineas.push('Próximos 7 días → ' + linea(prox));
+  return lineas.length ? { title: 'Doña Cecilia · Para hacer', body: lineas.join('\n'), url: '/', tag: 'dc-diario' } : null;
 }
 
 // Resumen de la semana (se manda los lunes): lo atrasado + lo que vence en los próximos 7 días + partos.
@@ -91,11 +94,9 @@ export function avisoSemanal(filas, hoy = hoyAR()) {
   return ls.length ? { title: 'Doña Cecilia · Esta semana', body: 'Para hacer hasta el ' + fmtCorta(en7) + ':\n' + ls.join('\n'), url: '/', tag: 'dc-semana' } : null;
 }
 
-// Todos los avisos de un día: el diario, y los lunes también el semanal.
+// Todos los avisos de un día: uno solo, el diario (ya incluye lo atrasado y la semana).
 export function avisosDelDia(filas, hoy = hoyAR()) {
-  const out = [avisoDiario(filas, hoy)];
-  if (new Date(hoy + 'T12:00:00Z').getUTCDay() === 1) out.push(avisoSemanal(filas, hoy));
-  return out.filter(Boolean);
+  return [avisoDiario(filas, hoy)].filter(Boolean);
 }
 
 // Manda un aviso a una lista de celulares. Devuelve los que ya no existen para borrarlos.
