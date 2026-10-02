@@ -9,7 +9,7 @@ const SB_ANON = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ik
 import { reglas } from '../lib/avisos.mjs';
 
 const DIAS_ADELANTE = 120;
-const VERBO = { 'Desparasitación': 'Desparasitar', 'Desvasada': 'Desvasar', 'Herrada': 'Herrar' };
+const VERBO = { 'Desparasitación': 'Desparasitar', 'Desvasada': 'Desvasar', 'Herrada': 'Herrar', 'Muelas': 'Hacer muelas' };
 
 const addDays = (s, n) => { const d = new Date(s + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const hoyAR = () => new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10); // hora de Argentina
@@ -35,7 +35,7 @@ export function armarCalendario(filas, hoy = hoyAR()) {
   const grupos = {};
   for (const c of D.caballos) {
     if (c.estado !== 'Activo' || c.categoria === 'Doma') continue;
-    for (const t of ['Desparasitación', 'Desvasada', 'Herrada']) {
+    for (const t of Object.keys(VERBO)) {
       const u = ultimo[c.id + '|' + t];
       const n = intervalo(c, t);
       if (!u || !n) continue; // sin dato, nunca herrado, o no se hierra: no se agenda

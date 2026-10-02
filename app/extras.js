@@ -21,7 +21,7 @@ async function exportarExcel(){
     'Abuelo paterno':c.abueloP,'Abuela paterna':c.abuelaP,'Abuelo materno':c.abueloM,'Abuela materna':c.abuelaM,
     'Bisabuelos lado padre':(()=>{const ap=c.abueloP||padresDeNombre(c.padre).padre,bp=c.abuelaP||padresDeNombre(c.padre).madre;return [ap,bp].map(n=>{const x=padresDeNombre(n);return x.padre||x.madre?(x.padre||'?')+' × '+(x.madre||'?'):''}).filter(Boolean).join(' / ')})(),
     'Domador':c.domador,'Ritmo':['Hechura','Jugadores'].includes(c.categoria)?(RITMOS.find(r=>r[0]===((c.ritmo==='fuerte'?'normal':c.ritmo)||(c.categoria==='Jugadores'?'normal':'')))?.[1]||''):'','Entrada a doma':fx(c.ingresoDoma),'Alzada':c.alzada,'Prácticas':practicas(c),'Torneos':torneos(c),
-    'Última desparasitación':fx(ultimo(c.id,'Desparasitación')),'Último desvase o herraje':fx(ultimo(c.id,'Desvasada')),'Última herrada':fx(ultimo(c.id,'Herrada')),
+    'Última desparasitación':fx(ultimo(c.id,'Desparasitación')),'Último desvase o herraje':fx(ultimo(c.id,'Desvasada')),'Última herrada':fx(ultimo(c.id,'Herrada')),'Últimas muelas':fx(ultimo(c.id,'Muelas')),
     'A la venta':c.venta?'Sí':'','Precio':c.precio||'','Fecha de baja':fx(c.bajaFecha),'Detalle de baja':c.bajaObs||'','Embocadura':c.embocadura||'','Observaciones':c.obs}));
   XLSX.utils.book_append_sheet(wb,hoja(cab),'Caballos');
   const ev=[...S.eventos].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(e=>({'Fecha':fx(e.fecha),'Caballo':byId(e.caballoId)?.nombre||e.caballo,'Tipo':e.tipo,'Detalle':e.detalle,'Observación':e.obs,'Precio':+e.precio||'','Cargó':e.por?(quien[e.por]?.name||''):''}));
@@ -37,12 +37,12 @@ EXTRA_ACTS.excel=exportarExcel;
 function diasSinCopia(){let u=null;try{u=localStorage.getItem('dc-ultima-copia')}catch(e){}return u?diff(hoy(),u):null}
 
 /* ================= 2) Para hacer esta semana ================= */
-const VERBO={'Desparasitación':'Desparasitar','Desvasada':'Desvasar','Herrada':'Herrar'};
+const VERBO={'Desparasitación':'Desparasitar','Desvasada':'Desvasar','Herrada':'Herrar','Muelas':'Hacer muelas'};
 let TAREAS=[];
 /* Mismas reglas que Sanidad: caballos activos que no están en Doma. Herrar solo a los que ya se herraron alguna vez. */
 function tareasSemana(dias=7){const lim=addDays(hoy(),dias),g={};let sinDato=0;
-  for(const c of activos().filter(enCampo))for(const t of ['Desparasitación','Desvasada','Herrada']){
-    if(t==='Herrada'&&!ultimo(c.id,'Herrada'))continue;
+  for(const c of activos().filter(enCampo))for(const t of ['Desparasitación','Desvasada','Herrada','Muelas']){
+    if((t==='Herrada'||t==='Muelas')&&!ultimo(c.id,t))continue;
     const s=estadoSan(c,t);if(!s.p){if(t==='Desparasitación')sinDato++;continue}
     if(s.p>lim)continue;const lugar=c.lugar||'Sin lugar';const k=lugar+'|'+t;(g[k]=g[k]||{lugar,t,items:[]}).items.push({c,s})}
   const grupos=Object.values(g).sort((a,b)=>a.lugar.localeCompare(b.lugar)||a.t.localeCompare(b.t));
@@ -231,6 +231,10 @@ const AJUSTES={
   'chat-susana-psicodelica':async()=>{
     const su=S.caballos.find(x=>norm(x.nombre)==='SUSANA');if(su&&(!su.pelaje||su.pelaje==='Alazán'))await db.collection('caballos').doc(su.id).update({pelaje:'Ruano'});
     const ps=S.caballos.find(x=>norm(x.nombre)==='PSICODELICA');if(ps&&!/estrella/i.test(ps.obs||''))await db.collection('caballos').doc(ps.id).update({obs:[ps.obs,'Estrella en la frente'].filter(Boolean).join(' · ')})},
+  // Embocaduras de la lista que compartió Juanchi el 11/12/2024 (todo con riendillas). Solo si el caballo no tiene una cargada.
+  'chat-embocaduras-dic2024':async()=>{for(const [n,e] of [['ALEGRA','Levantador'],['CALA','Bisagra'],['CONTIENDA','Pelan'],['FALUCHO','Doble levantador'],['GUERRERA','Doble levantador'],
+      ['HAMMER','Bisagra'],['LAUCHITA','Levantador'],['MARIMORENA','Levantador'],['MARTINA','Levantador'],['PEPERINA','Levantador'],['PODEROSA','Levantador'],['ROMAN','Doble levantador']]){
+      const c=S.caballos.find(x=>norm(x.nombre)===n);if(c&&!c.embocadura)await db.collection('caballos').doc(c.id).update({embocadura:e+' · con riendillas (lista dic-2024)'})}},
   // Partos: lo que dijo Juan el 14/9/2026 (no se cambia la FPP, queda anotado) + nota de la Primadona
   'chat-partos-primadona':async()=>{
     const nota=(m,t)=>{const s=S.servicios.find(x=>norm(x.madre)===m&&x.estado==='Preñada');if(s&&!(s.obs||'').includes('Juan (14/9)'))return db.collection('servicios').doc(s.id).update({obs:[s.obs,t].filter(Boolean).join(' · ')})};
@@ -264,6 +268,7 @@ function panelDias(){const t=tablaInt(),k=S.config,p=precios(),dis=canWrite?'':'
   <p class="note">El ritmo (Descanso, Normal, Apretar) se elige en la ficha de cada caballo de hechura o jugador. Jugadores sin ritmo elegido = Normal. Vacío en "Herrar" = no se hierra. Solo se avisa el herraje de los caballos que ya se herraron alguna vez.</p>
   <div class="form" style="margin-top:10px"><label>Desparasitar madres (días)<input id="k-despMadres" type="number" min="1" value="${k.despMadres}" ${dis}></label>
    <label>Desparasitar resto (días)<input id="k-despResto" type="number" min="1" value="${k.despResto}" ${dis}></label>
+   <label>Muelas (días)<input id="k-muelas" type="number" min="1" value="${k.muelas||365}" ${dis}></label>
    <label>Precio desvase ($)<input id="p-Desvasada" type="number" min="0" value="${p['Desvasada']}" ${dis}></label>
    <label>Precio herrada ($)<input id="p-Herrada" type="number" min="0" value="${p['Herrada']}" ${dis}></label></div>
   ${canWrite?'<div class="row" style="margin-top:10px"><button class="btn sm pri" data-act="savecfg">Guardar días y precios</button></div>':''}`}

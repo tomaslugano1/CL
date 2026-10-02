@@ -9,10 +9,11 @@ export const SB_ANON = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR
 // Mismas reglas que la app (index.html: INTERV_DEF, grupoInt, intervalo). Si se cambian allá, cambiarlas acá.
 const INTERV_DEF = { Potrillos: { desv: 45, herr: 0 }, Madres: { desv: 80, herr: 0 }, Hechura: { desv: 60, herr: 45 }, descanso: { desv: 80, herr: 0 }, normal: { desv: 60, herr: 50 }, apretar: { desv: 60, herr: 50 } };
 export function reglas(config = {}) {
-  const k = { despMadres: 180, despResto: 90, desvasar: 60, herrar: 45, ...config };
+  const k = { despMadres: 180, despResto: 90, muelas: 365, desvasar: 60, herrar: 45, ...config };
   const tabla = {}; for (const g in INTERV_DEF) tabla[g] = { ...INTERV_DEF[g], ...((k.intervalos || {})[g] || {}) };
   const grupo = (c) => { const rt = c.ritmo === 'fuerte' ? 'normal' : c.ritmo; return (rt && ['Hechura', 'Jugadores'].includes(c.categoria)) ? rt : (c.categoria === 'Jugadores' ? 'normal' : c.categoria); };
   return (c, t) => {
+    if (t === 'Muelas') return +k.muelas || 365;
     if (t === 'Desparasitación') return +(c.categoria === 'Madres' ? k.despMadres : k.despResto) || 0;
     const g = tabla[grupo(c)];
     if (!g) return +(t === 'Desvasada' ? k.desvasar : k.herrar) || 0;
@@ -20,7 +21,7 @@ export function reglas(config = {}) {
   };
 }
 
-const VERBO = { 'Desparasitación': 'Desparasitar', 'Desvasada': 'Desvasar', 'Herrada': 'Herrar' };
+const VERBO = { 'Desparasitación': 'Desparasitar', 'Desvasada': 'Desvasar', 'Herrada': 'Herrar', 'Muelas': 'Hacer muelas' };
 const addDays = (s, n) => { const d = new Date(s + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const diff = (a, b) => Math.round((new Date(a + 'T12:00:00Z') - new Date(b + 'T12:00:00Z')) / 864e5);
 export const hoyAR = () => new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
