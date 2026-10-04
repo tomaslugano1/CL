@@ -84,11 +84,15 @@ def main():
                  (previos[e["uid"]]["inicio"], previos[e["uid"]]["titulo"]) != (e["inicio"], e["titulo"])]
     futuros = [e for e in eventos if datetime.fromisoformat(e["inicio"]) >= ahora]
     urgentes = [e for e in futuros if datetime.fromisoformat(e["inicio"]) - ahora <= timedelta(hours=72)]
+    # Sin depender de estado guardado: eventos creados o modificados en el EVA en las últimas 26 h
+    recientes = [e for e in futuros if e["modificado"] and
+                 ahora - parse_fecha(e["modificado"]) <= timedelta(hours=26)]
     ESTADO.write_text(json.dumps({"actualizado": ahora.isoformat(), "eventos": eventos},
                                  ensure_ascii=False, indent=2))
     print(json.dumps({"ahora": ahora.isoformat(), "primera_vez": not previos,
                       "proximos": futuros, "nuevos": nuevos, "cambiados": cambiados,
-                      "urgentes_72h": urgentes}, ensure_ascii=False, indent=2))
+                      "urgentes_72h": urgentes,
+                      "modificados_ultimas_26h": recientes}, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
