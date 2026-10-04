@@ -1,0 +1,64 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:#fff;font-family:Arial,Helvetica,sans-serif;color:#111;width:1000px}
+h1{font-size:32px;margin:22px 24px 0}
+.panel{margin:22px 24px;border:3px solid #ddd;border-radius:16px;padding:18px 22px}
+h2{font-size:26px;margin:0 0 6px}.sub{font-size:18px;color:#555;margin-bottom:14px}
+.num{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:#e00;color:#fff;font-weight:bold;font-size:22px;flex:none}
+.itag{display:inline-flex;align-items:center;gap:8px;font-size:21px;font-weight:bold;color:#e00;white-space:nowrap}
+.hl{outline:5px solid #e00;outline-offset:4px;border-radius:6px}
+.win{border:2px solid #bbb;border-radius:10px;overflow:hidden;background:#f1f3f4}
+.tabs{height:34px;background:#dee1e6;display:flex;align-items:flex-end;padding-left:10px}
+.tab{background:#fff;border-radius:8px 8px 0 0;padding:7px 18px;font-size:15px}
+.bar{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff}
+.addr{flex:1;background:#f1f3f4;border-radius:20px;padding:9px 16px;font-size:15px;font-family:monospace;white-space:nowrap;overflow:hidden}
+.body{display:flex;height:280px;background:#fff;border-top:1px solid #ddd}
+.page{flex:1;display:flex;align-items:center;justify-content:center;color:#999;font-size:20px}
+.dev{width:470px;border-left:2px solid #ccc;font-size:14px}
+.devtabs{display:flex;gap:16px;padding:8px 10px;border-bottom:1px solid #ddd;color:#444}
+.devtabs b{color:#1a73e8;border-bottom:3px solid #1a73e8;padding-bottom:4px}
+.err{margin:10px 8px;background:#fdecea;color:#c5221f;font-family:monospace;font-size:13px;padding:8px;border-radius:4px;line-height:1.4}
+.code{font-family:monospace;background:#f5f5f5;border:1px solid #ccc;padding:8px 10px;border-radius:6px;font-size:15px;word-break:break-all}
+.mock{background:#f7f8fa;border:1px solid #ccc;border-radius:10px;padding:18px 22px;font-size:18px}
+textarea{font-family:monospace;font-size:15px;width:100%;height:80px;border:2px solid #999;border-radius:8px;padding:10px;box-sizing:border-box;resize:none}
+.save{display:inline-block;background:#111;color:#fff;padding:10px 24px;border-radius:10px;font-weight:bold;font-size:19px}
+.row{display:flex;align-items:center;gap:14px;margin:10px 0;font-size:20px}
+.key{display:inline-block;border:2px solid #333;border-bottom-width:4px;border-radius:6px;padding:2px 10px;font-weight:bold;font-family:monospace;font-size:18px;background:#fff}
+</style></head><body>
+<h1>Guía: llave de solo lectura del EVA</h1>
+<div class="panel">
+<h2>PARTE 1 — En Chrome (en la compu)</h2>
+<div class="row"><span class="num">1</span> Abrí una pestaña nueva: <span class="key">Ctrl</span>+<span class="key">T</span></div>
+<div class="row"><span class="num">2</span> Abrí el panel: <span class="key">Ctrl</span>+<span class="key">Shift</span>+<span class="key">J</span> (las tres juntas)</div>
+<div class="row"><span class="num">3</span> Clic en la <b>barra de arriba</b>, pegá esto y <span class="key">Enter</span>:</div>
+<div class="code" style="margin:0 0 14px 54px">https://eva.uca.edu.ar/admin/tool/mobile/launch.php?service=moodle_mobile_app&amp;passport=12345&amp;urlscheme=moodlemobile</div>
+<div class="win">
+ <div class="tabs"><div class="tab">Nueva pestaña</div></div>
+ <div class="bar">← → ⟳ <div class="addr hl">https://eva.uca.edu.ar/admin/tool/mobile/launch.php?service=…</div></div>
+ <div class="body">
+  <div class="page">(acá no pasa nada, es normal)</div>
+  <div class="dev hl">
+   <div class="devtabs"><span>Elements</span><b>Console</b><span>Sources</span><span>Network</span></div>
+   <div class="err">✖ Failed to launch 'moodlemobile://token=XXXXXXXXXXXX…' because the scheme does not have a registered handler.</div>
+  </div>
+ </div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:12px">
+ <span class="itag"><span class="num">3</span>Acá arriba pegás el link</span>
+ <span class="itag"><span class="num">4</span>Aparece esta línea roja</span>
+</div>
+<div class="row" style="margin-top:16px"><span class="num">5</span> <b>3 clics seguidos</b> sobre la línea roja (se pinta entera) y <span class="key">Ctrl</span>+<span class="key">C</span></div>
+<div class="sub" style="margin-left:54px">Si sale "Abrir aplicación", tocá <b>Cancelar</b>. Si pide Microsoft, entrá como siempre.</div>
+</div>
+<div class="panel">
+<h2>PARTE 2 — Guardarlo (ventana "Editar entorno", como antes)</h2>
+<div class="sub">claude.ai/code → "+ Nuevo" → "Default" → engranaje ⚙️ → bajá hasta "Variables de entorno"</div>
+<div class="mock">
+ <div style="font-weight:bold;font-size:21px;margin-bottom:8px">Variables de entorno</div>
+ <textarea class="hl">EVA_CALENDARIO_URL=https://eva.uca.edu.ar/calendar/…   ← (ya está, no la toques)
+EVA_TOKEN=Failed to launch 'moodlemobile://token=XXXXXXXX…' because the scheme…</textarea>
+ <div class="row"><span class="num">6</span> Línea nueva: <b>EVA_TOKEN=</b> y pegá con <span class="key">Ctrl</span>+<span class="key">V</span> (la línea roja entera)</div>
+ <div style="text-align:right"><span class="itag"><span class="num">7</span>Tocá</span> &nbsp; <span class="save hl">Guardar</span></div>
+</div>
+</div>
+<div class="panel" style="text-align:center"><h2><span class="num">8</span>&nbsp; Volvé a ESTE chat y escribime: <u>listo llave</u></h2></div>
+</body></html>
