@@ -1,6 +1,6 @@
 # Agenda académica — UCA (EVA)
 
-_Última actualización: domingo 4/10/2026 (lectura manual del EVA desde Chrome)_
+_Última actualización: domingo 4/10/2026 (calendario del EVA conectado)_
 
 ## Próximas entregas
 
@@ -12,7 +12,9 @@ _Última actualización: domingo 4/10/2026 (lectura manual del EVA desde Chrome)
 
 ## Parciales
 
-_Sin fechas cargadas todavía._
+| Fecha | Hora | Materia | Qué |
+|---|---|---|---|
+| Mar 1/12 | 09:15 | Software de Negocios | Final (figura en el calendario del EVA) |
 
 ## Finales (SIU Guaraní — los carga Tomás)
 
