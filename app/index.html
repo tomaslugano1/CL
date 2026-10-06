@@ -249,6 +249,14 @@ label{gap:6px;font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:
 .desp .hist .btn{margin-top:8px}
 .desp.mas{border-bottom:0}
 .desp.mas summary{font-weight:600;min-height:44px}
+.mcards{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.mcard,.repro{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface);border-left-width:5px}
+.mcard.pre,.repro.pre{border-left-color:var(--ok)} .mcard.ser,.repro.ser{border-left-color:var(--warn)} .mcard.vac,.repro.vac{border-left-color:var(--bad)} .mcard.sin,.mcard.par,.repro.sin,.repro.par{border-left-color:var(--line)}
+.mcard .sub,.repro .sub{color:var(--muted);font-size:.85rem;margin-top:3px}
+.mtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mnom{font-weight:700;font-size:16px;margin-right:auto}
+.rest{font-size:22px;font-weight:800;margin-right:auto}
+.gest{height:8px;border-radius:5px;background:var(--none-bg);margin-top:8px;overflow:hidden}.gest i{display:block;height:100%;background:var(--ok)}
 .hcard .obsl{font-size:.8rem;color:var(--warn);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .tarea summary .grow{flex:1}
 .tarea summary .go{color:var(--muted);font-size:22px;transition:transform .15s}
@@ -407,20 +415,53 @@ function vCaballos(){
       ${sel?'':'<span class="go">›</span>'}</button>`}).join('')||'<div class="empty">No hay caballos con ese filtro.</div>'}</div>
   ${sel?`<div class="selbar"><b>${sel.size} elegidos</b><button class="btn sm" data-act="selall">Elegir todos los de la lista</button><button class="btn sm pri" data-act="bulk" ${sel.size?'':'disabled'}>Cargar sanidad</button></div>`:''}`}
 
+/* ---------- Madres: tarjetas con el estado reproductivo bien a la vista ---------- */
+const GEST=335;
+function servActual(nombre,t){const de=y=>S.servicios.filter(s=>norm(s.madre)===norm(nombre)&&+s.temporada===y).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''))[0];
+  const a=de(t);if(a&&['Preñada','Servida (sin tacto)'].includes(a.estado))return a;return de(t+1)||a}
+/* El servicio más nuevo de la yegua (para la ficha) */
+function servUltimo(nombre){return S.servicios.filter(s=>norm(s.madre)===norm(nombre)).sort((a,b)=>(+b.temporada-+a.temporada)||(b.fecha||'').localeCompare(a.fecha||''))[0]}
+function estadoRepro(s){
+  if(!s)return{k:'sin',txt:'Sin servicio',pill:'p-none',orden:4};
+  const e=s.estado||'';
+  if(e==='Preñada'){const d=s.fpp?diff(s.fpp,hoy()):null;
+    return{k:'pre',txt:'Preñada',pill:'p-ok',orden:d!==null&&d<=30?0:1,d,gest:s.fecha?diff(hoy(),s.fecha):null,
+      cuenta:d===null?'Sin FPP':d<0?`Pasó ${-d} d`:d===0?'Pare HOY':`Faltan ${d} d`,cpill:d===null?'p-none':d<0?'p-bad':d<=15?'p-warn':'p-none'}}
+  if(e==='Servida (sin tacto)'){const g=s.fecha?diff(hoy(),s.fecha):null;return{k:'ser',txt:'Servida · falta eco',pill:'p-warn',orden:2,gest:g,cuenta:g!==null?`Hace ${g} d`:'',cpill:g!==null&&g>=14?'p-warn':'p-none'}}
+  if(e==='Parida')return{k:'par',txt:'Parida',pill:'p-none',orden:5};
+  return{k:'vac',txt:'Vacía',pill:'p-bad',orden:3}}
+function ecosDe(s){return [...(s?.ecos||[])].sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''))}
+function barraGest(st){if(st.k!=='pre'||st.gest===null)return '';const p=Math.max(0,Math.min(100,Math.round(st.gest/GEST*100)));
+  return `<div class="gest" title="${st.gest} días de preñez"><i style="width:${p}%"></i></div><div class="sub">${st.gest} días de preñez${st.gest>GEST?' · ya cumplió el tiempo':''}</div>`}
+function botonesRepro(s,nombre,st){if(!canWrite)return '';
+  if(!s||st.k==='vac'||st.k==='par')return `<button class="btn sm pri" data-act="servMadre" data-m="${esc(nombre)}">+ Servicio</button>`;
+  return `<button class="btn sm ${st.k==='ser'?'pri':''}" data-act="eco" data-id="${s.id}">+ Ecografía</button>${st.k==='pre'?`<button class="btn sm pri" data-parto="${s.id}">Parió</button>`:''}<button class="btn sm" data-serv="${s.id}">Editar</button>`}
 function vMadres(){
   const temps=[...new Set([...S.servicios.map(s=>+s.temporada),+S.config.temporada||2026])].sort((a,b)=>b-a);const t=temporadaActual();
-  const l=S.servicios.filter(s=>+s.temporada===t).sort((a,b)=>({'Preñada':0,'Parida':1,'Vacía':2}[a.estado]??3)-({'Preñada':0,'Parida':1,'Vacía':2}[b.estado]??3)||(a.fpp||'9').localeCompare(b.fpp||'9'));
-  const c=k=>l.filter(s=>s.estado===k).length;
-  return `<div class="head"><h2>Madres · temporada ${t}</h2><div class="row">${canWrite?'<button class="btn pri" data-act="servicio">+ Agregar servicio</button>':''}</div></div>
-  <div class="row" style="margin-bottom:14px">${temps.map(y=>`<button class="chip ${y===t?'on':''}" data-temp="${y}">${y}</button>`).join('')}
-    <span class="muted small" style="margin-left:6px">${c('Preñada')} preñadas · ${c('Parida')} paridas · ${c('Vacía')} vacías</span></div>
-  ${l.length?`<div class="tablewrap"><table><thead><tr><th>Madre</th><th>Servicio / tacto</th><th>Padrillo</th><th>Estado</th><th>FPP</th><th>Días al parto</th><th>Observación</th><th></th></tr></thead><tbody>
-  ${l.map(s=>{const d=s.estado==='Preñada'&&s.fpp?diff(s.fpp,hoy()):null;return `<tr><td class="link" data-open-name="${esc(s.madre)}">${esc(s.madre)}</td><td>${fmt(s.fecha)}</td><td>${esc(s.padrillo||'—')}</td>
-    <td><span class="pill ${s.estado==='Preñada'?'p-ok':s.estado==='Parida'?'p-none':'p-warn'}">${esc(s.estado||'—')}</span></td><td>${fmt(s.fpp)}</td>
-    <td>${d===null?'—':`<span class="pill ${d<0?'p-bad':d<=15?'p-warn':'p-none'}">${d}</span>`}</td><td class="small">${esc(s.obs)}</td>
-    <td>${canWrite?`<div class="row" style="flex-wrap:nowrap">${s.estado==='Preñada'?`<button class="btn sm pri" data-parto="${s.id}">Parió</button>`:''}<button class="btn sm" data-serv="${s.id}">Editar</button></div>`:''}</td></tr>`}).join('')}
-  </tbody></table></div>`:'<div class="empty">No hay servicios cargados en esta temporada. Tocá “+ Agregar servicio”.</div>'}
-  <p class="note">FPP = fecha probable de parto. “Días al parto” se actualiza solo cada día. Al tocar “Parió” se da de alta la cría y la madre queda como parida.</p>`}
+  const nombres=new Map();for(const c of activos().filter(c=>c.categoria==='Madres'))nombres.set(norm(c.nombre),c.nombre);
+  for(const s of S.servicios.filter(s=>+s.temporada===t))if(!nombres.has(norm(s.madre)))nombres.set(norm(s.madre),s.madre);
+  const l=[...nombres.values()].map(n=>{const s=servActual(n,t);return{n,s,st:estadoRepro(s)}})
+    .sort((a,b)=>a.st.orden-b.st.orden||(a.st.d??9999)-(b.st.d??9999)||a.n.localeCompare(b.n,'es'));
+  const cu=k=>l.filter(x=>x.st.k===k).length;
+  return `<div class="head"><h2>Madres · temporada ${t}</h2><div class="row">${canWrite?'<button class="btn pri" data-act="servicio">+ Servicio</button>':''}</div></div>
+  <div class="row" style="margin-bottom:10px">${temps.map(y=>`<button class="chip ${y===t?'on':''}" data-temp="${y}">${y}</button>`).join('')}</div>
+  <div class="tiles" style="margin-bottom:14px"><div class="tile"><span>Preñadas</span><b>${cu('pre')}</b></div><div class="tile"><span>Falta eco</span><b>${cu('ser')}</b></div><div class="tile"><span>Vacías</span><b>${cu('vac')}</b></div><div class="tile"><span>Paridas</span><b>${cu('par')}</b></div></div>
+  <div class="mcards">${l.map(({n,s,st})=>{const ec=ecosDe(s),ue=ec[ec.length-1];
+    return `<div class="mcard ${st.k}"><div class="mtop"><span class="a mnom" data-open-name="${esc(n)}">${esc(n)}</span><span class="pill ${st.pill}">${st.txt}${s&&+s.temporada!==t?' · para '+s.temporada:''}</span>${st.cuenta?`<span class="pill ${st.cpill} mcuenta">${st.cuenta}</span>`:''}</div>
+     ${s?`<div class="sub">${s.padrillo?`<b>${esc(s.padrillo)}</b>`:'Sin padrillo'}${s.tipo?' · '+esc(s.tipo):''}${s.fecha?' · servida '+fmt(s.fecha):''}${s.fpp&&st.k==='pre'?' · FPP <b>'+fmt(s.fpp)+'</b>':''}</div>
+       ${ue?`<div class="sub">Última eco ${fmt(ue.fecha)}: ${esc(ue.resultado)}${ue.obs?' · '+esc(ue.obs):''}</div>`:''}${barraGest(st)}${s.obs?`<div class="sub muted">${esc(s.obs)}</div>`:''}`:'<div class="sub">No tiene servicio cargado en esta temporada.</div>'}
+     <div class="row" style="margin-top:8px">${botonesRepro(s,n,st)}</div></div>`}).join('')||'<div class="empty">No hay madres cargadas.</div>'}</div>
+  <p class="note">Ordenadas por lo más urgente: primero las que paren en 30 días o menos. Servicio → Ecografía (confirma la preñez) → Parió (da de alta la cría). FPP = servicio + ${GEST} días.</p>`}
+/* Bloque de reproducción arriba de la ficha (madres y yeguas con servicios) */
+function bloqueRepro(c){if(c.estado!=='Activo'||(c.categoria!=='Madres'&&!S.servicios.some(s=>norm(s.madre)===norm(c.nombre))))return '';
+  const s=servUltimo(c.nombre),t=s?.temporada||+S.config.temporada||new Date().getFullYear(),st=estadoRepro(s),ec=ecosDe(s);
+  return `<div class="repro ${st.k}"><div class="mtop"><b style="font-size:13px;letter-spacing:.6px;text-transform:uppercase" class="muted">Reproducción ${t}</b></div>
+   <div class="mtop" style="margin-top:4px"><span class="rest">${st.txt}</span>${st.cuenta?`<span class="pill ${st.cpill}">${st.cuenta}</span>`:''}</div>
+   ${s?`<div class="sub" style="margin-top:4px">${s.padrillo?`Padrillo <b>${esc(s.padrillo)}</b>`:'Sin padrillo'}${s.tipo?' · '+esc(s.tipo):''}${s.fecha?' · servida '+fmt(s.fecha):''}</div>
+     ${st.k==='pre'&&s.fpp?`<div class="sub">Fecha probable de parto: <b>${fmt(s.fpp)}</b></div>`:''}${barraGest(st)}
+     ${ec.length?`<div class="sub" style="margin-top:4px">${ec.map(e=>`Eco ${fmt(e.fecha)}: <b>${esc(e.resultado)}</b>${e.obs?' · '+esc(e.obs):''}`).join('<br>')}</div>`:''}
+     ${s.obs?`<div class="sub muted">${esc(s.obs)}</div>`:''}`:''}
+   <div class="row" style="margin-top:10px">${botonesRepro(s,c.nombre,st)}</div></div>`}
 
 function vCamadas(){
   const t=+S.config.temporada||2026;
@@ -482,6 +523,7 @@ function renderFicha(){
    <div class="sheet-h"><div><h2>${esc(c.nombre)}</h2><div class="row" style="margin-top:6px"><span class="pill p-none">${esc(c.categoria)}</span>${c.lugar?`<span class="pill p-none">${esc(c.lugar)}</span>`:''}${c.venta?'<span class="pill p-venta">A la venta</span>':''}${c.estado!=='Activo'?`<span class="pill p-bad">${esc(c.estado)}${c.bajaFecha?' '+fmt(c.bajaFecha):''}</span>`:''}</div></div><button class="x" data-act="close" aria-label="Cerrar">×</button></div>
    <div class="sheet-b">
     ${c.obs||c.embocadura?`<div class="senas">${c.obs?`<div><span>Observación</span>${esc(c.obs)}</div>`:''}${c.embocadura?`<div><span>Embocadura</span>${esc(c.embocadura)}</div>`:''}</div>`:''}
+    ${bloqueRepro(c)}
     ${c.fotos?.length?`<img class="cover" src="${fotoUrl(c.fotos[0])}" alt="${esc(c.nombre)}">`:''}
     <div class="kv">${[...(c.apodo?[['Apodo',c.apodo]]:[]),...(c.domador?[['Domador',c.domador]]:[]),['Sexo',c.sexo],['Nacimiento',fmt(c.nac)+(e!==null?` (${e} ${e===1?'año':'años'})`:'')],['Camada',c.camada],['Pelaje',c.pelaje],['Alzada',c.alzada],['RP',c.rp],['N° chip',c.chip],...(c.ingresoDoma?[['Entró a doma',fmt(c.ingresoDoma)]]:[])].map(([k,v])=>`<div><span>${k}</span><b>${esc(v||'—')}</b></div>`).join('')}</div>
     ${['Hechura','Jugadores'].includes(c.categoria)&&c.estado==='Activo'?`<div class="prac"><b>${practicas(c)}</b><div class="grow" style="flex:1">prácticas<div class="small muted">${(()=>{const u=S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Práctica').sort((a,b)=>b.fecha.localeCompare(a.fecha))[0];return u?'Última: '+fmt(u.fecha):'Sin prácticas cargadas en la app'})()}</div></div>${canWrite?`<button class="btn pri" data-prac="${c.id}">+1 práctica</button>`:''}</div>`:''}
@@ -651,12 +693,15 @@ function bajaForm(c){form('Dar de baja · '+c.nombre,[{k:'estado',l:'Motivo',typ
    await db.collection('eventos').doc(slugId('e')).set({fecha:d.bajaFecha||hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Otro',detalle:'Baja: '+d.estado,obs:d.bajaObs,por:uid||''});toast(c.nombre+' dado de baja');UI.ficha=c.id;renderFicha()},
   '<p class="note">No se borra: queda en “Ver bajas” y en su camada, pero deja de contarse.</p>')}
 
-function servicioForm(s){const t=temporadaActual();
-  form(s?'Editar servicio':'Agregar servicio',[{k:'madre',l:'Madre',v:s?.madre,list:'dl-hembras',req:1},{k:'temporada',l:'Temporada',type:'number',v:s?.temporada??t},{k:'fecha',l:'Fecha servicio / tacto',type:'date',v:s?.fecha},
-   {k:'padrillo',l:'Padrillo',v:s?.padrillo,list:'dl-pad'},{k:'estado',l:'Estado',type:'select',opts:['Preñada','Vacía','Parida','Servida (sin tacto)'],v:s?.estado||'Preñada'},{k:'fpp',l:'FPP',type:'date',v:s?.fpp},{k:'obs',l:'Observación',type:'area',v:s?.obs}],
-   async d=>{if(!d.fpp&&d.fecha&&d.estado==='Preñada')d.fpp=addDays(d.fecha,335);const m=findByName(d.madre);d.madreId=m?.id||'';
-     if(s)await db.collection('servicios').doc(s.id).update(d);else await db.collection('servicios').doc(slugId('s')).set(d);toast('Servicio guardado');closeModal()},
-   datalists()+(s?`<div class="row"><button type="button" class="btn sm danger" data-delserv="${s.id}">Borrar este servicio</button></div>`:'')+'<p class="note">Si dejás la FPP vacía, se calcula sola: fecha de servicio + 335 días.</p>')}
+function servicioForm(s,pre={}){const t=temporadaActual();
+  form(s?'Editar servicio':'Cargar servicio'+(pre.madre?' · '+pre.madre:''),[{k:'madre',l:'Madre',v:s?.madre??pre.madre,list:'dl-hembras',req:1},{k:'fecha',l:'Fecha del servicio',type:'date',v:s?.fecha??hoy()},
+   {k:'padrillo',l:'Padrillo',v:s?.padrillo,list:'dl-pad'},{k:'tipo',l:'Cómo se sirvió',type:'select',opts:['Inseminación','Monta natural','Embrión (receptora)','Embrión (donante)',''],v:s?.tipo??'Inseminación'},
+   {k:'estado',l:'Estado',type:'select',opts:['Servida (sin tacto)','Preñada','Vacía','Parida'],v:s?.estado||'Servida (sin tacto)'},{k:'fpp',l:'FPP (fecha probable de parto)',type:'date',v:s?.fpp},{k:'temporada',l:'Temporada (año en que pare · vacío = se calcula solo)',type:'number',v:s?.temporada},{k:'obs',l:'Observación',type:'area',v:s?.obs}],
+   async d=>{if(!d.fpp&&d.fecha&&d.estado==='Preñada')d.fpp=addDays(d.fecha,GEST);if(!d.temporada)d.temporada=d.fecha?+addDays(d.fecha,GEST).slice(0,4):t;else d.temporada=+d.temporada;const m=findByName(d.madre);d.madreId=m?.id||'';
+     if(s)await db.collection('servicios').doc(s.id).update(d);else{await db.collection('servicios').doc(slugId('s')).set(d);
+       if(m)await db.collection('eventos').doc(slugId('e')).set({fecha:d.fecha||hoy(),caballoId:m.id,caballo:m.nombre,tipo:'Servicio',detalle:'Servicio'+(d.padrillo?' '+d.padrillo:'')+(d.tipo?' ('+d.tipo.toLowerCase()+')':''),obs:d.obs||'',por:uid||''})}
+     toast('Servicio guardado');if(UI.fichaVolver){UI.ficha=UI.fichaVolver;UI.fichaVolver=null;renderFicha()}else closeModal()},
+   datalists()+(s?`<div class="row"><button type="button" class="btn sm danger" data-delserv="${s.id}">Borrar este servicio</button></div>`:'')+'<p class="note">Lo normal: cargás el servicio como "Servida (sin tacto)" y después la ecografía confirma la preñez. Si la FPP queda vacía, se calcula sola: servicio + 335 días.</p>')}
 
 function partoForm(s){const m=findByName(s.madre);const y=+s.temporada;
   caballoForm(null,{nombre:'DC S/N '+norm(s.madre)+' '+String(y).slice(2),categoria:'Potrillos',nac:hoy(),camada:y,padre:s.padrillo,madre:norm(s.madre),lugar:m?.lugar||'Doña Cecilia'},

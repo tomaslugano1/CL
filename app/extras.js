@@ -295,3 +295,15 @@ function panelHerramientas(){const sc=diasSinCopia();
    <div class="li"><div>Recordatorios en el calendario<div class="sub">Sanidad y partos en tu Google Calendar o iPhone, con aviso.</div></div><button class="btn sm" data-act="recordatorios">Activar</button></div>
    <div class="li"><div>Nombres parecidos<div class="sub">Unificar padres y madres escritos de distinta forma.</div></div><button class="btn sm" data-act="nombres">Revisar</button></div>
   </div></div>`}
+
+/* ================= Madres: ecografía y servicio rápido ================= */
+EXTRA_ACTS.servMadre=d=>{UI.fichaVolver=UI.ficha;servicioForm(null,{madre:d.m})};
+EXTRA_ACTS.eco=d=>{const s=S.servicios.find(x=>x.id===d.id);if(!s)return;const volver=UI.ficha;
+  form('Ecografía · '+s.madre,[{k:'fecha',l:'Fecha de la eco',type:'date',v:hoy(),req:1},{k:'resultado',l:'Resultado',type:'select',opts:['Preñada','Vacía','Perdió la preñez'],v:'Preñada'},
+    {k:'obs',l:'Detalle (ej: 15 días, una vesícula · 2da eco ok)',full:1}],
+   async e=>{const ecos=[...(s.ecos||[]),{fecha:e.fecha,resultado:e.resultado,obs:e.obs||''}];const up={ecos};
+     if(e.resultado==='Preñada'){up.estado='Preñada';if(!s.fpp&&s.fecha)up.fpp=addDays(s.fecha,GEST)}else{up.estado='Vacía';up.fpp=''}
+     await db.collection('servicios').doc(s.id).update(up);
+     const m=findByName(s.madre);if(m)await db.collection('eventos').doc(slugId('e')).set({fecha:e.fecha,caballoId:m.id,caballo:m.nombre,tipo:'Tacto / Eco',detalle:'Eco: '+e.resultado.toUpperCase()+(s.padrillo?' · '+s.padrillo:''),obs:e.obs||'',por:uid||''});
+     toast(s.madre+': '+e.resultado.toLowerCase());if(volver){UI.ficha=volver;renderFicha()}else closeModal()},
+   `<p class="note">Servida el ${fmt(s.fecha)}${s.padrillo?' con '+esc(s.padrillo):''}${s.fecha?' · hoy van '+diff(hoy(),s.fecha)+' días':''}. Si da preñada, la FPP queda en ${fmt(s.fpp||(s.fecha?addDays(s.fecha,GEST):''))}.</p>`)};
