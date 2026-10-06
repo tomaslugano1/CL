@@ -1,5 +1,8 @@
 [build]
   publish = "app"
+  # Para no gastar créditos: Netlify solo publica cuando el mensaje del cambio dice [publicar].
+  # (Salida 0 = no publicar; 1 = publicar.)
+  ignore = "git log -1 --pretty=%B | grep -q '\\[publicar\\]' && exit 1 || exit 0"
 
 [[headers]]
   for = "/*"
