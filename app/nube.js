@@ -225,7 +225,12 @@
     try{const {data:{session}}=await sb.auth.getSession();if(session){entrar(session.user);return}}catch(e){}
     mostrarLogin();
   });
-  if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+  /* Cuando se publica una versión nueva de la app, se instala sola y la página se recarga una vez para mostrarla. */
+  if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
+    const habia=!!navigator.serviceWorker.controller;let recargo=false;
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{if(habia&&!recargo){recargo=true;location.reload()}});
+    navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{r.update().catch(()=>{});
+      document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')r.update().catch(()=>{})})}).catch(()=>{})}
 
   window.claude={use:async n=>{await listo;return n==='db'?db:n==='user'?usuario:n==='assets'?(sb?assets:null):n==='downloads'?downloads:null}};
 })();
