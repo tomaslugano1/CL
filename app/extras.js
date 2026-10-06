@@ -299,11 +299,11 @@ function panelHerramientas(){const sc=diasSinCopia();
 /* ================= Madres: ecografía y servicio rápido ================= */
 EXTRA_ACTS.servMadre=d=>{UI.fichaVolver=UI.ficha;servicioForm(null,{madre:d.m})};
 EXTRA_ACTS.eco=d=>{const s=S.servicios.find(x=>x.id===d.id);if(!s)return;const volver=UI.ficha;
-  form('Ecografía · '+s.madre,[{k:'fecha',l:'Fecha de la eco',type:'date',v:hoy(),req:1},{k:'resultado',l:'Resultado',type:'select',opts:['Preñada','Vacía','Perdió la preñez'],v:'Preñada'},
-    {k:'obs',l:'Detalle (ej: 15 días, una vesícula · 2da eco ok)',full:1}],
-   async e=>{const ecos=[...(s.ecos||[]),{fecha:e.fecha,resultado:e.resultado,obs:e.obs||''}];const up={ecos};
+  form('Ecografía · '+s.madre,[{k:'fecha',l:'Fecha del tacto o eco',type:'date',v:hoy(),req:1},{k:'resultado',l:'Resultado',type:'select',opts:['Preñada','Vacía','Perdió la preñez'],v:d.r||'Preñada'},
+    {k:'sexo',l:'Sexo del potrillo (si se sabe)',type:'select',opts:['Indefinido','Macho','Hembra'],v:'Indefinido'},{k:'obs',l:'Observaciones (ej: 15 días, una vesícula · 2da eco ok)',full:1}],
+   async e=>{const ecos=[...(s.ecos||[]),{fecha:e.fecha,resultado:e.resultado,sexo:e.resultado==='Preñada'&&e.sexo!=='Indefinido'?e.sexo:'',obs:e.obs||''}];const up={ecos};
      if(e.resultado==='Preñada'){up.estado='Preñada';if(!s.fpp&&s.fecha)up.fpp=addDays(s.fecha,GEST)}else{up.estado='Vacía';up.fpp=''}
      await db.collection('servicios').doc(s.id).update(up);
-     const m=findByName(s.madre);if(m)await db.collection('eventos').doc(slugId('e')).set({fecha:e.fecha,caballoId:m.id,caballo:m.nombre,tipo:'Tacto / Eco',detalle:'Eco: '+e.resultado.toUpperCase()+(s.padrillo?' · '+s.padrillo:''),obs:e.obs||'',por:uid||''});
+     const m=findByName(s.madre);if(m)await db.collection('eventos').doc(slugId('e')).set({fecha:e.fecha,caballoId:m.id,caballo:m.nombre,tipo:'Tacto / Eco',detalle:(e.resultado==='Preñada'?'Confirmación de preñez':'Eco: '+e.resultado.toUpperCase())+(s.padrillo?' · '+s.padrillo:''),obs:e.obs||'',por:uid||''});
      toast(s.madre+': '+e.resultado.toLowerCase());if(volver){UI.ficha=volver;renderFicha()}else closeModal()},
    `<p class="note">Servida el ${fmt(s.fecha)}${s.padrillo?' con '+esc(s.padrillo):''}${s.fecha?' · hoy van '+diff(hoy(),s.fecha)+' días':''}. Si da preñada, la FPP queda en ${fmt(s.fpp||(s.fecha?addDays(s.fecha,GEST):''))}.</p>`)};
