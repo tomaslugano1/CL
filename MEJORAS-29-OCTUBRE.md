@@ -50,8 +50,9 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 | ✅ | Categoría **Descanso** | Era solo un botón de ritmo, sin fecha. | **Categoría nueva.** Al mandar un caballo a descanso se carga **cuándo salió** y **cuándo volver a agarrarlo**. La ficha muestra los días de descanso y cuánto falta, con los botones **[Agarrar]** (vuelve a Hechura o Jugadores) y **[Cambiar fechas]**. Todo queda como movimiento ("Jugadores → Descanso", "Descanso → Jugadores (agarrado)", con los días que estuvo). El botón "Descanso" del ritmo ahora hace esto mismo. |
 | ✅ | Aviso para agarrar | — | "**Agarrar del descanso**" aparece en el aviso de las 8 (una semana antes, el día y si está atrasado), en "Para hacer esta semana" y en el calendario. |
 | ✅ | Bajas | Solo se veían los muertos, sin precio. | Pestañas **[Todas] [Vendidos] [Muertos] [Otros]**. Cada uno con fecha, **precio y comprador**. La baja ahora tiene **Vendido, Muerto, Jubilado u Otro**, con precio y comprador, y **pide confirmación**. El Excel tiene estas columnas. |
-| ⏳ | Vendidos de Polo Breeders | — | Cargar los caballos vendidos con su precio (falta que me los pases). |
-| ⏳ | Fechas de descanso | — | Cargar qué caballos están en descanso y desde cuándo (falta que me las pases). |
+| ✅ | Vendidos de Polo Breeders | — | Se cargan solos: Chavela (USD 19.000, EE.UU., la vendió Alfredo Arrenio), Mirtha (USD 10.000, Pilar, Pablo Mancilla), Rumba (USD 4.000), Serena (USD 1.000) y Servilleta (USD 3.000), estas tres a Alejo Sagasti. Falta la fecha de venta. |
+| ✅ | Hechura a descanso | — | Se pasa solo todo el lote de Hechura a **Descanso desde el 19/9/2026** (fecha aproximada). Falta la fecha para volver a agarrar. |
+| ✅ | Potranca Baya | — | Se carga sola: servicio por inseminación el **21/9/2026** (aprox.) y **preñez confirmada el 6/10**. Parto estimado: **22/8/2027**. Falta el padrillo. |
 
 ## C. Lo que tiene Doña Cecilia y PB no (se mantiene)
 Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y señas a la vista**, aviso de las 8 todos los días, "Para hacer esta semana", regla de desvase y herrado por categoría y ritmo, precios del herrero, Excel, ficha de venta por WhatsApp, genealogía de padrillos que heredan los hijos, calendario y lector de chip.

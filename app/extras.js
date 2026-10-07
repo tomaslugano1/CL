@@ -236,6 +236,30 @@ const AJUSTES={
   'chat-embocaduras-dic2024':async()=>{for(const [n,e] of [['ALEGRA','Levantador'],['CALA','Bisagra'],['CONTIENDA','Pelan'],['FALUCHO','Doble levantador'],['GUERRERA','Doble levantador'],
       ['HAMMER','Bisagra'],['LAUCHITA','Levantador'],['MARIMORENA','Levantador'],['MARTINA','Levantador'],['PEPERINA','Levantador'],['PODEROSA','Levantador'],['ROMAN','Doble levantador']]){
       const c=S.caballos.find(x=>norm(x.nombre)===n);if(c&&!c.embocadura)await db.collection('caballos').doc(c.id).update({embocadura:e+' · con riendillas (lista dic-2024)'})}},
+  // ---- Datos del 7/10/2026 (se cargan solos al publicar la versión del 29/10) ----
+  // Vendidos que figuran en Polo Breeders (Bajas → Vendido), con lo que contó Tomás
+  'oct-vendidos-pb':async()=>{const V=[
+      {nombre:'CHAVELA',sexo:'Hembra',pelaje:'Ruana',nac:'2019-09-20',bajaPrecio:'USD 19.000',bajaComprador:'',bajaObs:'Vendida en Estados Unidos. La vendió Alfredo Arrenio (comprador no se sabe).'},
+      {nombre:'MIRTHA',sexo:'Hembra',pelaje:'Alazán tostado',nac:'2020-10-01',bajaPrecio:'USD 10.000',bajaComprador:'',bajaObs:'Vendida en Pilar. La vendió Pablo Mancilla.'},
+      {nombre:'RUMBA',sexo:'Hembra',pelaje:'Colorada',nac:'',bajaPrecio:'USD 4.000',bajaComprador:'Alejo Sagasti',bajaObs:'Vendida junto con Serena y Servilleta.'},
+      {nombre:'SERENA',sexo:'Hembra',pelaje:'',nac:'',bajaPrecio:'USD 1.000',bajaComprador:'Alejo Sagasti',bajaObs:'Vendida junto con Rumba y Servilleta.'},
+      {nombre:'SERVILLETA',sexo:'Hembra',pelaje:'',nac:'',bajaPrecio:'USD 3.000',bajaComprador:'Alejo Sagasti',bajaObs:'Vendida junto con Rumba y Serena.'}];
+    for(const v of V){const c=S.caballos.find(x=>norm(x.nombre)===v.nombre);const d={...v,estado:'Vendido',bajaFecha:c?.bajaFecha||''};
+      if(!d.nac)delete d.nac;if(!d.pelaje)delete d.pelaje;if(d.nac)d.camada=+d.nac.slice(0,4);
+      if(c)await db.collection('caballos').doc(c.id).update(d);
+      else await db.collection('caballos').doc(slugId('c')).set({categoria:'Jugadores',lugar:'',padre:'',madre:'',chip:'',rp:'',obs:'Dato de Polo Breeders (vendidos)',...d})}},
+  // Los de Hechura se largaron a descanso alrededor del 19/9/2026
+  'oct-hechura-descanso':async()=>{for(const c of S.caballos.filter(x=>x.estado==='Activo'&&x.categoria==='Hechura')){
+      await db.collection('caballos').doc(c.id).update({categoria:'Descanso',catPrevia:'Hechura',descansoDesde:'2026-09-19',descansoHasta:c.descansoHasta||'',ritmo:''});
+      await db.collection('eventos').doc(slugId('e')).set({fecha:'2026-09-19',caballoId:c.id,caballo:c.nombre,tipo:'Movimiento',detalle:'Hechura → Descanso',obs:'Fecha aproximada (se largó todo el lote de hechura)',por:uid||''})}},
+  // POTRANCA BAYA: preñez confirmada el 6/10/2026, inseminada unos 15 días antes
+  'oct-potranca-baya-prenez':async()=>{const m=S.caballos.find(x=>norm(x.nombre)==='POTRANCA BAYA');if(!m)return;
+    if(S.servicios.some(s=>norm(s.madre)==='POTRANCA BAYA'&&(s.fecha||'')>='2026-08-01'))return; // ya la cargó alguien
+    const f='2026-09-21',id=slugId('s');
+    await db.collection('servicios').doc(id).set({madre:m.nombre,madreId:m.id,fecha:f,padrillo:'',tipo:'Inseminación',estado:'Preñada',fpp:addDays(f,335),temporada:2027,
+      ecos:[{fecha:'2026-10-06',resultado:'Preñada',sexo:'',obs:'Preñez confirmada el 6/10'}],obs:'Fecha de inseminación aproximada (≈15 días antes de la eco). Falta el padrillo.'});
+    await db.collection('eventos').doc(slugId('e')).set({fecha:f,caballoId:m.id,caballo:m.nombre,tipo:'Servicio',detalle:'Servicio (inseminación)',obs:'Fecha aproximada',por:uid||''});
+    await db.collection('eventos').doc(slugId('e')).set({fecha:'2026-10-06',caballoId:m.id,caballo:m.nombre,tipo:'Tacto / Eco',detalle:'Confirmación de preñez',obs:'',por:uid||''})},
   // Partos: lo que dijo Juan el 14/9/2026 (no se cambia la FPP, queda anotado) + nota de la Primadona
   'chat-partos-primadona':async()=>{
     const nota=(m,t)=>{const s=S.servicios.find(x=>norm(x.madre)===m&&x.estado==='Preñada');if(s&&!(s.obs||'').includes('Juan (14/9)'))return db.collection('servicios').doc(s.id).update({obs:[s.obs,t].filter(Boolean).join(' · ')})};
