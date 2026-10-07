@@ -50,7 +50,8 @@ vCaballos=function(){
   l.sort(sortCab);
   const sel=UI.sel,catTxt=(CATS_LISTA.find(x=>x[0]===cat)||['','Todos'])[1],lugTxt=UI.lugar==='__sin'?'Sin lugar':UI.lugar||'Todos';
   const buscando=UI.buscar||UI.q;
-  return `<div class="lbar">${canWrite?`<button class="btn pri" data-act="alta">+ Alta</button><button class="btn" data-act="selmode">${sel?'Cancelar':'+ Sanidad'}</button>`:''}
+  const madresTabs=['Madres','Receptoras'].includes(cat);
+  return `<div class="lbar">${canWrite?(sel?`<button class="btn" data-act="selmover">Cancelar</button>`:`<button class="btn pri" data-act="alta">+ Alta</button><button class="btn" data-act="selmode">+ Sanidad</button><button class="btn" data-act="selmover">Seleccionar</button>`):''}
      <span style="flex:1"></span><button class="btn icon" data-act="chip" aria-label="Leer chip" title="Leer chip">${ICO_CHIP}</button><button class="btn icon ${buscando?'on':''}" data-act="lupa" aria-label="Buscar" title="Buscar">${ICO_LUPA}</button></div>
    ${buscando?`<div class="row" style="margin-bottom:10px"><input id="q" class="search" type="search" placeholder="Nombre, RP, chip, madre o seña…" value="${esc(UI.q)}"></div>`:''}
    <div class="fchips"><button class="fchip ${UI.drop==='cat'?'on':''}" data-act="drop" data-d="cat">${ICO_CAT}<span>${esc(catTxt)}</span></button><button class="fchip ${UI.drop==='lug'?'on':''}" data-act="drop" data-d="lug">${ICO_PIN}<span>${esc(lugTxt)}</span></button></div>
@@ -58,7 +59,8 @@ vCaballos=function(){
    ${UI.drop==='lug'?`<div class="fdrop">${[['','Todos'],['__sin','Sin lugar definido'],...lugares().map(x=>[x,x])].map(([k,t])=>`<button class="${(UI.lugar||'')===k?'on':''}" data-act="flug" data-v="${esc(k)}">${esc(t)}</button>`).join('')}</div>`:''}
    ${conCamadas&&camadas.length>1?`<div class="tabs">${[['','Todas'],...camadas.map(y=>[y,'Camada '+y])].map(([k,t])=>`<button class="${(UI.subCam||'')==k?'on':''}" data-act="subcam" data-v="${k}">${t}</button>`).join('')}</div>`:''}
    ${cat==='__bajas'?`<div class="tabs">${[['','Todas'],['Vendido','Vendidos'],['Muerto','Muertos'],['Otros','Otros']].map(([k,t])=>`<button class="${bt===k?'on':''}" data-act="btab" data-v="${k}">${t}</button>`).join('')}</div>`:''}
-   ${sel?`<p class="note">Tocá los caballos a los que querés cargarles sanidad. Después elegí qué se les hizo.</p>`:''}
+   ${madresTabs?`<div class="tabs">${[['Madres','Madres'],['Receptoras','Receptoras']].map(([k,t])=>`<button class="${cat===k?'on':''}" data-act="fcat" data-v="${k}">${t}</button>`).join('')}</div>`:''}
+   ${sel?`<p class="note">Tocá los caballos que querés mover. Después elegí la categoría o el lugar nuevo.</p>`:''}
    <div class="hcards">${l.map(c=>{const e=edad(c.nac);const ds=['Desparasitación','Desvasada'].map(t=>estadoSan(c,t));
      const meta=[e!==null?e+(e===1?' año':' años'):'',cat===c.categoria?'':c.categoria,c.camada?'Camada '+c.camada:'',c.venta&&cat!=='__venta'?'A la venta':'',enDescanso(c)?textoDescanso(c).linea:'',c.estado!=='Activo'?c.estado+(c.bajaFecha?' '+fmt(c.bajaFecha):'')+(c.bajaPrecio?' · '+c.bajaPrecio:'')+(c.bajaComprador?' · a '+c.bajaComprador:''):''].filter(Boolean).join(' · ');
      return `<button class="hcard ${esc(c.sexo)} ${c.estado!=='Activo'?'baja':''}" data-${sel?'pick':'open'}="${c.id}">
@@ -69,7 +71,7 @@ vCaballos=function(){
       ${c.estado==='Activo'&&enCampo(c)?`<div class="dots" title="Desparasitación · Desvasada">${ds.map(s=>`<span class="dot d-${s.st}"></span>`).join('')}</div>`:''}
       ${sel?'':'<span class="go">›</span>'}</button>`}).join('')||'<div class="empty">No hay caballos en esta categoría.</div>'}</div>
    ${l.length?`<p class="lcount">${l.length} caballo${l.length===1?'':'s'}</p>`:''}
-   ${sel?`<div class="selbar"><b>${sel.size} elegidos</b><button class="btn sm" data-act="selall">Elegir todos los de la lista</button><button class="btn sm pri" data-act="bulk" ${sel.size?'':'disabled'}>Cargar sanidad</button></div>`:''}`};
+   ${sel?`<div class="selbar"><b>${sel.size} elegidos</b><button class="btn sm" data-act="selall">Todos</button><button class="btn sm pri" data-act="moverCat" ${sel.size?'':'disabled'}>Cambiar categoría</button><button class="btn sm pri" data-act="moverLug" ${sel.size?'':'disabled'}>Cambiar lugar</button></div>`:''}`};
 EXTRA_ACTS.drop=d=>{UI.drop=UI.drop===d.d?null:d.d;render()};
 EXTRA_ACTS.fcat=d=>{UI.drop=null;UI.subCam=null;if(d.v==='__bajas'){UI.bajas=true;UI.cat=''}else{UI.bajas=false;UI.cat=d.v}render()};
 EXTRA_ACTS.flug=d=>{UI.drop=null;UI.lugar=d.v;render()};
@@ -96,7 +98,7 @@ function filasControl(c,tipos,evs){return tipos.map(t=>{const s=estadoSan(c,t);c
 function seccionControles(c,evs,k,titulo,tipos,tiposHist){const tb=tabsSec(k,[['act','Actual'],['hist','Historial']]);
   const hist=evs.filter(x=>tiposHist.includes(x.tipo));
   return sec(titulo,'',tb.html+(tb.v==='act'?`<div class="list">${filasControl(c,tipos,evs)}</div>`:hist.length?`<div class="tlw">${hist.map(filaEv).join('')}</div>`:'<div class="muted small">Sin registros.</div>'))}
-function esMadre(c){return c.sexo==='Hembra'&&(c.categoria==='Madres'||S.servicios.some(s=>norm(s.madre)===norm(c.nombre)))}
+function esMadre(c){return c.sexo==='Hembra'&&(['Madres','Receptoras'].includes(c.categoria)||S.servicios.some(s=>norm(s.madre)===norm(c.nombre)))}
 function seccionServicios(c){const serv=S.servicios.filter(s=>norm(s.madre)===norm(c.nombre)).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||'')||(+b.temporada-+a.temporada));
   const pre=serv.find(s=>s.estado==='Preñada');
   const der=canWrite&&c.estado==='Activo'?`<button class="btn sm pri" data-act="nacimiento" data-m="${esc(c.nombre)}" ${pre?`data-s="${pre.id}"`:''}>+ Nacimiento</button>`:'';

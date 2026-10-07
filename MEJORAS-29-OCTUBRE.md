@@ -33,14 +33,14 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 | ✅ | Progenie | Nombres sueltos. | Tarjetas rosas y celestes de cada hijo, con camada y categoría. Se tocan y abren la ficha. |
 | ✅ | Botones finales | Una fila de botones chicos. | Botones **anchos uno debajo del otro**: Editar datos, Ficha de venta y **Dar de baja** (rojo). |
 | ✅ | Compu | Todo estirado a lo ancho. | Centrado a **700 px**, como una columna de celular. |
-| ⏳ | Sanidad masiva | Elegís caballos y después qué se hizo. | Como PB: elegís el **control**, ves primero los **vencidos**, tildás "**Todos los vencidos**" y cargás con **droga** y vencimiento. |
-| ⏳ | Más controles | Desparasitación, desvase, herrado y muelas. | Se suman **Anemia** (60 días), **Influenza** (90), **Encéfalo** (365), **Adenitis**, **Tétano** y las **vacunas de preñez por mes** (Rinoneumonitis en los meses 5, 7 y 9; Salmonela en el 4 y el 6; Encéfalo, Desparasitación y Adenitis en el 11), todo con aviso. |
-| ⏳ | Configuración ⚙ | "Cada cuántos días" dentro de Sanidad. | Pantalla de **parámetros de la cría**: prender y apagar controles, cambiarles los días y a qué categorías aplican. |
-| ⏳ | Alta | Un formulario largo. | Pantalla con 4 opciones: **Nacimiento · Compra · Receptora · Padrillo**. En Nacimiento, el padre se elige de los **servicios previos** de la madre con un toque. |
-| ⏳ | Baja | Un formulario. | Pantalla con **Venta · Muerte · Jubilado**, **pidiendo confirmación** (en PB, "Muerte" no la pide). |
-| ⏳ | Nuevo evento | Lista de tipos. | Primero la **categoría** (Análisis, Enfermedad, Estudios, Lesión, Trabajos, Manejo, Reproducción) y después el **evento** con las listas de PB (cólico, rengo, radiografía…). |
-| ⏳ | Seleccionar | — | Botón **[Seleccionar]** para cambiar de **categoría o de lugar a muchos caballos juntos**. |
-| ⏳ | Receptoras | — | Categoría **Receptoras**, con su pestaña dentro de Madres. |
+| ✅ | Sanidad masiva | Elegías caballos y después qué se hizo. | Como PB: **[+ Sanidad]** abre una pantalla con todos los **controles** en una fila que se desliza. Elegís uno y aparecen los caballos a los que aplica, **primero los sin registro y vencidos**. Podés tocar "**Elegir todos los vencidos**" o "Solo vencidos". Abajo, "**Continuar con N caballos**" y cargás fecha, **vencimiento en días**, **droga** (Ivomec, Dectomax, Moxidectina…), precio si es del herrero, y anotaciones. |
+| ✅ | Más controles | Desparasitación, desvase, herrado y muelas. | Se suman **Anemia** (60 días), **Influenza** (90), **Encéfalo** (365), **Adenitis** y **Tétano** (180 y 365, potrillos), y las **vacunas de preñez por mes**: Rinoneumonitis en los meses 5, 7 y 9; Salmonela en el 4 y el 6; Encéfalo, Desparasitación y Adenitis en el 11. Van al aviso de las 8 y a "Para hacer esta semana". En la ficha de cada madre preñada se ve cada vacuna con su fecha y si está hecha. Las de preñez se avisan desde el 29/10 (las viejas no). |
+| ✅ | Configuración ⚙ | "Cada cuántos días" estaba dentro de Sanidad. | Ruedita **⚙ arriba a la derecha**. Ahí prendés o apagás cada control y le cambiás los días (o los meses de preñez) y a qué categorías aplica. También están los días de desvase, herrado y desparasitación, los precios del herrero, y los accesos a Notificaciones y Calendario. |
+| ✅ | Alta | Un formulario largo. | Pantalla con 4 botones grandes: **Nacimiento · Compra · Receptora · Padrillo**. En **Nacimiento** elegís la madre (primero las preñadas, con su padrillo y fecha de parto) y el padre se completa solo con el servicio. |
+| ✅ | Baja | Un formulario. | Pantalla con **Venta** (precio, comprador, fecha), **Muerte** (fecha y causa), **Jubilado** y **Otro**, cada una **pidiendo confirmación** (en PB, Muerte no la pide). Aparte, en rojo, **Eliminar** (solo si se cargó por error, con doble confirmación). La baja queda como movimiento. |
+| ✅ | Nuevo evento | Una lista de tipos. | Primero la **categoría** y después el **evento**: Sanidad, Herrero, Reproducción, Polo, **Lesión** (cólico, rengo, tendón…), **Enfermedad**, **Estudios** (radiografía, eco-tendones…), **Análisis**, **Trabajos** (destete, castración, chip…) y **Manejo**. Cada una con su color en la línea de tiempo. |
+| ✅ | Seleccionar | — | Botón **[Seleccionar]** en la lista: tildás varios caballos y abajo aparece **[Cambiar categoría]** o **[Cambiar lugar]**. Queda como movimiento en cada uno. |
+| ✅ | Receptoras | — | Categoría **Receptoras**. En Madres aparecen las pestañas **[Madres] [Receptoras]**, y se dan de alta desde Alta → Receptora. Tienen servicios, preñez y vacunas de preñez como las madres. |
 
 ## B2. Pedidos del 7/10
 | | Qué | Cómo era | Cómo queda |
@@ -50,9 +50,10 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 | ✅ | Categoría **Descanso** | Era solo un botón de ritmo, sin fecha. | **Categoría nueva.** Al mandar un caballo a descanso se carga **cuándo salió** y **cuándo volver a agarrarlo**. La ficha muestra los días de descanso y cuánto falta, con los botones **[Agarrar]** (vuelve a Hechura o Jugadores) y **[Cambiar fechas]**. Todo queda como movimiento ("Jugadores → Descanso", "Descanso → Jugadores (agarrado)", con los días que estuvo). El botón "Descanso" del ritmo ahora hace esto mismo. |
 | ✅ | Aviso para agarrar | — | "**Agarrar del descanso**" aparece en el aviso de las 8 (una semana antes, el día y si está atrasado), en "Para hacer esta semana" y en el calendario. |
 | ✅ | Bajas | Solo se veían los muertos, sin precio. | Pestañas **[Todas] [Vendidos] [Muertos] [Otros]**. Cada uno con fecha, **precio y comprador**. La baja ahora tiene **Vendido, Muerto, Jubilado u Otro**, con precio y comprador, y **pide confirmación**. El Excel tiene estas columnas. |
-| ✅ | Vendidos de Polo Breeders | — | Se cargan solos: Chavela (USD 19.000, EE.UU., la vendió Alfredo Arrenio), Mirtha (USD 10.000, Pilar, Pablo Mancilla), Rumba (USD 4.000), Serena (USD 1.000) y Servilleta (USD 3.000), estas tres a Alejo Sagasti. Falta la fecha de venta. |
-| ✅ | Hechura a descanso | — | Se pasa solo todo el lote de Hechura a **Descanso desde el 19/9/2026** (fecha aproximada). Falta la fecha para volver a agarrar. |
-| ✅ | Potranca Baya | — | Se carga sola: servicio por inseminación el **21/9/2026** (aprox.) y **preñez confirmada el 6/10**. Parto estimado: **22/8/2027**. Falta el padrillo. |
+| ✅ | Vendidos de Polo Breeders | — | Se cargan solos: Mirtha (**10/3/2026**, USD 10.000, Pilar, Pablo Mancilla), Chavela (**10/8/2026**, USD 19.000, EE.UU., Alfredo Arrenio), Rumba (USD 4.000), Serena (USD 1.000) y Servilleta (USD 3.000), estas tres a Alejo Sagasti el **15/9/2026**. |
+| ✅ | Hechura a descanso | — | Se pasa solo todo el lote de Hechura a **Descanso desde el 19/9/2026** (fecha aproximada). Cuando quieras, cargás en cada uno la fecha para volver a agarrarlo. |
+| ✅ | Potranca Baya | — | Se carga sola: inseminada con **IRENITA PORRON** el **21/9/2026** (aprox.) y **preñez confirmada el 6/10**. Parto estimado: **22/8/2027**. |
+| ✅ | Mini | — | Murió (ya estaba así en la app). |
 
 ## C. Lo que tiene Doña Cecilia y PB no (se mantiene)
 Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y señas a la vista**, aviso de las 8 todos los días, "Para hacer esta semana", regla de desvase y herrado por categoría y ritmo, precios del herrero, Excel, ficha de venta por WhatsApp, genealogía de padrillos que heredan los hijos, calendario y lector de chip.

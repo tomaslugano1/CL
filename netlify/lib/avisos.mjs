@@ -11,10 +11,10 @@ const INTERV_DEF = { Potrillos: { desv: 45, herr: 0 }, Madres: { desv: 80, herr:
 export function reglas(config = {}) {
   const k = { despMadres: 180, despResto: 90, muelas: 365, desvasar: 60, herrar: 45, ...config };
   const tabla = {}; for (const g in INTERV_DEF) tabla[g] = { ...INTERV_DEF[g], ...((k.intervalos || {})[g] || {}) };
-  const grupo = (c) => { if (c.categoria === 'Descanso') return 'descanso'; const rt = c.ritmo === 'fuerte' ? 'normal' : c.ritmo; return (rt && ['Hechura', 'Jugadores'].includes(c.categoria)) ? rt : (c.categoria === 'Jugadores' ? 'normal' : c.categoria); };
+  const grupo = (c) => { if (c.categoria === 'Descanso') return 'descanso'; if (c.categoria === 'Receptoras') return 'Madres'; const rt = c.ritmo === 'fuerte' ? 'normal' : c.ritmo; return (rt && ['Hechura', 'Jugadores'].includes(c.categoria)) ? rt : (c.categoria === 'Jugadores' ? 'normal' : c.categoria); };
   return (c, t) => {
     if (t === 'Muelas') return +k.muelas || 365;
-    if (t === 'Desparasitación') return +(c.categoria === 'Madres' ? k.despMadres : k.despResto) || 0;
+    if (t === 'Desparasitación') return +(['Madres', 'Receptoras'].includes(c.categoria) ? k.despMadres : k.despResto) || 0;
     const g = tabla[grupo(c)];
     if (!g) return +(t === 'Desvasada' ? k.desvasar : k.herrar) || 0;
     return +(t === 'Desvasada' ? g.desv : g.herr) || 0;
@@ -52,18 +52,45 @@ function preparar(filas) {
     for (const t of e.tipo === 'Herrada' ? ['Herrada', 'Desvasada'] : [e.tipo]) { const key = e.caballoId + '|' + t; if (e.fecha && (!ultimo[key] || e.fecha > ultimo[key])) ultimo[key] = e.fecha; }
   }
   const vence = [];   // { t, c, p }
+  const ctrls = controles(D.config);
   for (const c of D.caballos) {
     if (c.estado !== 'Activo' || c.categoria === 'Doma') continue;
     if (c.categoria === 'Descanso' && c.descansoHasta) vence.push({ t: 'Agarrar', c, p: c.descansoHasta });
-    for (const t of Object.keys(VERBO)) {
+    for (const t of Object.keys(VERBO_BASE)) {
       if (t === 'Agarrar') continue;
       const u = ultimo[c.id + '|' + t]; const n = intervalo(c, t); if (!u || !n) continue;
       if (t === 'Herrada' && (ultimo[c.id + '|Desherrada'] || '') >= u) continue; // desherrado
       vence.push({ t, c, p: addDays(u, n) });
     }
+    // Controles por días (Anemia, Influenza…): solo si ya se cargó alguna vez
+    for (const ct of ctrls.filter(x => x.dias && x.activo && aplica(x, c))) {
+      const u = ultimo[c.id + '|' + ct.k]; if (u) vence.push({ t: ct.k, c, p: addDays(u, +ct.dias) });
+    }
+    // Vacunas de preñez: según el mes de gestación, contado desde el servicio
+    if (['Madres', 'Receptoras'].includes(c.categoria)) {
+      const s = D.servicios.filter(x => x.madre && x.madre.toUpperCase() === String(c.nombre).toUpperCase() && x.estado === 'Preñada' && x.fecha).sort((a, b) => b.fecha.localeCompare(a.fecha))[0];
+      if (s) for (const ct of ctrls.filter(x => x.meses && x.activo && aplica(x, c))) for (const m of ct.meses) {
+        const due = addDays(s.fecha, Math.round(m * 30.4)), base = ct.base || ct.k;
+        if (due < PRENEZ_DESDE) continue;
+        const hecha = D.eventos.some(e => e.caballoId === c.id && e.tipo === base && e.fecha >= addDays(due, -20) && e.fecha <= addDays(due, 40));
+        if (!hecha) vence.push({ t: ct.k, c, p: due, sinRepetir: true });
+      }
+    }
   }
   return { vence, prenadas: D.servicios.filter(s => s.estado === 'Preñada' && s.fpp) };
 }
+// Controles de sanidad (mismos que app/pb.js: CONTROLES_DEF). Si se cambian allá, cambiarlos acá.
+const PRENEZ_DESDE = '2026-10-29';
+const CONTROLES_DEF = [
+  { k: 'Anemia', dias: 60, cats: 'todas' }, { k: 'Influenza', dias: 90, cats: 'todas' }, { k: 'Encéfalo', dias: 365, cats: 'todas' },
+  { k: 'Adenitis', dias: 180, cats: ['Potrillos'] }, { k: 'Tétano', dias: 365, cats: ['Potrillos'] },
+  { k: 'Rinoneumonitis', meses: [5, 7, 9], cats: ['Madres', 'Receptoras'] }, { k: 'Salmonela', meses: [4, 6], cats: ['Madres', 'Receptoras'] },
+  { k: 'Encéfalo (preñez)', base: 'Encéfalo', meses: [11], cats: ['Madres', 'Receptoras'] }, { k: 'Desparasitación (preñez)', base: 'Desparasitación', meses: [11], cats: ['Madres', 'Receptoras'] },
+  { k: 'Adenitis (preñez)', base: 'Adenitis', meses: [11], cats: ['Madres', 'Receptoras'] }];
+function controles(config = {}) { const g = config.controles || {}; return CONTROLES_DEF.map(c => ({ ...c, ...(g[c.k] || {}), activo: g[c.k]?.activo ?? true })); }
+const aplica = (ct, c) => ct.cats === 'todas' || (ct.cats || []).includes(c.categoria);
+const VERBO_BASE = { ...VERBO };
+for (const ct of CONTROLES_DEF) VERBO[ct.k] = 'Dar ' + ct.k;
 const fmtCorta = (s) => { const [, m, d] = s.split('-'); return `${+d}/${+m}`; };
 const porTipo = (xs) => Object.keys(VERBO).map(t => [t, xs.filter(x => x.t === t)]).filter(([, l]) => l.length);
 const quien = (xs) => xs.length <= 4 ? ': ' + xs.map(x => x.c.nombre).join(', ') : ` ${xs.length} caballos`;
@@ -71,7 +98,8 @@ const quien = (xs) => xs.length <= 4 ? ': ' + xs.map(x => x.c.nombre).join(', ')
 // Aviso diario: lo ATRASADO, lo que vence HOY y lo que vence en los PRÓXIMOS 7 DÍAS, más los partos
 // (los que pasaron la fecha y los que vienen). Se repite todos los días mientras haya algo pendiente. null si no hay nada.
 export function avisoDiario(filas, hoy = hoyAR()) {
-  const { vence, prenadas } = preparar(filas), en7 = addDays(hoy, 7), lineas = [];
+  const p0 = preparar(filas), prenadas = p0.prenadas, en7 = addDays(hoy, 7), lineas = [];
+  const vence = p0.vence.filter(x => !(x.sinRepetir && x.p < addDays(hoy, -30))); // una dosis de preñez vieja no se avisa para siempre
   const linea = (xs) => porTipo(xs).map(([t, l]) => VERBO[t] + quien(l)).join(' · ');
   const atr = vence.filter(x => x.p < hoy), hoyL = vence.filter(x => x.p === hoy), prox = vence.filter(x => x.p > hoy && x.p <= en7);
   const pAtr = prenadas.filter(s => s.fpp < hoy), pHoy = prenadas.filter(s => s.fpp === hoy), pProx = prenadas.filter(s => s.fpp > hoy && s.fpp <= en7);
