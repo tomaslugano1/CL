@@ -307,7 +307,9 @@ label{gap:6px;font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:
 .ov .selbar{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line);z-index:6;max-width:700px;margin:0 auto}
 .bigbtn{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;min-height:72px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);font:inherit;color:var(--fg);cursor:pointer;text-align:left}
 .bigbtn b{font-size:17px}.bigbtn span{color:var(--muted);font-size:13px}.bigbtn.peligro{border-color:var(--bad);background:var(--bad-bg)}.bigbtn.peligro b{color:var(--bad)}
-.ctrl{border-top:1px solid var(--line);padding:10px 0;display:flex;flex-direction:column;gap:6px}.ctrl .chk{display:flex;gap:8px;align-items:center}.ctrl .row{gap:10px}
+.ctrl{border-top:1px solid var(--line);padding:12px 0;display:flex;flex-direction:column;gap:8px}.ctrl .row{gap:8px 14px;flex-wrap:wrap}
+.ctrl label{display:inline-flex !important;flex-direction:row !important;align-items:center;gap:6px;text-transform:none !important;letter-spacing:0 !important;font-size:14px !important;color:var(--fg) !important;font-weight:500 !important;margin:0 !important}
+.ctrl label b{font-size:16px;font-weight:800}.ctrl input[type=checkbox]{width:22px;height:22px;margin:0;flex:none}.ctrl input[type=number],.ctrl input:not([type]){width:90px;min-height:40px;margin:0}
 .ico-pre{color:var(--ok);vertical-align:-3px;margin-left:4px}
 .prac .btn{min-height:44px;min-width:56px;font-size:18px;padding:8px 14px}
 .hcard .obsl{font-size:.8rem;color:var(--warn);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
