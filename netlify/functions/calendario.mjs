@@ -9,7 +9,7 @@ const SB_ANON = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ik
 import { reglas } from '../lib/avisos.mjs';
 
 const DIAS_ADELANTE = 120;
-const VERBO = { 'Desparasitación': 'Desparasitar', 'Desvasada': 'Desvasar', 'Herrada': 'Herrar', 'Muelas': 'Hacer muelas' };
+const VERBO = { 'Desparasitación': 'Desparasitar', 'Desvasada': 'Desvasar', 'Herrada': 'Herrar', 'Muelas': 'Hacer muelas', 'Agarrar': 'Agarrar del descanso' };
 
 const addDays = (s, n) => { const d = new Date(s + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const hoyAR = () => new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10); // hora de Argentina
@@ -36,11 +36,11 @@ export function armarCalendario(filas, hoy = hoyAR()) {
   for (const c of D.caballos) {
     if (c.estado !== 'Activo' || c.categoria === 'Doma') continue;
     for (const t of Object.keys(VERBO)) {
-      const u = ultimo[c.id + '|' + t];
-      const n = intervalo(c, t);
+      const u = t === 'Agarrar' ? (c.categoria === 'Descanso' && c.descansoHasta ? c.descansoHasta : '') : ultimo[c.id + '|' + t];
+      const n = t === 'Agarrar' ? 0.001 : intervalo(c, t);
       if (!u || !n) continue; // sin dato, nunca herrado, o no se hierra: no se agenda
       if (t === 'Herrada' && (ultimo[c.id + '|Desherrada'] || '') >= u) continue; // desherrado
-      const p = addDays(u, n);
+      const p = t === 'Agarrar' ? u : addDays(u, n);
       if (p > hasta) continue;
       const vencido = p < hoy, dia = vencido ? hoy : p, lugar = c.lugar || 'Sin lugar';
       const g = grupos[dia + '|' + t + '|' + lugar + '|' + vencido] ||= { dia, t, lugar, vencido, caballos: [] };

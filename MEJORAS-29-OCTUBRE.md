@@ -42,5 +42,16 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 | ⏳ | Seleccionar | — | Botón **[Seleccionar]** para cambiar de **categoría o de lugar a muchos caballos juntos**. |
 | ⏳ | Receptoras | — | Categoría **Receptoras**, con su pestaña dentro de Madres. |
 
+## B2. Pedidos del 7/10
+| | Qué | Cómo era | Cómo queda |
+|---|---|---|---|
+| ✅ | Prácticas y torneos | Solo había **+1**: si se sumaba uno de más, no se podía corregir. | Botón **−1** al lado del +1. Pide confirmación y borra la última cargada (dice la fecha). |
+| ✅ | Dibujito de preñada | La etiqueta decía "Preñada". | **Dibujito verde de yegua con potrillo** al lado del nombre, como en PB. |
+| ✅ | Categoría **Descanso** | Era solo un botón de ritmo, sin fecha. | **Categoría nueva.** Al mandar un caballo a descanso se carga **cuándo salió** y **cuándo volver a agarrarlo**. La ficha muestra los días de descanso y cuánto falta, con los botones **[Agarrar]** (vuelve a Hechura o Jugadores) y **[Cambiar fechas]**. Todo queda como movimiento ("Jugadores → Descanso", "Descanso → Jugadores (agarrado)", con los días que estuvo). El botón "Descanso" del ritmo ahora hace esto mismo. |
+| ✅ | Aviso para agarrar | — | "**Agarrar del descanso**" aparece en el aviso de las 8 (una semana antes, el día y si está atrasado), en "Para hacer esta semana" y en el calendario. |
+| ✅ | Bajas | Solo se veían los muertos, sin precio. | Pestañas **[Todas] [Vendidos] [Muertos] [Otros]**. Cada uno con fecha, **precio y comprador**. La baja ahora tiene **Vendido, Muerto, Jubilado u Otro**, con precio y comprador, y **pide confirmación**. El Excel tiene estas columnas. |
+| ⏳ | Vendidos de Polo Breeders | — | Cargar los caballos vendidos con su precio (falta que me los pases). |
+| ⏳ | Fechas de descanso | — | Cargar qué caballos están en descanso y desde cuándo (falta que me las pases). |
+
 ## C. Lo que tiene Doña Cecilia y PB no (se mantiene)
 Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y señas a la vista**, aviso de las 8 todos los días, "Para hacer esta semana", regla de desvase y herrado por categoría y ritmo, precios del herrero, Excel, ficha de venta por WhatsApp, genealogía de padrillos que heredan los hijos, calendario y lector de chip.

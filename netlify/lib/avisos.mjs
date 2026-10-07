@@ -11,7 +11,7 @@ const INTERV_DEF = { Potrillos: { desv: 45, herr: 0 }, Madres: { desv: 80, herr:
 export function reglas(config = {}) {
   const k = { despMadres: 180, despResto: 90, muelas: 365, desvasar: 60, herrar: 45, ...config };
   const tabla = {}; for (const g in INTERV_DEF) tabla[g] = { ...INTERV_DEF[g], ...((k.intervalos || {})[g] || {}) };
-  const grupo = (c) => { const rt = c.ritmo === 'fuerte' ? 'normal' : c.ritmo; return (rt && ['Hechura', 'Jugadores'].includes(c.categoria)) ? rt : (c.categoria === 'Jugadores' ? 'normal' : c.categoria); };
+  const grupo = (c) => { if (c.categoria === 'Descanso') return 'descanso'; const rt = c.ritmo === 'fuerte' ? 'normal' : c.ritmo; return (rt && ['Hechura', 'Jugadores'].includes(c.categoria)) ? rt : (c.categoria === 'Jugadores' ? 'normal' : c.categoria); };
   return (c, t) => {
     if (t === 'Muelas') return +k.muelas || 365;
     if (t === 'Desparasitación') return +(c.categoria === 'Madres' ? k.despMadres : k.despResto) || 0;
@@ -21,7 +21,7 @@ export function reglas(config = {}) {
   };
 }
 
-const VERBO = { 'Desparasitación': 'Desparasitar', 'Desvasada': 'Desvasar', 'Herrada': 'Herrar', 'Muelas': 'Hacer muelas' };
+const VERBO = { 'Desparasitación': 'Desparasitar', 'Desvasada': 'Desvasar', 'Herrada': 'Herrar', 'Muelas': 'Hacer muelas', 'Agarrar': 'Agarrar del descanso' };
 const addDays = (s, n) => { const d = new Date(s + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const diff = (a, b) => Math.round((new Date(a + 'T12:00:00Z') - new Date(b + 'T12:00:00Z')) / 864e5);
 export const hoyAR = () => new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
@@ -54,7 +54,9 @@ function preparar(filas) {
   const vence = [];   // { t, c, p }
   for (const c of D.caballos) {
     if (c.estado !== 'Activo' || c.categoria === 'Doma') continue;
+    if (c.categoria === 'Descanso' && c.descansoHasta) vence.push({ t: 'Agarrar', c, p: c.descansoHasta });
     for (const t of Object.keys(VERBO)) {
+      if (t === 'Agarrar') continue;
       const u = ultimo[c.id + '|' + t]; const n = intervalo(c, t); if (!u || !n) continue;
       if (t === 'Herrada' && (ultimo[c.id + '|Desherrada'] || '') >= u) continue; // desherrado
       vence.push({ t, c, p: addDays(u, n) });

@@ -22,7 +22,7 @@ async function exportarExcel(){
     'Bisabuelos lado padre':(()=>{const ap=c.abueloP||padresDeNombre(c.padre).padre,bp=c.abuelaP||padresDeNombre(c.padre).madre;return [ap,bp].map(n=>{const x=padresDeNombre(n);return x.padre||x.madre?(x.padre||'?')+' × '+(x.madre||'?'):''}).filter(Boolean).join(' / ')})(),
     'Domador':c.domador,'Ritmo':['Hechura','Jugadores'].includes(c.categoria)?(RITMOS.find(r=>r[0]===((c.ritmo==='fuerte'?'normal':c.ritmo)||(c.categoria==='Jugadores'?'normal':'')))?.[1]||''):'','Entrada a doma':fx(c.ingresoDoma),'Alzada':c.alzada,'Prácticas':practicas(c),'Torneos':torneos(c),
     'Última desparasitación':fx(ultimo(c.id,'Desparasitación')),'Último desvase o herraje':fx(ultimo(c.id,'Desvasada')),'Última herrada':fx(ultimo(c.id,'Herrada')),'Últimas muelas':fx(ultimo(c.id,'Muelas')),
-    'A la venta':c.venta?'Sí':'','Precio':c.precio||'','Fecha de baja':fx(c.bajaFecha),'Detalle de baja':c.bajaObs||'','Embocadura':c.embocadura||'','Observaciones':c.obs}));
+    'A la venta':c.venta?'Sí':'','Precio':c.precio||'','Fecha de baja':fx(c.bajaFecha),'Detalle de baja':c.bajaObs||'','Precio de venta':c.bajaPrecio||'','Comprador':c.bajaComprador||'','En descanso desde':fx(c.descansoDesde),'Volver a agarrar':fx(c.descansoHasta),'Embocadura':c.embocadura||'','Observaciones':c.obs}));
   XLSX.utils.book_append_sheet(wb,hoja(cab),'Caballos');
   const ev=[...S.eventos].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(e=>({'Fecha':fx(e.fecha),'Caballo':byId(e.caballoId)?.nombre||e.caballo,'Tipo':e.tipo,'Detalle':e.detalle,'Observación':e.obs,'Precio':+e.precio||'','Cargó':e.por?(quien[e.por]?.name||''):''}));
   XLSX.utils.book_append_sheet(wb,hoja(ev),'Eventos');
@@ -37,12 +37,13 @@ EXTRA_ACTS.excel=exportarExcel;
 function diasSinCopia(){let u=null;try{u=localStorage.getItem('dc-ultima-copia')}catch(e){}return u?diff(hoy(),u):null}
 
 /* ================= 2) Para hacer esta semana ================= */
-const VERBO={'Desparasitación':'Desparasitar','Desvasada':'Desvasar','Herrada':'Herrar','Muelas':'Hacer muelas'};
+const VERBO={'Desparasitación':'Desparasitar','Desvasada':'Desvasar','Herrada':'Herrar','Muelas':'Hacer muelas','Agarrar':'Agarrar del descanso'};
 let TAREAS=[];
 /* Mismas reglas que Sanidad: caballos activos que no están en Doma. Herrar solo a los que ya se herraron alguna vez. */
 function tareasSemana(dias=7){const lim=addDays(hoy(),dias),g={};let sinDato=0;
-  for(const c of activos().filter(enCampo))for(const t of ['Desparasitación','Desvasada','Herrada','Muelas']){
+  for(const c of activos().filter(enCampo))for(const t of ['Desparasitación','Desvasada','Herrada','Muelas','Agarrar']){
     if((t==='Herrada'||t==='Muelas')&&!ultimo(c.id,t))continue;
+    if(t==='Agarrar'){if(c.categoria!=='Descanso'||!c.descansoHasta||c.descansoHasta>lim)continue;const lugar=c.lugar||'Sin lugar',k=lugar+'|'+t;(g[k]=g[k]||{lugar,t,items:[]}).items.push({c,s:{p:c.descansoHasta,d:diff(c.descansoHasta,hoy())}});continue}
     const s=estadoSan(c,t);if(!s.p){if(t==='Desparasitación')sinDato++;continue}
     if(s.p>lim)continue;const lugar=c.lugar||'Sin lugar';const k=lugar+'|'+t;(g[k]=g[k]||{lugar,t,items:[]}).items.push({c,s})}
   const grupos=Object.values(g).sort((a,b)=>a.lugar.localeCompare(b.lugar)||a.t.localeCompare(b.t));
@@ -54,7 +55,7 @@ function panelTareas(){const {grupos,sinDato}=tareasSemana();TAREAS=grupos;const
   const bloque=porLugar.map(l=>`<div class="t-lugar"><h4>${esc(l)}</h4>${grupos.map((x,i)=>x.lugar!==l?'':(()=>{const v=x.items.filter(y=>y.s.d<0).length;
     return `<details class="tarea"><summary><span class="grow"><b>${VERBO[x.t]}</b> · ${x.items.length} caballo${x.items.length>1?'s':''}</span>${v?`<span class="pill p-bad">${v} vencido${v>1?'s':''}</span>`:'<span class="pill p-warn">esta semana</span>'}<span class="go">›</span></summary>
       <div class="list">${x.items.map(y=>`<div class="li"><span class="a" data-open="${y.c.id}">${esc(y.c.nombre)}</span><span class="small ${y.s.d<0?'':'muted'}">${y.s.d<0?'vencido hace '+(-y.s.d)+' d':y.s.d===0?'vence hoy':'vence '+fmt(y.s.p)}</span></div>`).join('')}</div>
-      ${canWrite?`<button class="btn pri" data-act="tarea" data-k="${i}">Hecho: cargar a ${x.items.length>1?'los '+x.items.length:'este'}</button>`:''}</details>`})()).join('')}</div>`).join('');
+      ${canWrite&&x.t!=='Agarrar'?`<button class="btn pri" data-act="tarea" data-k="${i}">Hecho: cargar a ${x.items.length>1?'los '+x.items.length:'este'}</button>`:''}</details>`})()).join('')}</div>`).join('');
   const extras=[
     partos.length?`<div class="t-lugar"><h4>Partos a vigilar</h4>${partos.map(s=>{const d=diff(s.fpp,hoy());return `<div class="li"><div><span class="a" data-open-name="${esc(s.madre)}">${esc(s.madre)}</span><div class="sub">${esc(s.padrillo||'—')} · FPP ${fmt(s.fpp)}</div></div><span class="pill ${d<0?'p-bad':'p-warn'}">${d<0?'pasó hace '+(-d)+' d':d===0?'hoy':'faltan '+d+' d'}</span></div>`}).join('')}${canWrite?'':''}</div>`:'',
     notas?`<div class="li"><span>${notas} nota${notas>1?'s':''} para revisar</span><button class="btn sm" data-tab="notas">Ver</button></div>`:'',

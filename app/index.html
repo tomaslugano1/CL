@@ -300,6 +300,8 @@ label{gap:6px;font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:
 .lcount{text-align:center;color:var(--muted);font-size:14px;margin:14px 0}
 .hcard.chico{min-height:59px;padding:10px 14px}
 @media (min-width:760px){#main{max-width:700px;margin-left:auto;margin-right:auto}}
+.ico-pre{color:var(--ok);vertical-align:-3px;margin-left:4px}
+.prac .btn{min-height:44px;min-width:56px;font-size:18px;padding:8px 14px}
 .hcard .obsl{font-size:.8rem;color:var(--warn);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .tarea summary .grow{flex:1}
 .tarea summary .go{color:var(--muted);font-size:22px;transition:transform .15s}
@@ -348,7 +350,7 @@ body:has(.selbar) #dc-estado{display:none}
 <div id="toast" class="toast" hidden></div>
 
 <script>
-const CATS=['Potrillos','Doma','Hechura','Jugadores','Madres'];
+const CATS=['Potrillos','Doma','Hechura','Jugadores','Descanso','Madres'];
 const TIPOS=['Práctica','Torneo','Desparasitación','Desvasada','Herrada','Desherrada','Vacuna','Anemia','Muelas','Veterinario','Tacto / Eco','Servicio','Parición','Aborto','Castración','Movimiento','Revisión','Otro'];
 const TABS=[['inicio','Inicio'],['caballos','Caballos'],['madres','Madres'],['camadas','Camadas'],['sanidad','Sanidad'],['padrillos','Padrillos'],['notas','Notas']];
 const S={caballos:[],eventos:[],servicios:[],padrillos:[],notas:[],config:{despMadres:180,despResto:90,muelas:365,desvasar:60,herrar:45,temporada:2026},loaded:{}};
@@ -386,7 +388,7 @@ const INTERV_DEF={Potrillos:{desv:45,herr:0},Madres:{desv:80,herr:0},Hechura:{de
 const PRECIOS_DEF={'Desvasada':20000,'Herrada':35000};
 function tablaInt(){const t={},g=S.config.intervalos||{};for(const k in INTERV_DEF)t[k]={...INTERV_DEF[k],...(g[k]||{})};return t}
 /* Jugadores sin ritmo elegido = Normal ("fuerte" de una versión anterior también cuenta como Normal) */
-function grupoInt(c){const r=c.ritmo==='fuerte'?'normal':c.ritmo;if(r&&['Hechura','Jugadores'].includes(c.categoria))return r;return c.categoria==='Jugadores'?'normal':c.categoria}
+function grupoInt(c){if(c.categoria==='Descanso')return 'descanso';const r=c.ritmo==='fuerte'?'normal':c.ritmo;if(r&&['Hechura','Jugadores'].includes(c.categoria))return r;return c.categoria==='Jugadores'?'normal':c.categoria}
 function precios(){return {...PRECIOS_DEF,...(S.config.precios||{})}}
 function intervalo(c,tipo){const k=S.config;if(tipo==='Muelas')return +k.muelas||365;if(tipo==='Desparasitación')return c.categoria==='Madres'?k.despMadres:k.despResto;
   const g=tablaInt()[grupoInt(c)];if(!g)return tipo==='Desvasada'?k.desvasar:k.herrar;return tipo==='Desvasada'?g.desv:g.herr}
@@ -629,7 +631,7 @@ function caballoForm(c,pre={},after){
     async d=>{if(!d.camada&&d.nac)d.camada=+d.nac.slice(0,4);
       if(c){const mov=[c.categoria!==d.categoria?(c.categoria||'—')+' → '+d.categoria:'',(c.lugar||'')!==(d.lugar||'')?'Lugar: '+(c.lugar||'sin lugar')+' → '+(d.lugar||'sin lugar'):''].filter(Boolean).join(' · ');
         if(mov)await db.collection('eventos').doc(slugId('e')).set({fecha:hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Movimiento',detalle:mov,obs:'',por:uid||''});
-        await db.collection('caballos').doc(c.id).update(d);toast('Datos guardados');UI.ficha=c.id;renderFicha();if(c.categoria!=='Doma'&&d.categoria==='Doma'&&!d.ingresoDoma)preguntarDoma(c.id)}
+        await db.collection('caballos').doc(c.id).update(d);toast('Datos guardados');UI.ficha=c.id;renderFicha();if(c.categoria!=='Doma'&&d.categoria==='Doma'&&!d.ingresoDoma)preguntarDoma(c.id);if(c.categoria!=='Descanso'&&d.categoria==='Descanso')EXTRA_ACTS.aDescanso({id:c.id,ya:1})}
       else{const id=slugId('c');await db.collection('caballos').doc(id).set({...d,estado:'Activo'});toast(d.nombre+' dado de alta');if(after)await after(id,d);UI.ficha=id;renderFicha()}},datalists());conectarGenealogia();conectarSugerencias()}
 
 /* Al pasar un caballo a Doma: pregunta el día, el lugar y el domador (sugiere los más usados en Doma) y lo anota en eventos. */
@@ -662,9 +664,9 @@ function eventoForm(ids,tipo){
    async d=>{for(const id of ids){const c=byId(id);await db.collection('eventos').doc(slugId('e')).set({...d,detalle:d.detalle||d.tipo,caballoId:id,caballo:c?.nombre||'',por:uid||''})}
      toast(ids.length>1?`Cargado a ${ids.length} caballos`:'Evento cargado');if(ids.length>1){UI.sel=null;closeModal();render()}else{UI.ficha=ids[0];renderFicha()}});conectarPrecio()}
 
-function bajaForm(c){form('Dar de baja · '+c.nombre,[{k:'estado',l:'Motivo',type:'select',opts:['Muerto','Vendido','Otro']},{k:'bajaFecha',l:'Fecha',type:'date',v:hoy()},{k:'bajaObs',l:'Detalle',type:'area'}],
-  async d=>{await db.collection('caballos').doc(c.id).update({estado:d.estado==='Otro'?'Baja':d.estado,bajaFecha:d.bajaFecha,bajaObs:d.bajaObs});
-   await db.collection('eventos').doc(slugId('e')).set({fecha:d.bajaFecha||hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Otro',detalle:'Baja: '+d.estado,obs:d.bajaObs,por:uid||''});toast(c.nombre+' dado de baja');UI.ficha=c.id;renderFicha()},
+function bajaForm(c){form('Dar de baja · '+c.nombre,[{k:'estado',l:'Motivo',type:'select',opts:['Vendido','Muerto','Jubilado','Otro']},{k:'bajaFecha',l:'Fecha',type:'date',v:hoy(),req:1},{k:'bajaPrecio',l:'Precio de venta (si se vendió)',v:c.precio||''},{k:'bajaComprador',l:'Comprador (si se vendió)'},{k:'bajaObs',l:'Detalle',type:'area'}],
+  async d=>{if(!confirm('¿Confirmás la baja de '+c.nombre+' ('+d.estado.toLowerCase()+')?'))return;await db.collection('caballos').doc(c.id).update({estado:d.estado==='Otro'?'Baja':d.estado,bajaFecha:d.bajaFecha,bajaObs:d.bajaObs,bajaPrecio:d.estado==='Vendido'?d.bajaPrecio:'',bajaComprador:d.estado==='Vendido'?d.bajaComprador:'',catPrevia:c.categoria});
+   await db.collection('eventos').doc(slugId('e')).set({fecha:d.bajaFecha||hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Otro',detalle:'Baja: '+d.estado+(d.estado==='Vendido'&&d.bajaComprador?' a '+d.bajaComprador:''),obs:[d.estado==='Vendido'&&d.bajaPrecio?'Precio: '+d.bajaPrecio:'',d.bajaObs].filter(Boolean).join(' · '),por:uid||''});toast(c.nombre+' dado de baja');UI.ficha=c.id;renderFicha()},
   '<p class="note">No se borra: queda en “Ver bajas” y en su camada, pero deja de contarse.</p>')}
 
 function servicioForm(s,pre={}){const t=temporadaActual();
