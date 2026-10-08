@@ -54,6 +54,8 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 | ✅ | Hechura a descanso | — | Se pasa solo todo el lote de Hechura a **Descanso desde el 19/9/2026** (fecha aproximada). Cuando quieras, cargás en cada uno la fecha para volver a agarrarlo. |
 | ✅ | Potranca Baya | — | Se carga sola: inseminada con **IRENITA PORRON** el **21/9/2026** (aprox.) y **preñez confirmada el 6/10**. Parto estimado: **22/8/2027**. |
 | ✅ | Mini | — | Murió (ya estaba así en la app). |
+| ✅ | Observación en la lista | Salía en todas las categorías menos Jugadores. | Sale **solo en Doma y Potrillos**, que es donde sirve para distinguirlos físicamente. En la ficha se sigue viendo en todos. |
+| ✅ | Vilma y la 25 | — | Se corrigen solos: **Vilma 4 prácticas** y **la 25 (Avispa) 0 torneos**. Lo que se sume después del 8/10 se suma arriba. |
 
 ## C. Lo que tiene Doña Cecilia y PB no (se mantiene)
 Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y señas a la vista**, aviso de las 8 todos los días, "Para hacer esta semana", regla de desvase y herrado por categoría y ritmo, precios del herrero, Excel, ficha de venta por WhatsApp, genealogía de padrillos que heredan los hijos, calendario y lector de chip.

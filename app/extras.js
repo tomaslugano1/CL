@@ -254,6 +254,13 @@ const AJUSTES={
       await db.collection('caballos').doc(c.id).update({categoria:'Descanso',catPrevia:'Hechura',descansoDesde:'2026-09-19',descansoHasta:c.descansoHasta||'',ritmo:''});
       await db.collection('eventos').doc(slugId('e')).set({fecha:'2026-09-19',caballoId:c.id,caballo:c.nombre,tipo:'Movimiento',detalle:'Hechura → Descanso',obs:'Fecha aproximada (se largó todo el lote de hechura)',por:uid||''})}},
   // POTRANCA BAYA: preñez confirmada el 6/10/2026, inseminada unos 15 días antes
+  // 8/10/2026: VILMA tiene 4 prácticas y la 25 (Avispa) 0 torneos (contando lo cargado hasta ese día; lo que se sume después se suma arriba)
+  'oct-vilma-practicas-25-torneos':async()=>{const hasta='2026-10-08';
+    const v=S.caballos.find(x=>norm(x.nombre)==='VILMA'&&x.estado==='Activo');
+    if(v){const n=S.eventos.filter(e=>e.caballoId===v.id&&e.tipo==='Práctica'&&e.fecha<=hasta).length;await db.collection('caballos').doc(v.id).update({practicasPrevias:Math.max(0,4-n)})}
+    const a=S.caballos.find(x=>x.nombre==='25'&&x.estado==='Activo');
+    if(a){await db.collection('caballos').doc(a.id).update({torneosPrevios:0});
+      for(const e of S.eventos.filter(e=>e.caballoId===a.id&&e.tipo==='Torneo'&&e.fecha<=hasta))await db.collection('eventos').doc(e.id).delete()}},
   'oct-potranca-baya-prenez':async()=>{const m=S.caballos.find(x=>norm(x.nombre)==='POTRANCA BAYA');if(!m)return;
     if(S.servicios.some(s=>norm(s.madre)==='POTRANCA BAYA'&&(s.fecha||'')>='2026-08-01'))return; // ya la cargó alguien
     const f='2026-09-21',id=slugId('s');

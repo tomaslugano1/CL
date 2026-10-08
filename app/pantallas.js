@@ -67,7 +67,7 @@ vCaballos=function(){
       ${sel?`<input type="checkbox" tabindex="-1" ${sel.has(c.id)?'checked':''}>`:''}
       ${c.fotos?.length?`<img class="thumb" src="${fotoUrl(c.fotos[0])}" alt="" loading="lazy">`:''}
       <div class="grow"><div class="nm">${esc(c.nombre)} ${preñadaAhora(c)?ICO_PRENADA:''} ${c.ritmo&&['Hechura','Jugadores'].includes(c.categoria)&&!['normal','fuerte'].includes(c.ritmo)?`<span class="pill p-none">${esc(RITMOS.find(r=>r[0]===c.ritmo)?.[1]||'')}</span>`:''}</div>
-      <div class="meta">${esc(meta)}</div>${c.obs&&c.categoria!=='Jugadores'?`<div class="obsl">${esc(c.obs)}</div>`:''}</div>
+      <div class="meta">${esc(meta)}</div>${c.obs&&['Doma','Potrillos'].includes(c.categoria)?`<div class="obsl">${esc(c.obs)}</div>`:''}</div>
       ${c.estado==='Activo'&&enCampo(c)?`<div class="dots" title="Desparasitación · Desvasada">${ds.map(s=>`<span class="dot d-${s.st}"></span>`).join('')}</div>`:''}
       ${sel?'':'<span class="go">›</span>'}</button>`}).join('')||'<div class="empty">No hay caballos en esta categoría.</div>'}</div>
    ${l.length?`<p class="lcount">${l.length} caballo${l.length===1?'':'s'}</p>`:''}
