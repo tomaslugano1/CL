@@ -126,7 +126,7 @@ renderFicha=function(){
   const hijos=S.caballos.filter(x=>norm(x.madre)===norm(c.nombre)||norm(x.padre)===norm(c.nombre));
   loadNames([...new Set(evs.map(x=>x.por).filter(Boolean))]);
   const datos=[...(c.apodo?[['Apodo',c.apodo]]:[]),['Sexo',c.sexo],['Nacimiento',fmt(c.nac)+(e!==null?` (${e} ${e===1?'año':'años'})`:'')],['Camada',c.camada],...(c.pelaje?[['Pelaje',c.pelaje]]:[]),['N° chip',c.chip],['RP',c.rp],
-    ...(c.alzada?[['Alzada',c.alzada]]:[]),...(c.domador?[['Domador',c.domador]]:[]),...(c.ingresoDoma?[['Entró a doma',fmt(c.ingresoDoma)]]:[])];
+    ...(c.alzada?[['Alzada',c.alzada]]:[]),...(c.domador?[['Domador',c.domador]]:[]),...(c.ingresoDoma?[['Entró a doma',fmt(c.ingresoDoma)]]:[]),...(c.salidaDoma?[['Entregado de doma',fmt(c.salidaDoma)]]:[])];
   const polo=['Hechura','Jugadores','Descanso'].includes(c.categoria)&&activo;
   const ultimoDe=t=>S.eventos.filter(x=>x.caballoId===c.id&&x.tipo===t).sort((a,b)=>b.fecha.localeCompare(a.fecha))[0];
   const tbE=tabsSec('ev',[['hist','Historial'],['mov','Movimientos'],['todos','Todos']]);
@@ -139,6 +139,7 @@ renderFicha=function(){
     ${c.obs||c.embocadura?`<div class="senas">${c.obs?`<div><span>Observación</span>${esc(c.obs)}</div>`:''}${c.embocadura?`<div><span>Embocadura</span>${esc(c.embocadura)}</div>`:''}</div>`:''}
     ${c.fotos?.length?`<img class="cover" src="${fotoUrl(c.fotos[0])}" alt="${esc(c.nombre)}">`:''}
     ${sec('Datos','',`<div class="kvl">${datos.map(([k,v])=>`<div><span>${k}</span><b>${esc(v||'—')}</b></div>`).join('')}</div>`)}
+    ${typeof botonesEtapa==='function'?botonesEtapa(c):''}
     ${!activo?sec('Baja','',`<div class="kvl"><div><span>Motivo</span><b>${esc(c.estado)}</b></div><div><span>Fecha</span><b>${fmt(c.bajaFecha)}</b></div>${c.bajaPrecio?`<div><span>Precio</span><b>${esc(c.bajaPrecio)}</b></div>`:''}${c.bajaComprador?`<div><span>Comprador</span><b>${esc(c.bajaComprador)}</b></div>`:''}${c.bajaObs?`<div><span>Detalle</span><b>${esc(c.bajaObs)}</b></div>`:''}</div>`):''}
     ${enDescanso(c)&&activo?seccionDescanso(c):''}
     ${esMadre(c)?seccionServicios(c)+seccionPrenez(c):''}

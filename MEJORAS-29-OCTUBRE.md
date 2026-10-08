@@ -55,6 +55,7 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 | ✅ | Potranca Baya | — | Se carga sola: inseminada con **IRENITA PORRON** el **21/9/2026** (aprox.) y **preñez confirmada el 6/10**. Parto estimado: **22/8/2027**. |
 | ✅ | Mini | — | Murió (ya estaba así en la app). |
 | ✅ | Observación en la lista | Salía en todas las categorías menos Jugadores. | Sale **solo en Doma y Potrillos**, que es donde sirve para distinguirlos físicamente. En la ficha se sigue viendo en todos. |
+| ✅ | Cambio de etapa | Había que entrar a "Editar datos" y cambiar la categoría a mano. | En la ficha, recuadro **Categoría** con el paso que sigue, a un toque: **Potrillo → [Pasar a Doma]** (pide fecha, lugar y domador; sugiere 9 de Julio y Piri), **Doma → [Entregado de doma → Hechura]** (fecha, lugar, y anota cuántos días estuvo en doma), **Hechura → [Pasar a Jugadores]**. También **[Mandar a descanso]** y **[Otra categoría]**. Cada paso queda como movimiento. Para varios juntos: **Seleccionar → Cambiar categoría** (con lugar y domador). |
 | ✅ | Vilma y la 25 | — | Se corrigen solos: **Vilma 4 prácticas** y **la 25 (Avispa) 0 torneos**. Lo que se sume después del 8/10 se suma arriba. |
 
 ## C. Lo que tiene Doña Cecilia y PB no (se mantiene)

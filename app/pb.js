@@ -159,14 +159,43 @@ eventoForm=function(ids,tipo){const one=ids.length===1?byId(ids[0]):null;const c
 
 /* ================= Seleccionar: cambiar categoría o lugar a muchos juntos ================= */
 EXTRA_ACTS.selmover=()=>{UI.sel=UI.sel?null:new Set();render()};
-EXTRA_ACTS.moverCat=()=>{const ids=[...UI.sel];if(!ids.length)return;
-  form(`Cambiar categoría · ${ids.length} caballo${ids.length>1?'s':''}`,[{k:'cat',l:'Nueva categoría',type:'select',opts:CATS},{k:'fecha',l:'Fecha',type:'date',v:hoy(),req:1}],
-   async v=>{if(!confirm(`¿Pasar ${ids.length} caballo${ids.length>1?'s':''} a ${v.cat}?`))return;
-     for(const id of ids){const c=byId(id);if(!c||c.categoria===v.cat)continue;const up={categoria:v.cat};
-       if(v.cat==='Descanso'){up.catPrevia=c.categoria;up.descansoDesde=v.fecha}
-       await db.collection('caballos').doc(id).update(up);
-       await db.collection('eventos').doc(slugId('e')).set({fecha:v.fecha,caballoId:id,caballo:c.nombre,tipo:'Movimiento',detalle:c.categoria+' → '+v.cat,obs:'',por:uid||''})}
-     toast('Categoría cambiada');UI.sel=null;closeModal();render()},`<p class="note">${ids.map(i=>esc(byId(i)?.nombre||'')).join(', ')}</p>`)};
+EXTRA_ACTS.moverCat=()=>{const ids=[...UI.sel];if(ids.length)formPaso(ids,null)};
+
+/* ================= Cambio de etapa: Potrillo → Doma → Hechura → Jugadores ================= */
+const ETAPA_SIG={Potrillos:'Doma',Doma:'Hechura',Hechura:'Jugadores'};
+const masComunDoma=k=>{const n={};S.caballos.filter(x=>x.categoria==='Doma'&&x.estado==='Activo').forEach(x=>{if(x[k])n[x[k]]=(n[x[k]]||0)+1});return Object.keys(n).sort((a,b)=>n[b]-n[a])[0]||''};
+/* En la ficha: el paso que sigue, a un toque */
+function botonesEtapa(c){if(!canWrite||c.estado!=='Activo')return '';const sig=ETAPA_SIG[c.categoria],b=[];
+  if(sig)b.push(`<button class="btn pri" data-act="pasarA" data-id="${c.id}" data-v="${sig}">${c.categoria==='Doma'?'Entregado de doma → Hechura':'Pasar a '+sig}</button>`);
+  if(['Hechura','Jugadores'].includes(c.categoria))b.push(`<button class="btn" data-act="aDescanso" data-id="${c.id}">Mandar a descanso</button>`);
+  b.push(`<button class="btn" data-act="pasarA" data-id="${c.id}">Otra categoría</button>`);
+  const desde=c.categoria==='Doma'&&c.ingresoDoma?` · en doma desde ${fmt(c.ingresoDoma)} (${diff(hoy(),c.ingresoDoma)} días)`:'';
+  return sec('Categoría','',`<div class="sub" style="margin:0">Hoy: <b>${esc(c.categoria)}</b>${desde}</div><div class="row">${b.join('')}</div>`)}
+EXTRA_ACTS.pasarA=d=>{if(d.v==='Descanso')return EXTRA_ACTS.aDescanso({id:d.id});formPaso([d.id],d.v||null)};
+/* Formulario del cambio (uno o varios caballos). dest = null: se elige la categoría en el formulario. */
+function formPaso(ids,dest){const one=ids.length===1?byId(ids[0]):null,desdeDoma=one?.categoria==='Doma';
+  const pideDoma=!dest||dest==='Doma';
+  const lugar0=dest==='Doma'?(masComunDoma('lugar')||'9 de Julio'):desdeDoma?'Doña Cecilia':'';
+  const titulo=dest?(desdeDoma&&dest==='Hechura'?'Entregado de doma':'Pasar a '+dest):'Cambiar categoría';
+  form(titulo+' · '+(one?one.nombre:ids.length+' caballos'),[...(dest?[]:[{k:'cat',l:'Nueva categoría',type:'select',opts:CATS.filter(x=>!one||x!==one.categoria)}]),
+    {k:'fecha',l:dest==='Doma'?'Entró a doma el':desdeDoma?'Se entregó el':'Fecha',type:'date',v:hoy(),req:1},
+    {k:'lugar',l:'Lugar'+(dest?'':' (si cambia)'),v:lugar0,list:'dl-lug'},
+    ...(pideDoma?[{k:'domador',l:'Domador'+(dest?'':' (si pasan a Doma)'),v:masComunDoma('domador')||'Piri'}]:[]),{k:'obs',l:'Observación',type:'area'}],
+   async v=>{const destino=dest||v.cat;if(destino==='Descanso'&&one){EXTRA_ACTS.aDescanso({id:one.id});return}
+     if(ids.length>1&&!confirm(`¿Pasar ${ids.length} caballos a ${destino}?`))return;
+     for(const id of ids){const c=byId(id);if(c&&c.categoria!==destino)await aplicarPaso(c,destino,v)}
+     toast(one?one.nombre+' pasó a '+destino:'Categoría cambiada');UI.sel=null;
+     if(one){UI.ficha=one.id;renderFicha()}else{closeModal();render()}},
+   datalists()+`<p class="note">${one?'':ids.map(i=>esc(byId(i)?.nombre||'')).join(', ')+'. '}Queda guardado como movimiento en cada ficha.</p>`)}
+async function aplicarPaso(c,dest,v){const up={categoria:dest};
+  if(dest==='Doma'){up.ingresoDoma=v.fecha;if(v.domador)up.domador=v.domador}
+  if(c.categoria==='Doma'&&dest!=='Doma')up.salidaDoma=v.fecha;
+  if(dest==='Descanso'){up.catPrevia=c.categoria;up.descansoDesde=v.fecha;up.ritmo=''}
+  if(dest==='Jugadores'&&!c.ritmo)up.ritmo='normal';
+  if(v.lugar&&v.lugar!==(c.lugar||''))up.lugar=v.lugar;
+  await db.collection('caballos').doc(c.id).update(up);
+  const obs=[c.categoria==='Doma'&&dest!=='Doma'&&c.ingresoDoma?diff(v.fecha,c.ingresoDoma)+' días en doma':'',dest==='Doma'&&v.domador?'Con '+v.domador:'',up.lugar?'Lugar: '+up.lugar:'',v.obs].filter(Boolean).join(' · ');
+  await db.collection('eventos').doc(slugId('e')).set({fecha:v.fecha,caballoId:c.id,caballo:c.nombre,tipo:'Movimiento',detalle:c.categoria+' → '+dest+(c.categoria==='Doma'&&dest==='Hechura'?' (entregado de doma)':''),obs,por:uid||''})}
 EXTRA_ACTS.moverLug=()=>{const ids=[...UI.sel];if(!ids.length)return;
   form(`Cambiar lugar · ${ids.length} caballo${ids.length>1?'s':''}`,[{k:'lugar',l:'Nuevo lugar',list:'dl-lug',req:1},{k:'fecha',l:'Fecha',type:'date',v:hoy(),req:1}],
    async v=>{for(const id of ids){const c=byId(id);if(!c||(c.lugar||'')===v.lugar)continue;await db.collection('caballos').doc(id).update({lugar:v.lugar});
