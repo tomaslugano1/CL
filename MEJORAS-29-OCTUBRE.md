@@ -56,6 +56,8 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 | ✅ | Mini | — | Murió (ya estaba así en la app). |
 | ✅ | Observación en la lista | Salía en todas las categorías menos Jugadores. | Sale **solo en Doma y Potrillos**, que es donde sirve para distinguirlos físicamente. En la ficha se sigue viendo en todos. |
 | ✅ | Cambio de etapa | Había que entrar a "Editar datos" y cambiar la categoría a mano. | En la ficha, recuadro **Categoría** con el paso que sigue, a un toque: **Potrillo → [Pasar a Doma]** (pide fecha, lugar y domador; sugiere 9 de Julio y Piri), **Doma → [Entregado de doma → Hechura]** (fecha, lugar, y anota cuántos días estuvo en doma), **Hechura → [Pasar a Jugadores]**. También **[Mandar a descanso]** y **[Otra categoría]**. Cada paso queda como movimiento. Para varios juntos: **Seleccionar → Cambiar categoría** (con lugar y domador). |
+| ✅ | Pedigree como imagen | — | Botón **Compartir** en el Pedigree de cada ficha: arma una imagen con 3 generaciones (padres, abuelos y bisabuelos), en celeste y rosa, con el logo DC, y la manda por WhatsApp. En cada servicio, botón **Pedigree** con el árbol del **potrillo que va a nacer** (padrillo × madre), para mostrarlo antes de que nazca. |
+| ✅ | Torneos con copa | Preguntaba solo el nombre del torneo, en un cartelito. | Al tocar **+1 torneo** pregunta **fecha, qué copa** (te sugiere las que ya cargaste), **quién lo jugó** y **cómo le fue**. Queda en el historial del caballo. |
 | ✅ | Vilma y la 25 | — | Se corrigen solos: **Vilma 4 prácticas** y **la 25 (Avispa) 0 torneos**. Lo que se sume después del 8/10 se suma arriba. |
 
 ## C. Lo que tiene Doña Cecilia y PB no (se mantiene)

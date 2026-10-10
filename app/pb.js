@@ -217,3 +217,52 @@ EXTRA_ACTS.guardarCtrl=async()=>{const catsAll=CATS.filter(x=>x!=='Doma'),g={};
     if(c.dias)o.dias=+$('#cc-d-'+i).value||c.dias;else o.meses=($('#cc-m-'+i).value.match(/\d+/g)||[]).map(Number).filter(n=>n>0&&n<12);
     o.cats=$(`#cc-c-${i}-todas`).checked?TODAS:catsAll.filter(k=>$(`#cc-c-${i}-${k}`).checked);g[c.k]=o});
   await db.doc('config/app').set({...S.config,controles:g});S.config.controles=g;toast('Controles guardados')};
+
+/* ================= Torneo: pregunta qué copa, quién lo jugó y cómo le fue ================= */
+EXTRA_ACTS.torneoForm=d=>{const c=byId(d.id);if(!c)return;
+  const copas=[...new Set(S.eventos.filter(e=>e.tipo==='Torneo'&&e.obs).sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(e=>e.obs))];
+  form('Torneo · '+c.nombre,[{k:'fecha',l:'Fecha',type:'date',v:hoy(),req:1},{k:'copa',l:'¿Qué copa o torneo?',list:'dl-copas',full:1},{k:'jugo',l:'¿Quién lo jugó?'},{k:'resultado',l:'¿Cómo le fue? (opcional)'}],
+   async v=>{await db.collection('eventos').doc(slugId('e')).set({fecha:v.fecha,caballoId:c.id,caballo:c.nombre,tipo:'Torneo',detalle:'Torneo'+(v.copa?': '+v.copa:'')+(v.jugo?' · lo jugó '+v.jugo:''),obs:[v.copa,v.resultado].filter(Boolean).join(' · '),copa:v.copa||'',jugo:v.jugo||'',resultado:v.resultado||'',por:uid||''});
+     toast('Torneo sumado a '+c.nombre);UI.ficha=c.id;renderFicha()},
+   `<datalist id="dl-copas">${copas.map(x=>`<option value="${esc(x)}">`).join('')}</datalist><p class="note">Queda en el historial del caballo y sirve para la ficha de venta.</p>`)};
+
+/* ================= Pedigree como imagen (para mandar por WhatsApp) ================= */
+function genealogiaDe(c){const gp=padresDeNombre(c.padre),gm=padresDeNombre(c.madre);
+  const a=[c.abueloP||gp.padre||'',c.abuelaP||gp.madre||'',c.abueloM||gm.padre||'',c.abuelaM||gm.madre||''];
+  return {p:c.padre||'',m:c.madre||'',a,b:a.flatMap(n=>{const x=padresDeNombre(n);return[x.padre||'',x.madre||'']})}}
+async function dibujarPedigree(c,sub){
+  try{await Promise.all([document.fonts.load('700 40px "Playfair Display"'),document.fonts.load('600 24px Inter')])}catch(e){}
+  const W=1600,H=1000,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  const SER='"Playfair Display", Georgia, serif',SAN='Inter, system-ui, sans-serif',G=genealogiaDe(c);
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);
+  x.fillStyle='#0E0E0E';x.fillRect(0,0,W,110);
+  if(S.config.logo){try{const l=await loadImg(fotoUrl(S.config.logo));x.fillStyle='#fff';x.fillRect(40,17,76,76);const k=Math.min(68/l.width,68/l.height);x.drawImage(l,78-l.width*k/2,55-l.height*k/2,l.width*k,l.height*k)}catch(e){}}
+  else{x.strokeStyle='#fff';x.lineWidth=3;x.strokeRect(42,19,72,72);x.fillStyle='#fff';x.font='700 34px '+SER;x.textAlign='center';x.textBaseline='middle';x.fillText('DC',78,56)}
+  x.textAlign='left';x.textBaseline='middle';x.fillStyle='#fff';x.font='700 40px '+SER;x.fillText(c.nombre,140,46);
+  x.font='500 22px '+SAN;x.fillStyle='#CFCFCA';x.fillText(sub,140,84);
+  x.textAlign='right';x.font='600 22px '+SAN;x.fillStyle='#fff';x.fillText('PEDIGREE · DOÑA CECILIA',W-40,56);
+  const top=140,bot=H-70,h=(bot-top)/8,cols=[40,410,780,1170],ws=[330,330,350,390];
+  const yb=i=>top+(i+.5)*h,ya=j=>(yb(2*j)+yb(2*j+1))/2,yp=k=>(ya(2*k)+ya(2*k+1))/2,yc=(yp(0)+yp(1))/2;
+  const caja=(n,col,y,hh,sexo,rol)=>{const w=ws[col],x0=cols[col],y0=y-hh/2;
+    x.fillStyle=n?(sexo==='M'?'#DCE8FB':sexo==='H'?'#FCE4F0':'#111'):'#F2F2EF';x.strokeStyle=n?'rgba(0,0,0,.18)':'#BDBDB7';x.lineWidth=2;
+    if(!n)x.setLineDash([8,6]);x.beginPath();x.roundRect(x0,y0,w,hh,14);x.fill();x.stroke();x.setLineDash([]);
+    x.textAlign='left';x.textBaseline='alphabetic';x.fillStyle=sexo==='X'?'#bbb':'#6A6A66';x.font='600 15px '+SAN;x.fillText(rol.toUpperCase(),x0+16,y0+26);
+    x.fillStyle=sexo==='X'?'#fff':'#111';x.font=(n?'700 ':'italic 500 ')+(col===0?'26px ':'21px ')+SAN;
+    const ls=wrap(x,n||'Desconocido',w-32).slice(0,2);ls.forEach((l,i)=>x.fillText(l,x0+16,y0+26+(col===0?34:28)*(i+1)))};
+  const linea=(c1,y1,c2,y2)=>{const xa=cols[c1]+ws[c1],xb=cols[c2],xm=(xa+xb)/2;x.strokeStyle='#9A9A94';x.lineWidth=2;x.beginPath();x.moveTo(xa,y1);x.lineTo(xm,y1);x.lineTo(xm,y2);x.lineTo(xb,y2);x.stroke()};
+  for(let k=0;k<2;k++){linea(0,yc,1,yp(k));for(let j=2*k;j<2*k+2;j++){linea(1,yp(k),2,ya(j));for(let i=2*j;i<2*j+2;i++)linea(2,ya(j),3,yb(i))}}
+  caja(c.nombre,0,yc,130,'X','Este caballo');
+  caja(G.p,1,yp(0),110,'M','Padre');caja(G.m,1,yp(1),110,'H','Madre');
+  ['Abuelo paterno','Abuela paterna','Abuelo materno','Abuela materna'].forEach((r,j)=>caja(G.a[j],2,ya(j),96,j%2?'H':'M',r));
+  G.b.forEach((n,i)=>caja(n,3,yb(i),h-12,i%2?'H':'M',i%2?'Bisabuela':'Bisabuelo'));
+  x.fillStyle='#0E0E0E';x.fillRect(0,H-50,W,50);x.fillStyle='#fff';x.font='500 20px '+SAN;x.textAlign='left';x.textBaseline='middle';x.fillText(S.config.contacto||'Doña Cecilia',40,H-25);
+  return await new Promise((ok,no)=>cv.toBlob(b=>b?ok(b):no(new Error('toBlob')),'image/png'))}
+EXTRA_ACTS.pedShare=async d=>{let c,sub;
+  if(d.s){const s=S.servicios.find(x=>x.id===d.s);if(!s)return;c={nombre:'POTRILLO DE '+norm(s.madre),padre:s.padrillo,madre:norm(s.madre)};sub=`${s.padrillo} × ${s.madre} · servicio del ${fmt(s.fecha)}${s.fpp?' · parto estimado '+fmt(s.fpp):''}`}
+  else{c=byId(d.id);if(!c)return;sub=[c.sexo,c.pelaje,c.nac?'Nacido el '+fmt(c.nac):''].filter(Boolean).join(' · ')||'Doña Cecilia'}
+  toast('Armando la imagen…');
+  try{const b=await dibujarPedigree(c,sub),nom='Pedigree '+c.nombre.replace(/[\\/:*?"<>|]/g,'')+'.png';
+    if(puedeCompartirArchivos()){try{await navigator.share({files:[new File([b],nom,{type:'image/png'})],text:'Pedigree de '+c.nombre});return}catch(e){if(e?.name==='AbortError')return}}
+    if(downloads){await downloads.save({filename:nom,data:b});toast('Imagen lista');return}
+    const u=URL.createObjectURL(b);pantalla('Pedigree · '+c.nombre,`<img src="${u}" alt="Pedigree de ${esc(c.nombre)}" style="width:100%;border-radius:10px;border:1px solid var(--line)"><p class="note">Mantené apretada la imagen para guardarla o compartirla.</p>`)}
+  catch(e){console.error(e);toast('No se pudo armar la imagen.')}};
