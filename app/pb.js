@@ -275,8 +275,8 @@ function edadTxtPot(nac){const n=new Date(nac+'T12:00:00'),t=new Date();let m=(t
 function infoFicha(c){const p=findByName(c.padre),m=findByName(c.madre);
   const tipos=['Desparasitación','Desvasada',...(seHierra(c)?['Herrada']:[]),'Muelas',...ctrlDiasActivos(c).map(x=>x.k).filter(k=>!['Desparasitación','Desvasada','Muelas'].includes(k))];
   const san=tipos.map(t=>({t,...estadoSan(c,t)})).filter(s=>s.u||['Desparasitación','Desvasada'].includes(s.t));
-  const herm=S.caballos.filter(x=>x.id!==c.id&&c.madre&&norm(x.madre)===norm(c.madre)).sort((a,b)=>(a.nac||'').localeCompare(b.nac||''))
-    .map(h=>h.nombre+(c.padre&&norm(h.padre)===norm(c.padre)?' (hermano entero)':'')+(h.estado!=='Activo'?' · '+h.estado.toLowerCase():''));
+  const herm=S.caballos.filter(x=>x.id!==c.id&&x.estado!=='Muerto'&&c.madre&&norm(x.madre)===norm(c.madre)).sort((a,b)=>(a.nac||'').localeCompare(b.nac||''))
+    .map(h=>h.nombre+(c.padre&&norm(h.padre)===norm(c.padre)?' (hermano entero)':'')+(h.estado!=='Activo'?' ('+h.estado.toLowerCase()+')':''));
   return {sub:[c.sexo,c.pelaje,c.nac?'Nació el '+fmt(c.nac)+' ('+edadTxtPot(c.nac)+')':'',c.camada?'Camada '+c.camada:''].filter(Boolean).join(' · '),
     padre:c.padre||'',madre:c.madre||'',gp:[c.abueloP||p?.padre,c.abuelaP||p?.madre].filter(Boolean).join(' × '),gm:[c.abueloM||m?.padre,c.abuelaM||m?.madre].filter(Boolean).join(' × '),
     san,herm,extra:[c.chip?'Chip '+c.chip:'',c.rp?'RP '+c.rp:'',c.lugar?'Está en '+c.lugar:''].filter(Boolean).join(' · '),obs:[c.senas,c.obs].filter(Boolean).join(' · ')}}
@@ -285,13 +285,14 @@ async function dibujarFichaPot(c){
   const I=infoFicha(c),SER='"Playfair Display", Georgia, serif',SAN='Inter, system-ui, sans-serif',W=1080,M=48;
   const me=document.createElement('canvas').getContext('2d');me.font='400 28px '+SAN;
   const obsL=I.obs?wrap(me,I.obs,W-2*M).slice(0,3):[];me.font='500 28px '+SAN;const hL=I.herm.length?wrap(me,I.herm.join(' · '),W-2*M).slice(0,4):[];
-  const fh=700,H=120+fh+190+(obsL.length?obsL.length*38+20:0)+(I.extra?44:0)+190+70+I.san.length*58+(hL.length?90+hL.length*38:0)+110;
+  let foto=null;if(c.fotos?.length)try{foto=await loadImg(fotoUrl(c.fotos[0]))}catch(e){}
+  const fh=foto?Math.round(Math.min(900,Math.max(600,W*foto.height/foto.width))):700,H=120+fh+190+(obsL.length?obsL.length*38+20:0)+(I.extra?44:0)+190+70+I.san.length*58+(hL.length?90+hL.length*38:0)+110;
   const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
   x.fillStyle='#fff';x.fillRect(0,0,W,H);x.fillStyle='#0E0E0E';x.fillRect(0,0,W,120);
   if(S.config.logo){try{const l=await loadImg(fotoUrl(S.config.logo));x.fillStyle='#fff';x.fillRect(M,20,80,80);const k=Math.min(72/l.width,72/l.height);x.drawImage(l,M+40-l.width*k/2,60-l.height*k/2,l.width*k,l.height*k)}catch(e){}}
   x.textBaseline='middle';x.fillStyle='#fff';x.font='600 30px '+SAN;x.letterSpacing='6px';x.textAlign='left';x.fillText('DOÑA CECILIA',M+110,62);x.textAlign='right';x.font='500 24px '+SAN;x.fillText('POTRILLO',W-M,62);x.letterSpacing='0px';
   const fy=120;
-  if(c.fotos?.length){try{const im=await loadImg(fotoUrl(c.fotos[0]));const k=Math.max(W/im.width,fh/im.height);const sw=W/k,sh=fh/k;x.drawImage(im,(im.width-sw)/2,(im.height-sh)/2,sw,sh,0,fy,W,fh)}catch(e){x.fillStyle='#EDEDEA';x.fillRect(0,fy,W,fh)}}
+  if(foto){const im=foto,k=Math.max(W/im.width,fh/im.height);const sw=W/k,sh=fh/k;x.drawImage(im,(im.width-sw)/2,(im.height-sh)/2,sw,sh,0,fy,W,fh)}
   else{x.fillStyle='#EDEDEA';x.fillRect(0,fy,W,fh);x.fillStyle='#8A8A85';x.textAlign='center';x.font='500 30px '+SAN;x.fillText('Sin foto',W/2,fy+fh/2)}
   x.textBaseline='alphabetic';x.textAlign='left';let y=fy+fh+86;x.fillStyle='#111';
   let fs=76;x.font=`700 ${fs}px ${SER}`;while(x.measureText(c.nombre).width>W-2*M&&fs>40){fs-=4;x.font=`700 ${fs}px ${SER}`}x.fillText(c.nombre,M,y);
