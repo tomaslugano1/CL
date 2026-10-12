@@ -52,7 +52,7 @@ vCaballos=function(){
   const buscando=UI.buscar||UI.q;
   const madresTabs=['Madres','Receptoras'].includes(cat);
   return `<div class="lbar">${canWrite?(sel?`<button class="btn" data-act="selmover">Cancelar</button>`:`<button class="btn pri" data-act="alta">+ Alta</button><button class="btn" data-act="selmode">+ Sanidad</button><button class="btn" data-act="selmover">Seleccionar</button>`):''}
-     <span style="flex:1"></span><button class="btn icon" data-act="chip" aria-label="Leer chip" title="Leer chip">${ICO_CHIP}</button><button class="btn icon ${buscando?'on':''}" data-act="lupa" aria-label="Buscar" title="Buscar">${ICO_LUPA}</button></div>
+     ${cat==='Potrillos'&&!sel?'<button class="btn" data-act="fichasPot">Fichas</button>':''}<span style="flex:1"></span><button class="btn icon" data-act="chip" aria-label="Leer chip" title="Leer chip">${ICO_CHIP}</button><button class="btn icon ${buscando?'on':''}" data-act="lupa" aria-label="Buscar" title="Buscar">${ICO_LUPA}</button></div>
    ${buscando?`<div class="row" style="margin-bottom:10px"><input id="q" class="search" type="search" placeholder="Nombre, RP, chip, madre o seña…" value="${esc(UI.q)}"></div>`:''}
    <div class="fchips"><button class="fchip ${UI.drop==='cat'?'on':''}" data-act="drop" data-d="cat">${ICO_CAT}<span>${esc(catTxt)}</span></button><button class="fchip ${UI.drop==='lug'?'on':''}" data-act="drop" data-d="lug">${ICO_PIN}<span>${esc(lugTxt)}</span></button></div>
    ${UI.drop==='cat'?`<div class="fdrop">${CATS_LISTA.map(([k,t])=>`<button class="${cat===k?'on':''}" data-act="fcat" data-v="${k}">${t}</button>`).join('')}</div>`:''}

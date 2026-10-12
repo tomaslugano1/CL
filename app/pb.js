@@ -266,3 +266,64 @@ EXTRA_ACTS.pedShare=async d=>{let c,sub;
     if(downloads){await downloads.save({filename:nom,data:b});toast('Imagen lista');return}
     const u=URL.createObjectURL(b);pantalla('Pedigree · '+c.nombre,`<img src="${u}" alt="Pedigree de ${esc(c.nombre)}" style="width:100%;border-radius:10px;border:1px solid var(--line)"><p class="note">Mantené apretada la imagen para guardarla o compartirla.</p>`)}
   catch(e){console.error(e);toast('No se pudo armar la imagen.')}};
+
+/* ================= Fichas de potrillos =================
+   Una imagen prolija por potrillo (foto, padres, sanidad, hermanos) para mandar por WhatsApp. */
+function potrillosFicha(){let l=activos().filter(c=>c.categoria==='Potrillos');if(UI.subCam)l=l.filter(c=>c.camada===UI.subCam);return l.sort(sortCab)}
+function edadTxtPot(nac){const n=new Date(nac+'T12:00:00'),t=new Date();let m=(t.getFullYear()-n.getFullYear())*12+t.getMonth()-n.getMonth();if(t.getDate()<n.getDate())m--;m=Math.max(0,m);
+  return m<24?(m===1?'1 mes':m+' meses'):Math.floor(m/12)+' años'}
+function infoFicha(c){const p=findByName(c.padre),m=findByName(c.madre);
+  const tipos=['Desparasitación','Desvasada',...(seHierra(c)?['Herrada']:[]),'Muelas',...ctrlDiasActivos(c).map(x=>x.k).filter(k=>!['Desparasitación','Desvasada','Muelas'].includes(k))];
+  const san=tipos.map(t=>({t,...estadoSan(c,t)})).filter(s=>s.u||['Desparasitación','Desvasada'].includes(s.t));
+  const herm=S.caballos.filter(x=>x.id!==c.id&&c.madre&&norm(x.madre)===norm(c.madre)).sort((a,b)=>(a.nac||'').localeCompare(b.nac||''))
+    .map(h=>h.nombre+(c.padre&&norm(h.padre)===norm(c.padre)?' (hermano entero)':'')+(h.estado!=='Activo'?' · '+h.estado.toLowerCase():''));
+  return {sub:[c.sexo,c.pelaje,c.nac?'Nació el '+fmt(c.nac)+' ('+edadTxtPot(c.nac)+')':'',c.camada?'Camada '+c.camada:''].filter(Boolean).join(' · '),
+    padre:c.padre||'',madre:c.madre||'',gp:[c.abueloP||p?.padre,c.abuelaP||p?.madre].filter(Boolean).join(' × '),gm:[c.abueloM||m?.padre,c.abuelaM||m?.madre].filter(Boolean).join(' × '),
+    san,herm,extra:[c.chip?'Chip '+c.chip:'',c.rp?'RP '+c.rp:'',c.lugar?'Está en '+c.lugar:''].filter(Boolean).join(' · '),obs:[c.senas,c.obs].filter(Boolean).join(' · ')}}
+async function dibujarFichaPot(c){
+  try{await Promise.all([document.fonts.load('700 72px "Playfair Display"'),document.fonts.load('500 30px Inter'),document.fonts.load('600 30px Inter')])}catch(e){}
+  const I=infoFicha(c),SER='"Playfair Display", Georgia, serif',SAN='Inter, system-ui, sans-serif',W=1080,M=48;
+  const me=document.createElement('canvas').getContext('2d');me.font='400 28px '+SAN;
+  const obsL=I.obs?wrap(me,I.obs,W-2*M).slice(0,3):[];me.font='500 28px '+SAN;const hL=I.herm.length?wrap(me,I.herm.join(' · '),W-2*M).slice(0,4):[];
+  const fh=700,H=120+fh+190+(obsL.length?obsL.length*38+20:0)+(I.extra?44:0)+190+70+I.san.length*58+(hL.length?90+hL.length*38:0)+110;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);x.fillStyle='#0E0E0E';x.fillRect(0,0,W,120);
+  if(S.config.logo){try{const l=await loadImg(fotoUrl(S.config.logo));x.fillStyle='#fff';x.fillRect(M,20,80,80);const k=Math.min(72/l.width,72/l.height);x.drawImage(l,M+40-l.width*k/2,60-l.height*k/2,l.width*k,l.height*k)}catch(e){}}
+  x.textBaseline='middle';x.fillStyle='#fff';x.font='600 30px '+SAN;x.letterSpacing='6px';x.textAlign='left';x.fillText('DOÑA CECILIA',M+110,62);x.textAlign='right';x.font='500 24px '+SAN;x.fillText('POTRILLO',W-M,62);x.letterSpacing='0px';
+  const fy=120;
+  if(c.fotos?.length){try{const im=await loadImg(fotoUrl(c.fotos[0]));const k=Math.max(W/im.width,fh/im.height);const sw=W/k,sh=fh/k;x.drawImage(im,(im.width-sw)/2,(im.height-sh)/2,sw,sh,0,fy,W,fh)}catch(e){x.fillStyle='#EDEDEA';x.fillRect(0,fy,W,fh)}}
+  else{x.fillStyle='#EDEDEA';x.fillRect(0,fy,W,fh);x.fillStyle='#8A8A85';x.textAlign='center';x.font='500 30px '+SAN;x.fillText('Sin foto',W/2,fy+fh/2)}
+  x.textBaseline='alphabetic';x.textAlign='left';let y=fy+fh+86;x.fillStyle='#111';
+  let fs=76;x.font=`700 ${fs}px ${SER}`;while(x.measureText(c.nombre).width>W-2*M&&fs>40){fs-=4;x.font=`700 ${fs}px ${SER}`}x.fillText(c.nombre,M,y);
+  y+=50;x.font='500 28px '+SAN;x.fillStyle='#555';let s=I.sub;while(x.measureText(s).width>W-2*M&&s.length>10)s=s.slice(0,-2);x.fillText(s,M,y);
+  if(I.extra){y+=44;x.fillText(I.extra,M,y)}
+  if(obsL.length){y+=20;x.fillStyle='#8A6D00';x.font='400 28px '+SAN;obsL.forEach(l=>{y+=38;x.fillText(l,M,y)})}
+  y+=34;x.fillStyle='#111';x.fillRect(M,y,W-2*M,2);
+  const etiqueta=(t,cx,yy)=>{x.fillStyle='#777';x.font='600 20px '+SAN;x.letterSpacing='3px';x.fillText(t,cx,yy);x.letterSpacing='0px'};
+  y+=50;const cw=(W-2*M)/2-20;
+  for(const [lab,nom,ab,cx] of [['PADRE',I.padre,I.gp,M],['MADRE',I.madre,I.gm,W/2+10]]){etiqueta(lab,cx,y);x.fillStyle='#111';x.font='600 32px '+SAN;let n=nom||'Desconocido';while(x.measureText(n).width>cw&&n.length>4)n=n.slice(0,-2);x.fillText(n,cx,y+44);
+    if(ab){x.fillStyle='#666';x.font='400 24px '+SAN;let a=ab;while(x.measureText(a).width>cw&&a.length>4)a=a.slice(0,-2);x.fillText(a,cx,y+80)}}
+  y+=140;etiqueta('SANIDAD',M,y);y+=14;
+  const col={bad:'#B23A3A',warn:'#C27C0E',ok:'#2E7D4F',none:'#888'};
+  for(const r of I.san){y+=58;x.fillStyle='#F4F4F1';x.fillRect(M,y-40,W-2*M,50);x.fillStyle='#111';x.font='600 26px '+SAN;x.fillText(r.t,M+16,y-6);
+    x.font='400 24px '+SAN;x.fillStyle='#444';x.fillText(r.u?'Última '+fmt(r.u)+(r.p?' · próxima '+fmt(r.p):''):'Sin dato',M+300,y-6);
+    x.textAlign='right';x.fillStyle=col[r.st]||'#888';x.font='600 24px '+SAN;x.fillText(r.txt,W-M-16,y-6);x.textAlign='left'}
+  if(hL.length){y+=70;etiqueta('HERMANOS (MISMA MADRE)',M,y);x.fillStyle='#111';x.font='500 28px '+SAN;hL.forEach(l=>{y+=40;x.fillText(l,M,y)})}
+  x.fillStyle='#0E0E0E';x.fillRect(0,H-70,W,70);x.fillStyle='#fff';x.font='500 22px '+SAN;x.textBaseline='middle';x.fillText('Doña Cecilia · ficha al '+fmt(hoy()),M,H-35);
+  return await new Promise((ok,no)=>cv.toBlob(b=>b?ok(b):no(new Error('toBlob')),'image/jpeg',.88))}
+const FICHAS={};
+EXTRA_ACTS.fichasPot=async()=>{const l=potrillosFicha();
+  if(!l.length){toast('No hay potrillos activos.');return}
+  const comp=puedeCompartirArchivos();
+  pantalla('Fichas de potrillos',`<p class="muted small">${l.length} potrillo${l.length>1?'s':''}${UI.subCam?' · camada '+UI.subCam:''}. Una imagen por potrillo, lista para mandar.</p>
+    <div class="row" style="margin:10px 0 14px">${comp?'<button class="btn pri" data-act="fichasShare">Mandar todas por WhatsApp</button>':''}${downloads?`<button class="btn ${comp?'':'pri'}" data-act="fichasBajar">Descargar todas</button>`:''}</div>
+    <div id="fichas-prev" style="display:grid;gap:14px">${l.map(c=>`<div data-fp="${c.id}" class="muted small">Armando la ficha de ${esc(c.nombre)}…</div>`).join('')}</div>
+    ${!comp&&!downloads?'<p class="note">Mantené apretada cada imagen para guardarla o compartirla.</p>':''}`);
+  for(const c of l){try{const b=FICHAS[c.id]=await dibujarFichaPot(c);const el=document.querySelector(`[data-fp="${c.id}"]`);if(!el)return;
+    el.outerHTML=`<img src="${URL.createObjectURL(b)}" alt="Ficha de ${esc(c.nombre)}" style="width:100%;max-width:480px;border-radius:10px;border:1px solid var(--line)">`}
+    catch(e){console.error(e);const el=document.querySelector(`[data-fp="${c.id}"]`);if(el)el.textContent='No se pudo armar la ficha de '+c.nombre}}};
+const archivosFichas=()=>potrillosFicha().filter(c=>FICHAS[c.id]).map(c=>new File([FICHAS[c.id]],'Ficha '+c.nombre.replace(/[\\/:*?"<>|]/g,'')+'.jpg',{type:'image/jpeg'}));
+EXTRA_ACTS.fichasShare=async()=>{const f=archivosFichas();if(!f.length){toast('Esperá que terminen de armarse.');return}
+  try{await navigator.share({files:f,text:'Fichas de los potrillos · Doña Cecilia'})}catch(e){if(e?.name!=='AbortError')toast('No se pudo compartir. Probá con menos o descargalas.')}};
+EXTRA_ACTS.fichasBajar=async()=>{const f=archivosFichas();if(!f.length){toast('Esperá que terminen de armarse.');return}
+  try{for(const x of f)await downloads.save({filename:x.name,data:x});toast('Fichas descargadas')}catch(e){if(e?.code!=='declined')toast('No se pudieron descargar.')}};

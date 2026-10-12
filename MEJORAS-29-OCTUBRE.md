@@ -62,3 +62,8 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 
 ## C. Lo que tiene Doña Cecilia y PB no (se mantiene)
 Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y señas a la vista**, aviso de las 8 todos los días, "Para hacer esta semana", regla de desvase y herrado por categoría y ritmo, precios del herrero, Excel, ficha de venta por WhatsApp, genealogía de padrillos que heredan los hijos, calendario y lector de chip.
+
+## D. Fichas de potrillos (agregado 12/10)
+- En Caballos → Potrillos aparece el botón **Fichas**: arma una imagen prolija por potrillo (foto de portada, nombre, sexo, pelaje, nacimiento con edad en meses, camada, chip, RP, lugar, señas y observaciones, padre y madre con sus abuelos, sanidad con última/próxima y si está al día o vencido, y hermanos de la misma madre, marcando los hermanos enteros).
+- Si estás en una pestaña de camada, arma solo esa camada.
+- Botón **Mandar todas por WhatsApp** (todas juntas) o **Descargar todas**.
