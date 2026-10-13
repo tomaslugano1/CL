@@ -9,7 +9,7 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 | 1 | **Diseño Polo Breeders — parte 1**: pantallas enteras con ‹, lista de Caballos con chips Categoría/Lugar y camadas, ficha en el orden de PB (Servicios, Preñez, Sanidad/Trabajos, línea de tiempo, Progenie) | ✅ |
 | 2 | **Diseño Polo Breeders — parte 2**: sanidad masiva, controles nuevos y vacunas de preñez, ⚙ Configuración, Alta, Baja, Nuevo evento por categoría, Seleccionar, Receptoras | ✅ |
 | 3 | **Diseño Polo Breeders — parte 3: el resto de la app**: sin pestañas, barra finita, Inicio primero con "Ver caballos", Padrillos en CATEGORÍA. Ver sección G | ✅ (13/10) — falta que Tomás lo vea en capturas |
-| 4 | **El Sheet se actualiza solo desde la app** (sección F) | ⏳ falta armarlo |
+| 4 | **El Sheet se actualiza solo desde la app** (sección F) | ✅ armado y probado con los datos reales (13/10) — se instala el 29 después de publicar |
 | 5 | Categoría **Descanso** con fechas y aviso para agarrar | ✅ |
 | 6 | **Cambio de etapa** a un toque (Potrillo → Doma → Hechura → Jugadores) | ✅ |
 | 7 | **Pedigree como imagen** y **Fichas de potrillos** para WhatsApp | ✅ |
@@ -120,7 +120,11 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Se crea "Cría de Pipa 2026" (hembra, nació muerta) en Bajas → Muertos y en la camada 2026 como registro histórico (no cuenta entre los vivos).
 - Si alguien ya lo cargó a mano antes, no se duplica.
 
-## F. ⏳ Para el 29: el Sheet se actualiza solo desde la app
+## F. ✅ Para el 29: el Sheet se actualiza solo desde la app
+- Hecho el 13/10: `sheet/actualizar.gs` + pasos en `sheet/LEEME.md`. Al final no usa Netlify: el Sheet lee directo la base de la app con la clave del calendario (no gasta créditos). Menú **Doña Cecilia** en el Sheet: Actualizar ahora · Configurar clave · Actualizar solo todos los días a las 7.
+- Se instala el 29 **después** de publicar y abrir la app una vez (si no, copiaría la app vieja).
+- Las camadas no se reescriben: solo "Hoy está en", lo vacío, los que nacen y "Por nacer" → potrillo.
+- Diferencias encontradas entre el Sheet y la app para que Tomás decida: ROCKERA nació 02/11/2022 (Sheet) o 01/10/2022 (app); SUSANA es Alazán (Sheet) o Ruana (app).
 - Tomás confirmó (13/10) que entra en la publicación del 29.
 - Idea de Tomás (13/10): que el Google Sheet "MANADA DC II" quede conectado a la app y no haya que descargar el Excel nunca más.
 - Cómo: una función en Netlify (con la misma clave que el calendario) que entrega los datos de la app, y un script dentro del Sheet (Apps Script) que todos los días a las 7 los trae y reescribe las pestañas CABALLOS, PREÑECES, CAMADAS, SANIDAD, EVENTOS y BAJAS, sin tocar fórmulas ni formato. También va un botón "Actualizar ahora".
