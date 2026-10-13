@@ -28,6 +28,24 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 - ✅ Tomás aprobó: el 28/10 se revisa todo con capturas y datos reales antes de publicar, para publicar una sola vez el 29.
 - Tomás puede mandar las capturas de PB como fotos o como video de pantalla (se corta en imágenes).
 
+### Cómo es Polo Breeders (del video de Tomás, 13/10)
+- **No hay pestañas arriba.** La app es una sola pantalla: la lista de caballos. Madres, Padrillos y Bajas son opciones del botón **CATEGORÍA**, no secciones aparte.
+- **Barra de arriba:** una sola franja oscura, finita: logo DC a la izquierda, "Doña Cecilia" al centro, ruedita redonda a la derecha.
+- **Botones:** una fila chica: **[+ Alta]** (relleno) **[+ Sanidad] [Seleccionar]** y a la derecha el lector de chip y la lupa.
+- **Filtros:** dos botones grandes, **CATEGORÍA** (con dibujito de caballo) y **LUGAR**. CATEGORÍA despliega: A la venta, Todos, Jugadores, Hechura, Doma, Potrillos, Padrillos, Madres, Bajas.
+- **Pastillas debajo según la categoría:** Hechura/Doma/Potrillos → Todas · Camada 2025 · Camada 2024…; Madres → Madres · Receptoras; Bajas → Vendido · Muerto · Jubilado; Padrillos → Servicios.
+- **Tarjetas:** todo el recuadro de color, **rosa las hembras y celeste los machos**; nombre en mayúscula y negrita; abajo "edad · categoría · camada"; flechita ›. Sin foto ni puntitos. Las preñadas con el dibujito de yegua con potrillo. Al final "13 caballos".
+- **+ Sanidad:** arriba [Seleccionar] [Cancelar]; fila de controles que se desliza (Anemia, Influenza, Encéfalo (365 días), Desparasitada (180 días), Adenitis, Tétano, Rinoneumonitis); "Ocultar vencidos"; cada tarjeta se pinta: **rosa "Sin registro"/vencido** o **verde "en 143 días"**.
+- **Seleccionar:** casillas en cada tarjeta y abajo dos botones oscuros **[Cambiar categoría] [Cambiar lugar]**.
+- Colores de PB: verde muy oscuro y grises verdosos (en Doña Cecilia se usan los colores de Doña Cecilia).
+
+### Propuesta para Doña Cecilia (a confirmar con Tomás)
+- Sacar la fila de pestañas: la pantalla principal pasa a ser la lista de caballos igual a PB. Madres, Padrillos y Bajas entran en CATEGORÍA; Camadas como pastillas; Sanidad como "+ Sanidad".
+- Barra de arriba finita como PB.
+- Tarjetas como PB (sin foto en la lista, todo el recuadro rosa o celeste).
+- El **Inicio** se mantiene (a Tomás le gusta): queda como resumen al que se entra desde la barra de arriba.
+- Lo que tiene Doña Cecilia y PB no (aviso de las 8, Para hacer esta semana, partos, Notas, Excel) sigue estando, en el Inicio o en la ⚙.
+
 ## A. Ya hecho antes de este plan
 | | Qué | Mejora |
 |---|---|---|
