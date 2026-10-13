@@ -47,7 +47,7 @@ vCaballos=function(){
   const camadas=conCamadas?[...new Set(l.map(c=>c.camada).filter(Boolean))].sort((a,b)=>b-a):[];
   if(conCamadas&&UI.subCam&&camadas.includes(UI.subCam))l=l.filter(c=>c.camada===UI.subCam);
   const bt=UI.bajaTab||'';if(cat==='__bajas'&&bt)l=l.filter(c=>bt==='Otros'?!['Vendido','Muerto'].includes(c.estado):c.estado===bt);
-  l.sort(sortCab);
+  l.sort(sortCab);if(cat==='__bajas')l.sort((a,b)=>(b.bajaFecha||'').localeCompare(a.bajaFecha||'')); // bajas: la más nueva arriba
   const sel=UI.sel,catTxt=(CATS_LISTA.find(x=>x[0]===cat)||['','Todos'])[1],lugTxt=UI.lugar==='__sin'?'Sin lugar':UI.lugar||'Todos';
   const buscando=UI.buscar||UI.q;
   const madresTabs=['Madres','Receptoras'].includes(cat);

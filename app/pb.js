@@ -56,7 +56,7 @@ for(const ct of CONTROLES_DEF)VERBO[ct.k]=VERBO[ct.k]||('Dar '+ct.k);
   const extra=ctrlDiasActivos(c).filter(ct=>ultimo(c.id,ct.k)).map(ct=>ct.k);
   let h=sc(c,evs,k,titulo,[...tipos,...extra],[...tiposHist,...CONTROLES_DEF.map(x=>x.base||x.k)]);
   const ds=esCatMadre(c)?dosisPrenez(c):[];
-  if(ds.length&&(UI.tabsFicha?.san||'act')==='act'){const filas=ds.map(x=>`<div class="li"><div>${esc(x.k)}<div class="sub">Toca el ${fmt(x.due)}</div></div><span class="pill ${x.hecha?'p-ok':x.d<0?'p-bad':x.d<=15?'p-warn':'p-none'}">${x.hecha?'Hecha '+fmt(x.hecha.fecha):x.d<0?'Vencida':x.d<=15?'En '+x.d+' d':'Pendiente'}</span></div>`).join('');
+  if(ds.length&&(UI.tabsFicha?.san||'act')==='act'){const filas=ds.map(x=>`<div class="li"><div>${esc(x.k)}<div class="sub">Toca el ${fmt(x.due)}</div></div><span class="pill ${x.hecha?'p-ok':x.d<0&&x.due<PRENEZ_DESDE?'p-none':x.d<0?'p-bad':x.d<=15?'p-warn':'p-none'}">${x.hecha?'Hecha '+fmt(x.hecha.fecha):x.d<0&&x.due<PRENEZ_DESDE?'Sin cargar':x.d<0?'Vencida':x.d<=15?'En '+x.d+' d':'Pendiente'}</span></div>`).join('');
     h=h.replace(/<\/section>$/,`<div class="sub" style="margin-top:6px;font-weight:700">Vacunas de preñez</div><div class="list">${filas}</div></section>`)}
   return h}}
 

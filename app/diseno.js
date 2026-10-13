@@ -24,7 +24,6 @@ body:not(.en-inicio) .pbback{display:inline}
 main .lbar{gap:6px}
 main .lbar .btn{min-height:36px;padding:6px 11px;font-size:.8rem;white-space:nowrap}
 main .lbar .btn.icon{width:36px;height:36px;min-height:36px}
-.hcard .dots{display:none}
 .pbver{display:flex;justify-content:space-between;align-items:center;width:100%;padding:18px 20px;margin-bottom:10px;border:0;border-radius:14px;background:var(--campo);color:var(--on-pri);font:700 1.1rem var(--body);cursor:pointer}
 .pbver span{font-size:1.6rem;line-height:1}
 .pbacc{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:18px}
