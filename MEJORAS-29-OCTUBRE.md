@@ -3,6 +3,29 @@
 Todo esto ya está hecho y guardado, pero **todavía no se ve en la app**. Se publica de una sola vez el 29/10, cuando se renuevan los créditos de Netlify.
 Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 
+## Resumen del 29, de lo más grande a lo más chico (revisado el 13/10 con los datos reales)
+| # | Qué | Estado |
+|---|---|---|
+| 1 | **Diseño Polo Breeders — parte 1**: pantallas enteras con ‹, lista de Caballos con chips Categoría/Lugar y camadas, ficha en el orden de PB (Servicios, Preñez, Sanidad/Trabajos, línea de tiempo, Progenie) | ✅ |
+| 2 | **Diseño Polo Breeders — parte 2**: sanidad masiva, controles nuevos y vacunas de preñez, ⚙ Configuración, Alta, Baja, Nuevo evento por categoría, Seleccionar, Receptoras | ✅ |
+| 3 | **Diseño Polo Breeders — parte 3: el resto de la app** (menú de arriba, Inicio, Madres, Camadas, Sanidad, Padrillos, Notas). Ver sección G | ⏳ falta definir con capturas de PB |
+| 4 | **El Sheet se actualiza solo desde la app** (sección F) | ⏳ falta armarlo |
+| 5 | Categoría **Descanso** con fechas y aviso para agarrar | ✅ |
+| 6 | **Cambio de etapa** a un toque (Potrillo → Doma → Hechura → Jugadores) | ✅ |
+| 7 | **Pedigree como imagen** y **Fichas de potrillos** para WhatsApp | ✅ |
+| 8 | **Madres**: tarjetas, ecografía con sexo, aborto | ✅ |
+| 9 | **Aviso de las 8** todos los días, notificaciones que se arreglan solas, la app se actualiza sola | ✅ |
+| 10 | **Bajas** con Vendidos/Muertos/Otros, precio y comprador | ✅ |
+| 11 | Detalles: −1 en prácticas y torneos, torneo con copa, dibujito de preñada, observación solo en Doma y Potrillos | ✅ |
+| 12 | **Datos que se cargan solos**: ventas de PB, Hechura → Descanso, Potranca Baya preñada, Vilma y la 25, Pipa y su cría | ✅ probado: quedan 52 caballos, 13 madres, 9 en descanso |
+
+## G. ⏳ Diseño general como Polo Breeders (pedido 13/10)
+- Hoy: arriba hay una fila de 7 botones que se desliza (Inicio, Caballos, Madres, Camadas, Sanidad, Padrillos, Notas) y la ruedita ocupa una fila sola; en el celular "Sanidad" queda cortado. Sanidad y Camadas son tablas anchas que en el celular quedan apretadas. Tomás lo ve "tosco".
+- Lo que pidió: que toda la app se vea como Polo Breeders, manteniendo los detalles del Inicio que le gustan.
+- Para hacerlo igual hacen falta **capturas de PB**: inicio, menú, la lista de yeguas/madres y la de sanidad.
+- Detalles vistos el 13/10 para corregir: en Inicio no mostrar "0 hechura · 0 receptoras"; "Próximo parto: Pasado" tiene que decir qué yeguas y cuántos días pasaron; "Preñadas 2026" da 7 (la Potranca Baya pare en 2027) y el Sheet dice 8: unificar.
+- Al publicar aparecen **12 caballos con Anemia vencida** (la de Palermo del 1/4 + 60 días): confirmar con Tomás si la anemia aplica a todos los jugadores o solo para viajar.
+
 ## A. Ya hecho antes de este plan
 | | Qué | Mejora |
 |---|---|---|
