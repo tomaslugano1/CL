@@ -3,6 +3,7 @@
 App de registro de la manada (PWA en `app/`, datos en Supabase, publicada en Netlify).
 
 ## Cuando Tomás cuenta algo que pasó en el campo (parto, muerte, venta, sanidad, movimiento…)
+SIEMPRE, sin que lo pida: todo lo que cuenta va a la app **y** al Sheet en el mismo momento. Nunca uno solo.
 1. Registrarlo en la app: como ajuste único en `AJUSTES` de `app/extras.js` (idempotente: no duplicar si ya está cargado). Probarlo con el mock antes de subir.
 2. Registrarlo en el Google Sheet "MANADA DC II" en TODAS las pestañas donde corresponda (CABALLOS, PREÑECES, CAMADA de ese año, SANIDAD, EVENTOS, BAJAS, RESUMEN), sin borrar fórmulas.
    - Si no hay acceso de escritura al Sheet desde la sesión, dejar un prompt listo para pegar en Claude en Chrome.
