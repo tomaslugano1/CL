@@ -23,8 +23,10 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 - Hoy: arriba hay una fila de 7 botones que se desliza (Inicio, Caballos, Madres, Camadas, Sanidad, Padrillos, Notas) y la ruedita ocupa una fila sola; en el celular "Sanidad" queda cortado. Sanidad y Camadas son tablas anchas que en el celular quedan apretadas. Tomás lo ve "tosco".
 - Lo que pidió: que toda la app se vea como Polo Breeders, manteniendo los detalles del Inicio que le gustan.
 - Para hacerlo igual hacen falta **capturas de PB**: inicio, menú, la lista de yeguas/madres y la de sanidad.
-- Detalles vistos el 13/10 para corregir: en Inicio no mostrar "0 hechura · 0 receptoras"; "Próximo parto: Pasado" tiene que decir qué yeguas y cuántos días pasaron; "Preñadas 2026" da 7 (la Potranca Baya pare en 2027) y el Sheet dice 8: unificar.
-- Al publicar aparecen **12 caballos con Anemia vencida** (la de Palermo del 1/4 + 60 días): confirmar con Tomás si la anemia aplica a todos los jugadores o solo para viajar.
+- ✅ (13/10) Inicio: no muestra categorías en 0; "Próximo parto" dice qué yeguas están atrasadas y cuántos días cada una (ej. "BAYA y COLORADA POTRA: pasaron 4 días cada una"); "Preñadas" cuenta 8 y aclara "7 paren esta temporada · POTRANCA BAYA en 2027", igual que el Sheet.
+- ✅ (13/10) Anemia: Tomás confirmó que **solo se hace para viajar**. Queda apagada como control fijo (no avisa vencidas); se sigue cargando cuando se hace, y se puede prender en ⚙ si algún día hace falta.
+- ✅ Tomás aprobó: el 28/10 se revisa todo con capturas y datos reales antes de publicar, para publicar una sola vez el 29.
+- Tomás puede mandar las capturas de PB como fotos o como video de pantalla (se corta en imágenes).
 
 ## A. Ya hecho antes de este plan
 | | Qué | Mejora |

@@ -10,7 +10,7 @@ const esCatMadre=c=>['Madres','Receptoras'].includes(c.categoria);
 /* ================= Controles de sanidad ================= */
 const TODAS='todas';
 const CONTROLES_DEF=[
-  {k:'Anemia',dias:60,cats:TODAS},{k:'Influenza',dias:90,cats:TODAS},{k:'Encéfalo',dias:365,cats:TODAS},
+  {k:'Anemia',dias:60,cats:TODAS,activo:false},{k:'Influenza',dias:90,cats:TODAS},{k:'Encéfalo',dias:365,cats:TODAS},
   {k:'Adenitis',dias:180,cats:['Potrillos']},{k:'Tétano',dias:365,cats:['Potrillos']},
   {k:'Rinoneumonitis',meses:[5,7,9],cats:['Madres','Receptoras']},{k:'Salmonela',meses:[4,6],cats:['Madres','Receptoras']},
   {k:'Encéfalo (preñez)',base:'Encéfalo',meses:[11],cats:['Madres','Receptoras']},{k:'Desparasitación (preñez)',base:'Desparasitación',meses:[11],cats:['Madres','Receptoras']},
@@ -20,7 +20,7 @@ const PRENEZ_DESDE='2026-10-29';
 for(const t of ['Influenza','Encéfalo','Adenitis','Tétano','Rinoneumonitis','Salmonela'])if(!TIPOS.includes(t))TIPOS.splice(TIPOS.indexOf('Veterinario'),0,t);
 for(const t of ['Influenza','Encéfalo','Adenitis','Tétano','Rinoneumonitis','Salmonela'])GRUPO_EV[t]=['Sanidad','#9C88D6'];
 Object.assign(GRUPO_EV,{'Análisis':['Análisis','#3B6FB6'],'Enfermedad':['Enfermedad','#B23A3A'],'Estudios':['Estudios','#7A4FB5'],'Lesión':['Lesión','#D9822B'],'Manejo':['Manejo','#2E8B7A'],'Trabajos':['Trabajos','#A88B2C'],'Reproducción':['Reproducción','#D9822B']});
-function controles(){const g=S.config.controles||{};return CONTROLES_DEF.map(c=>({...c,...(g[c.k]||{}),activo:g[c.k]?.activo??true}))}
+function controles(){const g=S.config.controles||{};return CONTROLES_DEF.map(c=>({...c,...(g[c.k]||{}),activo:g[c.k]?.activo??c.activo??true}))}
 const ctrlPor=k=>controles().find(c=>c.k===k);
 const aplica=(ct,c)=>ct.cats===TODAS||(ct.cats||[]).includes(c.categoria);
 /* Días de los controles nuevos (Anemia, Influenza…). Los de siempre siguen igual. */

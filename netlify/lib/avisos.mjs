@@ -82,12 +82,12 @@ function preparar(filas) {
 // Controles de sanidad (mismos que app/pb.js: CONTROLES_DEF). Si se cambian allá, cambiarlos acá.
 const PRENEZ_DESDE = '2026-10-29';
 const CONTROLES_DEF = [
-  { k: 'Anemia', dias: 60, cats: 'todas' }, { k: 'Influenza', dias: 90, cats: 'todas' }, { k: 'Encéfalo', dias: 365, cats: 'todas' },
+  { k: 'Anemia', dias: 60, cats: 'todas', activo: false }, { k: 'Influenza', dias: 90, cats: 'todas' }, { k: 'Encéfalo', dias: 365, cats: 'todas' },
   { k: 'Adenitis', dias: 180, cats: ['Potrillos'] }, { k: 'Tétano', dias: 365, cats: ['Potrillos'] },
   { k: 'Rinoneumonitis', meses: [5, 7, 9], cats: ['Madres', 'Receptoras'] }, { k: 'Salmonela', meses: [4, 6], cats: ['Madres', 'Receptoras'] },
   { k: 'Encéfalo (preñez)', base: 'Encéfalo', meses: [11], cats: ['Madres', 'Receptoras'] }, { k: 'Desparasitación (preñez)', base: 'Desparasitación', meses: [11], cats: ['Madres', 'Receptoras'] },
   { k: 'Adenitis (preñez)', base: 'Adenitis', meses: [11], cats: ['Madres', 'Receptoras'] }];
-function controles(config = {}) { const g = config.controles || {}; return CONTROLES_DEF.map(c => ({ ...c, ...(g[c.k] || {}), activo: g[c.k]?.activo ?? true })); }
+function controles(config = {}) { const g = config.controles || {}; return CONTROLES_DEF.map(c => ({ ...c, ...(g[c.k] || {}), activo: g[c.k]?.activo ?? c.activo ?? true })); }
 const aplica = (ct, c) => ct.cats === 'todas' || (ct.cats || []).includes(c.categoria);
 const VERBO_BASE = { ...VERBO };
 for (const ct of CONTROLES_DEF) VERBO[ct.k] = 'Dar ' + ct.k;
