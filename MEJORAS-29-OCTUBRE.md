@@ -8,7 +8,7 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 |---|---|---|
 | 1 | **Diseño Polo Breeders — parte 1**: pantallas enteras con ‹, lista de Caballos con chips Categoría/Lugar y camadas, ficha en el orden de PB (Servicios, Preñez, Sanidad/Trabajos, línea de tiempo, Progenie) | ✅ |
 | 2 | **Diseño Polo Breeders — parte 2**: sanidad masiva, controles nuevos y vacunas de preñez, ⚙ Configuración, Alta, Baja, Nuevo evento por categoría, Seleccionar, Receptoras | ✅ |
-| 3 | **Diseño Polo Breeders — parte 3: el resto de la app** (menú de arriba, Inicio, Madres, Camadas, Sanidad, Padrillos, Notas). Ver sección G | ⏳ falta definir con capturas de PB |
+| 3 | **Diseño Polo Breeders — parte 3: el resto de la app**: sin pestañas, barra finita, Inicio primero con "Ver caballos", Padrillos en CATEGORÍA. Ver sección G | ✅ (13/10) — falta que Tomás lo vea en capturas |
 | 4 | **El Sheet se actualiza solo desde la app** (sección F) | ⏳ falta armarlo |
 | 5 | Categoría **Descanso** con fechas y aviso para agarrar | ✅ |
 | 6 | **Cambio de etapa** a un toque (Potrillo → Doma → Hechura → Jugadores) | ✅ |
@@ -39,11 +39,14 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 - **Seleccionar:** casillas en cada tarjeta y abajo dos botones oscuros **[Cambiar categoría] [Cambiar lugar]**.
 - Colores de PB: verde muy oscuro y grises verdosos (en Doña Cecilia se usan los colores de Doña Cecilia).
 
-### Propuesta para Doña Cecilia (a confirmar con Tomás)
+### Lo que se hizo (13/10, Tomás eligió: Inicio primero y colores de Doña Cecilia)
 - Sacar la fila de pestañas: la pantalla principal pasa a ser la lista de caballos igual a PB. Madres, Padrillos y Bajas entran en CATEGORÍA; Camadas como pastillas; Sanidad como "+ Sanidad".
 - Barra de arriba finita como PB.
 - Tarjetas como PB (sin foto en la lista, todo el recuadro rosa o celeste).
-- El **Inicio** se mantiene (a Tomás le gusta): queda como resumen al que se entra desde la barra de arriba.
+- La app **abre en el Inicio**: arriba un botón grande **Ver caballos** que lleva a la lista igual a PB, y debajo accesos a Madres y partos, Camadas, Sanidad, Padrillos y Notas.
+- Fuera del Inicio aparece **‹** junto al logo; tocarlo (o el botón atrás del celular) vuelve al Inicio.
+- En la lista se sacaron los puntitos de sanidad (como PB; el estado se ve con + Sanidad). Se mantienen la foto si tiene y la observación en Doma y Potrillos.
+- Código: `app/diseno.js`.
 - Lo que tiene Doña Cecilia y PB no (aviso de las 8, Para hacer esta semana, partos, Notas, Excel) sigue estando, en el Inicio o en la ⚙.
 
 ## A. Ya hecho antes de este plan
