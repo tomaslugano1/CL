@@ -73,3 +73,9 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - La PIPA pasa a Bajas → Muertos con ese detalle. Su servicio (IRENITA PORRON) queda como Parida con la nota, y en su historial queda el parto y la baja.
 - Se crea "Cría de Pipa 2026" (hembra, nació muerta) en Bajas → Muertos y en la camada 2026 como registro histórico (no cuenta entre los vivos).
 - Si alguien ya lo cargó a mano antes, no se duplica.
+
+## F. Pendiente para después de publicar: el Sheet se actualiza solo desde la app
+- Idea de Tomás (13/10): que el Google Sheet "MANADA DC II" quede conectado a la app y no haya que descargar el Excel nunca más.
+- Cómo: una función en Netlify (con la misma clave que el calendario) que entrega los datos de la app, y un script dentro del Sheet (Apps Script) que todos los días a las 7 los trae y reescribe las pestañas CABALLOS, PREÑECES, CAMADAS, SANIDAD, EVENTOS y BAJAS, sin tocar fórmulas ni formato. También va un botón "Actualizar ahora".
+- La app es la fuente de verdad. Lo que se escriba a mano en el Sheet en esas pestañas se pisa, así que las notas a mano van en una pestaña aparte.
+- Requisito: el Sheet tiene que ser una planilla de Google, no un Excel subido a Drive.
