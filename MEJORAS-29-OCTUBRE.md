@@ -71,5 +71,5 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 ## E. PIPA (cargado el 13/10, se aplica solo al publicar)
 - 11/10/2026: la PIPA parió el potrillo muerto y murió por complicaciones en el parto.
 - La PIPA pasa a Bajas → Muertos con ese detalle. Su servicio (IRENITA PORRON) queda como Parida con la nota, y en su historial queda el parto y la baja.
-- Se crea "Cría de Pipa 2026" en Bajas → Muertos ("nació muerto"), sin camada, así no cuenta en la camada 2026.
+- Se crea "Cría de Pipa 2026" (hembra, nació muerta) en Bajas → Muertos y en la camada 2026 como registro histórico (no cuenta entre los vivos).
 - Si alguien ya lo cargó a mano antes, no se duplica.

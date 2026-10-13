@@ -274,7 +274,7 @@ const AJUSTES={
     await nota('BAYA','Juan (14/9) dice que pare el 13/10');await nota('COLORADA POTRA','Juan (14/9) dice que pare el 13/10');await nota('PIPA','Juan (14/9) dijo que paría "el 31" (fin de septiembre): confirmar si ya parió');
     await db.collection('notas').doc(slugId('n')).set({titulo:'Primadona: ¿descarte o se le da servicio?',texto:'El 15/9 Pancho preguntó si es descarte. Juan iba a hacerla revisar con Santiago (junto con la Gorda). Falta decidir.',fecha:'2026-09-15',estado:'Pendiente'})},
   // 11/10/2026 (domingo): la PIPA parió el potrillo muerto y ella también murió por complicaciones en el parto.
-  // La cría queda en Bajas pero sin camada, para que no cuente en la camada 2026.
+  // La cría (hembra) queda en Bajas y en la camada 2026 como muerta (registro histórico; no cuenta entre los vivos).
   'oct-pipa-parto-muerte':async()=>{const f='2026-10-11',m=S.caballos.find(x=>norm(x.nombre)==='PIPA');if(!m)return;
     const det='Murió en el parto (11/10/2026) por complicaciones; ya era grande. El potrillo nació muerto.';
     const s=S.servicios.filter(x=>norm(x.madre)==='PIPA'&&['Preñada','Servida (sin tacto)'].includes(x.estado)).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''))[0];
@@ -284,9 +284,9 @@ const AJUSTES={
     if(m.estado==='Activo'){await db.collection('caballos').doc(m.id).update({estado:'Muerto',bajaFecha:f,bajaObs:det,bajaPrecio:'',bajaComprador:'',catPrevia:m.categoria});
       await db.collection('eventos').doc(slugId('e')).set({fecha:f,caballoId:m.id,caballo:m.nombre,tipo:'Otro',detalle:'Baja: Muerto (murió en el parto)',obs:det,por:uid||''})}
     if(!S.caballos.some(x=>norm(x.madre)==='PIPA'&&(x.nac||'')>='2026-08-01')){const id=slugId('c');
-      await db.collection('caballos').doc(id).set({nombre:'Cría de Pipa 2026',sexo:'',pelaje:'',categoria:'Potrillos',estado:'Muerto',nac:f,camada:null,madre:m.nombre,padre:s?.padrillo||'',
-        rp:'',chip:'',lugar:'',obs:'Nació muerto',fotos:[],bajaFecha:f,bajaObs:'Nació muerto en el parto del 11/10/2026. La madre (PIPA) también murió en el parto.',catPrevia:'Potrillos'});
-      await db.collection('eventos').doc(slugId('e')).set({fecha:f,caballoId:id,caballo:'Cría de Pipa 2026',tipo:'Otro',detalle:'Baja: Muerto (nació muerto)',obs:'Madre PIPA, murió en el mismo parto',por:uid||''})}},
+      await db.collection('caballos').doc(id).set({nombre:'Cría de Pipa 2026',sexo:'Hembra',pelaje:'',categoria:'Potrillos',estado:'Muerto',nac:f,camada:2026,madre:m.nombre,padre:s?.padrillo||'',
+        rp:'',chip:'',lugar:'',obs:'Hembra, nació muerta',fotos:[],bajaFecha:f,bajaObs:'Hembra. Nació muerta en el parto del 11/10/2026. La madre (PIPA) también murió en el parto.',catPrevia:'Potrillos'});
+      await db.collection('eventos').doc(slugId('e')).set({fecha:f,caballoId:id,caballo:'Cría de Pipa 2026',tipo:'Otro',detalle:'Baja: Muerta (nació muerta, hembra)',obs:'Madre PIPA, murió en el mismo parto',por:uid||''})}},
 };
 // Carga un mismo evento a varios caballos por nombre (si ya está cargado ese día, no lo repite)
 async function cargarGrupo(fecha,tipo,detalle,obs,nombres){for(const n of nombres){const c=S.caballos.find(x=>norm(x.nombre)===norm(n)&&x.estado==='Activo');if(!c)continue;
