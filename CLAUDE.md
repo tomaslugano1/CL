@@ -9,6 +9,11 @@ App de registro de la manada (PWA en `app/`, datos en Supabase, publicada en Net
 3. Las camadas son registro histórico: un potrillo que nace muerto o muere queda en su camada (con sexo, fecha y "muerto"), no se borra; solo no cuenta entre los vivos.
 4. Avisar en una línea qué quedó cargado y qué falta.
 
+## Cómo leer los datos
+- App (solo lectura): `curl -sS https://rqmibapllqfvxgsawyox.supabase.co/rest/v1/rpc/datos_calendario -H "apikey: <anonKey de app/config.js>" -H "Content-Type: application/json" -d "{\"p_clave\":\"$DC_CLAVE\"}"` → caballos, eventos, servicios y config. La clave está en la variable de entorno `DC_CLAVE` (la del link del calendario). Nunca pedirla por el chat ni guardarla en el repo.
+- Sheet: conector de Google Sheets; el ID está en la variable `DC_SHEET_ID` (no va en el repo porque el Sheet se comparte por link).
+- Antes de cambiar el Sheet, comparar contra la app: la app manda.
+
 ## Reglas
 - El repo es público: no subir datos de la quinta (fotos, planillas, PDFs, SQL con datos).
 - Netlify publica solo con `[publicar]` en el mensaje del commit (cada publicación cuesta créditos).
