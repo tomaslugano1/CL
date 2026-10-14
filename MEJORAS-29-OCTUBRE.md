@@ -124,7 +124,7 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Hecho el 13/10: `sheet/actualizar.gs` + pasos en `sheet/LEEME.md`. Al final no usa Netlify: el Sheet lee directo la base de la app con la clave del calendario (no gasta créditos). Menú **Doña Cecilia** en el Sheet: Actualizar ahora · Configurar clave · Actualizar solo todos los días a las 7.
 - Se instala el 29 **después** de publicar y abrir la app una vez (si no, copiaría la app vieja).
 - Las camadas no se reescriben: solo "Hoy está en", lo vacío, los que nacen y "Por nacer" → potrillo.
-- Diferencias encontradas entre el Sheet y la app para que Tomás decida: ROCKERA nació 02/11/2022 (Sheet) o 01/10/2022 (app); SUSANA es Alazán (Sheet) o Ruana (app).
+- Diferencias encontradas entre el Sheet y la app para que Tomás decida: ✅ ROCKERA: Tomás confirmó (14/10) que la fecha es aproximada; queda 01/10/2022 con la nota "la planilla de partos decía 02/11/2022" (ajuste `oct-rockera-fecha-aprox` en la app y ya en el Sheet). ⏳ SUSANA es Alazán (Sheet) o Ruana (app).
 - Tomás confirmó (13/10) que entra en la publicación del 29.
 - Idea de Tomás (13/10): que el Google Sheet "MANADA DC II" quede conectado a la app y no haya que descargar el Excel nunca más.
 - Cómo: una función en Netlify (con la misma clave que el calendario) que entrega los datos de la app, y un script dentro del Sheet (Apps Script) que todos los días a las 7 los trae y reescribe las pestañas CABALLOS, PREÑECES, CAMADAS, SANIDAD, EVENTOS y BAJAS, sin tocar fórmulas ni formato. También va un botón "Actualizar ahora".

@@ -212,6 +212,9 @@ const AJUSTES={
     if(ultimo(c.id,'Herrada')&&ultimo(c.id,'Desherrada')<ultimo(c.id,'Herrada'))
       await db.collection('eventos').doc(slugId('e')).set({fecha:hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Desherrada',detalle:'Desherrado',obs:'Quedó desvasada, no hay que herrarla',por:uid||''})},
   // La 25 es la que Martín llama "Avispa"
+  // 14/10/2026: Tomás confirma que la fecha de nacimiento de ROCKERA es aproximada (la planilla de partos decía 02/11/2022)
+  'oct-rockera-fecha-aprox':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='ROCKERA');if(!c||/aproximad/i.test(c.obs||''))return;
+    await db.collection('caballos').doc(c.id).update({obs:[c.obs,'Fecha de nacimiento aproximada (la planilla de partos decía 02/11/2022)'].filter(Boolean).join(' · ')})},
   'apodo-25-avispa':async()=>{const c=S.caballos.find(x=>x.nombre==='25');if(c&&!c.apodo)await db.collection('caballos').doc(c.id).update({apodo:'AVISPA'})},
   // Madres y jugadores en descanso: desvasar cada 80 días (si quedó guardado el 75 de antes)
   'desvase-80-madres-descanso':async()=>{const g=S.config.intervalos;if(!g)return;const n={...g};let ch=false;
