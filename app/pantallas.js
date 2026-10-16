@@ -102,12 +102,17 @@ function esMadre(c){return c.sexo==='Hembra'&&(['Madres','Receptoras'].includes(
 function seccionServicios(c){const serv=S.servicios.filter(s=>norm(s.madre)===norm(c.nombre)).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||'')||(+b.temporada-+a.temporada));
   const pre=serv.find(s=>s.estado==='Preñada');
   const der=canWrite&&c.estado==='Activo'?`<button class="btn sm pri" data-act="nacimiento" data-m="${esc(c.nombre)}" ${pre?`data-s="${pre.id}"`:''}>+ Nacimiento</button>`:'';
-  const tarjetas=serv.map(s=>{const st=estadoRepro(s);const ab=s.estado==='Abortó';
+  const tarjeta=s=>{const st=estadoRepro(s);const ab=s.estado==='Abortó',enCurso=['Preñada','Servida (sin tacto)'].includes(s.estado);
+    const cria=s.estado==='Parida'&&typeof criaDeServicio==='function'?criaDeServicio(s):null;
     return `<div class="scard"><div class="mtop"><span class="sub" style="margin:0">${fmt(s.fecha)}</span><span class="pill ${ab?'p-bad':st.pill}">${ab?'Abortó':esc(s.estado||'—')}</span>
-       <span style="margin-left:auto" class="row">${s.padrillo&&!['Vacía','Abortó'].includes(s.estado)?`<button class="btn sm" data-act="pedShare" data-s="${s.id}" aria-label="Pedigree del potrillo">Pedigree</button>`:''}${canWrite?`<button class="btn sm" data-serv="${s.id}" aria-label="Editar servicio">Editar</button>`:''}</span></div>
+       <span style="margin-left:auto" class="row">${s.padrillo&&enCurso?`<button class="btn sm" data-act="pedShare" data-s="${s.id}" aria-label="Pedigree del potrillo">Pedigree</button>`:''}${canWrite?`<button class="btn sm" data-serv="${s.id}" aria-label="Editar servicio">Editar</button>`:''}</span></div>
       <div class="snom">${s.padrillo?`<span class="a" data-open-name="${esc(s.padrillo)}">${esc(s.padrillo)}</span>`:'Sin padrillo'}${s.tipo?` <span class="sub" style="display:inline">· ${esc(s.tipo)}</span>`:''}</div>
-      <div class="sub">${s.fpp&&s.estado!=='Vacía'&&!ab?'Parto estimado: '+fmt(s.fpp)+' · ':''}Temporada ${esc(s.temporada||'—')}</div>
-      ${canWrite&&['Preñada','Servida (sin tacto)'].includes(s.estado)?`<div class="row" style="margin-top:8px"><button class="btn sm danger-o" data-act="aborto" data-id="${s.id}">Registrar aborto</button></div>`:''}</div>`}).join('');
+      <div class="sub">${s.fpp&&enCurso?'Parto estimado: '+fmt(s.fpp)+' · ':''}Temporada ${esc(s.temporada||'—')}</div>
+      ${cria?`<div class="sub" style="margin-top:4px">Nació: <span class="a" data-open="${cria.id}">${esc(cria.nombre)}</span>${cria.nac?' · '+fmt(cria.nac):''}${cria.estado!=='Activo'?' · '+esc(cria.estado):''}</div>`:''}
+      ${canWrite&&enCurso?`<div class="row" style="margin-top:10px"><button class="btn pri" style="flex:1;min-height:44px" data-act="nacimiento" data-s="${s.id}" data-m="${esc(c.nombre)}">Cargar nacimiento</button><button class="btn sm danger-o" data-act="aborto" data-id="${s.id}">Registrar aborto</button></div>`:''}</div>`};
+  // Arriba lo que está en curso; lo ya cerrado (parida, abortó, vacía) va a "Servicios anteriores"
+  const actuales=serv.filter(s=>['Preñada','Servida (sin tacto)'].includes(s.estado)),anteriores=serv.filter(s=>!actuales.includes(s));
+  const tarjetas=actuales.map(tarjeta).join('')+(anteriores.length?(actuales.length?`<details class="desp"><summary>Servicios anteriores (${anteriores.length})</summary>${anteriores.map(tarjeta).join('')}</details>`:anteriores.slice(0,1).map(tarjeta).join('')+(anteriores.length>1?`<details class="desp"><summary>Servicios anteriores (${anteriores.length-1})</summary>${anteriores.slice(1).map(tarjeta).join('')}</details>`:'')):'');
   return sec('Servicios',der,(tarjetas||'<div class="muted small">Todavía no tiene servicios cargados.</div>')+(canWrite&&c.estado==='Activo'?`<button class="btn ancho" data-act="servMadre" data-m="${esc(c.nombre)}">+ Servicio</button>`:''),'repro')}
 function seccionPrenez(c){const s=servUltimo(c.nombre);const st=estadoRepro(s);const ec=ecosDe(s),ue=ec[ec.length-1];
   if(!s)return sec('Preñez','','<div class="muted small">Sin servicio cargado. Cargá el servicio y después la ecografía.</div>');

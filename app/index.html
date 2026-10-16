@@ -473,7 +473,7 @@ function barraGest(st){if(st.k!=='pre'||st.gest===null)return '';const p=Math.ma
   return `<div class="gest" title="${st.gest} días de preñez"><i style="width:${p}%"></i></div><div class="sub">${st.gest} días de preñez${st.gest>GEST?' · ya cumplió el tiempo':''}</div>`}
 function botonesRepro(s,nombre,st){if(!canWrite)return '';
   if(!s||st.k==='vac'||st.k==='par')return `<button class="btn sm pri" data-act="servMadre" data-m="${esc(nombre)}">+ Servicio</button>`;
-  return `<button class="btn sm ${st.k==='ser'?'pri':''}" data-act="eco" data-id="${s.id}">+ Ecografía</button>${st.k==='pre'?`<button class="btn sm pri" data-parto="${s.id}">Parió</button>`:''}<button class="btn sm" data-serv="${s.id}">Editar</button>`}
+  return `<button class="btn sm ${st.k==='ser'?'pri':''}" data-act="eco" data-id="${s.id}">+ Ecografía</button>${st.k==='pre'?`<button class="btn sm pri" data-parto="${s.id}">Cargar nacimiento</button>`:''}<button class="btn sm" data-serv="${s.id}">Editar</button>`}
 function vMadres(){
   const temps=[...new Set([...S.servicios.map(s=>+s.temporada),+S.config.temporada||2026])].sort((a,b)=>b-a);const t=temporadaActual();
   const nombres=new Map();for(const c of activos().filter(c=>c.categoria==='Madres'))nombres.set(norm(c.nombre),c.nombre);
@@ -798,6 +798,7 @@ let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;ren
 <script src="pantallas.js"></script>
 <script src="pb.js"></script>
 <script src="genealogias.js"></script>
+<script src="nacimiento.js"></script>
 <script src="diseno.js"></script>
 
 </body>

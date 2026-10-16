@@ -139,3 +139,9 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - ✅ Hecho el 16/10 con las capturas de Polo Argentino y del catálogo de Genética Santa Agueda: `app/genealogias.js` con 49 caballos (padrillos Irenita Porron, Machitos Mercenario, Espi Pulpero, Espi Explosivo, Dolfina Hulk, Don Urbano Merequetenge, Santa Teresa Sport, Irenita Mañoso y sus ancestros hasta 3-4 generaciones). Al escribir Padre/Madre sugiere los conocidos y completa los abuelos; el Pedigree muestra los bisabuelos solo. Lo cargado en la app manda sobre la biblioteca. También quedó en la pestaña GENEALOGÍAS del Sheet.
 - ⏳ Faltan: las madres de Doña Cecilia (Tomás no las tiene en Polo Argentino), BENICIO, BAYO PEPE C y CLARIFY.
 - Ojo: la app escribe RENGO LUICITO y el catálogo RENGO LUISITO; la biblioteca entiende las dos.
+
+## I. ✅ Cargar nacimiento (pedido 16/10, entra el 29)
+- En el servicio de cada yegua preñada: botón grande **Cargar nacimiento** (también en Madres y partos, en lugar de "Parió"). Formulario corto: nombre, fecha, sexo, pelaje, padre y madre (vienen del servicio), RP, chip, **¿Cómo nació? Vivo / Nació muerto** y señas. Los abuelos se completan solos.
+- Al guardar: alta del potrillo (o queda como muerto en su camada), el servicio pasa a Parida con el potrillo enlazado ("Nació: DC …"), y la parición queda en el historial de la madre. Se abre la ficha del potrillo.
+- En la ficha de la madre arriba solo queda el servicio en curso; los parida/abortó/vacía van a **Servicios anteriores**. No se borra nada.
+- Arreglado de paso: al dar de alta cualquier caballo, la app volvía a la lista en vez de abrir su ficha.
