@@ -1,0 +1,9 @@
+{
+  "name": "dona-cecilia",
+  "private": true,
+  "description": "Funciones de Netlify de la app Doña Cecilia (calendario y notificaciones)",
+  "type": "module",
+  "dependencies": {
+    "web-push": "^3.6.7"
+  }
+}
