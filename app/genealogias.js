@@ -90,5 +90,8 @@ const ALIAS_PEDIGRI={'HULK':'DOLFINA HULK','DON URBANO MEREQUETENGUE':'DON URBAN
   conectarGenealogia=function(){
     for(const [id,l] of [['f-madre','dl-gen-h'],['f-abueloP','dl-pad'],['f-abuelaP','dl-gen-h'],['f-abueloM','dl-pad'],['f-abuelaM','dl-gen-h']]){
       const el=document.getElementById(id);if(el&&document.getElementById(l))el.setAttribute('list',l)}
-    return cg0.apply(this,arguments)};
+    const r=cg0.apply(this,arguments);
+    // si el padre o la madre ya vienen puestos (por ejemplo al cargar un parto), completar los abuelos de una
+    for(const id of ['f-padre','f-madre']){const el=document.getElementById(id);if(el&&el.value.trim())el.dispatchEvent(new Event('change'))}
+    return r};
 })();

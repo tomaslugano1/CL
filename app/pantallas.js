@@ -111,11 +111,11 @@ function seccionServicios(c){const serv=S.servicios.filter(s=>norm(s.madre)===no
   return sec('Servicios',der,(tarjetas||'<div class="muted small">Todavía no tiene servicios cargados.</div>')+(canWrite&&c.estado==='Activo'?`<button class="btn ancho" data-act="servMadre" data-m="${esc(c.nombre)}">+ Servicio</button>`:''),'repro')}
 function seccionPrenez(c){const s=servUltimo(c.nombre);const st=estadoRepro(s);const ec=ecosDe(s),ue=ec[ec.length-1];
   if(!s)return sec('Preñez','','<div class="muted small">Sin servicio cargado. Cargá el servicio y después la ecografía.</div>');
-  const vacia=['Vacía','Abortó','Parida'].includes(s.estado),pre=s.estado==='Preñada';
+  const vacia=s.estado==='Vacía',pre=s.estado==='Preñada',cerro=['Parida','Abortó'].includes(s.estado); // parida o abortó: no se marca como vacía
   const btn=(r,txt,on)=>canWrite?`<button class="pbtn ${on?'on '+(r==='Preñada'?'ok':'bad'):''}" data-act="eco" data-id="${s.id}" data-r="${r}">${txt}</button>`:`<span class="pbtn ${on?'on '+(r==='Preñada'?'ok':'bad'):''}">${txt}</span>`;
   const filas=[['Fecha de tacto o eco',ue?fmt(ue.fecha):'—'],['Sexo',ue?.sexo||'Indefinido'],['Fecha probable de parto',pre&&s.fpp?fmt(s.fpp):'—'],['Observaciones',ue?.obs||'—']];
-  return sec('Preñez'+(s.temporada?` <span class="muted small">· para ${esc(s.temporada)}</span>`:''),st.cuenta&&pre?`<span class="pill ${st.cpill}">${st.cuenta}</span>`:'',
-    `<div class="pbtns">${btn('Vacía','Vacía',vacia)}${btn('Preñada','Preñada',pre)}</div>${s.estado==='Servida (sin tacto)'?'<p class="note" style="margin:0">Servida '+fmt(s.fecha)+': falta la ecografía. Tocá Preñada o Vacía para cargarla.</p>':''}
+  return sec('Preñez'+(s.temporada?` <span class="muted small">· para ${esc(s.temporada)}</span>`:''),st.cuenta&&pre?`<span class="pill ${st.cpill}">${st.cuenta}</span>`:cerro?`<span class="pill ${s.estado==='Parida'?'p-ok':'p-bad'}">${s.estado==='Parida'?'Parió':'Abortó'}</span>`:'',
+    `${cerro?`<p class="note" style="margin:0 0 8px">${s.estado==='Parida'?'Parió':'Abortó'} de ${esc(s.padrillo||'—')}. Cuando la vuelvan a servir, cargá el servicio nuevo con <b>+ Servicio</b>.</p>`:''}<div class="pbtns">${btn('Vacía','Vacía',vacia)}${btn('Preñada','Preñada',pre)}</div>${s.estado==='Servida (sin tacto)'?'<p class="note" style="margin:0">Servida '+fmt(s.fecha)+': falta la ecografía. Tocá Preñada o Vacía para cargarla.</p>':''}
      <div class="kvl">${filas.map(([k,v])=>`<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>${barraGest(st)}`,'repro')}
 renderFicha=function(){
   const c=byId(UI.ficha);if(!c){closeModal();return}
