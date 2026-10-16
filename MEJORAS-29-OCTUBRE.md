@@ -131,8 +131,11 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - La app es la fuente de verdad. Lo que se escriba a mano en el Sheet en esas pestañas se pisa, así que las notas a mano van en una pestaña aparte.
 - Requisito: el Sheet tiene que ser una planilla de Google, no un Excel subido a Drive.
 
-## H. 💡 Idea (16/10): genealogía que se completa sola
+## H. ✅ Genealogía que se completa sola (16/10, entra el 29)
 - Tomás quiere que al escribir un caballo conocido (ej. SANTA TERESA SPORT, CONCEPCIÓN, POTRANCA BAYA) la app ofrezca el nombre y complete padre, madre, abuelos y bisabuelos, como hace la app **Polo Argentino**.
 - Polo Argentino (iPhone, de Symphony Technology LLC) no tiene una conexión pública para otras apps: no se puede enganchar directo. Se podría pedir acceso al desarrollador.
 - Camino propuesto: una **biblioteca de genealogías propia** en la app, con todos los caballos conocidos (padrillos, madres, abuelos). Tomás manda capturas de los pedigríes de Polo Argentino y se cargan. Al escribir un nombre aparece la lista de conocidos y, al elegir uno, se completa todo el árbol.
 - Hoy ya existe una parte: los padrillos guardan 3 generaciones y, al escribir el padre o la madre, se completan los abuelos si ese caballo ya está cargado.
+- ✅ Hecho el 16/10 con las capturas de Polo Argentino y del catálogo de Genética Santa Agueda: `app/genealogias.js` con 49 caballos (padrillos Irenita Porron, Machitos Mercenario, Espi Pulpero, Espi Explosivo, Dolfina Hulk, Don Urbano Merequetenge, Santa Teresa Sport, Irenita Mañoso y sus ancestros hasta 3-4 generaciones). Al escribir Padre/Madre sugiere los conocidos y completa los abuelos; el Pedigree muestra los bisabuelos solo. Lo cargado en la app manda sobre la biblioteca. También quedó en la pestaña GENEALOGÍAS del Sheet.
+- ⏳ Faltan: las madres de Doña Cecilia (Tomás no las tiene en Polo Argentino), BENICIO, BAYO PEPE C y CLARIFY.
+- Ojo: la app escribe RENGO LUICITO y el catálogo RENGO LUISITO; la biblioteca entiende las dos.
