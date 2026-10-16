@@ -124,9 +124,15 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Hecho el 13/10: `sheet/actualizar.gs` + pasos en `sheet/LEEME.md`. Al final no usa Netlify: el Sheet lee directo la base de la app con la clave del calendario (no gasta créditos). Menú **Doña Cecilia** en el Sheet: Actualizar ahora · Configurar clave · Actualizar solo todos los días a las 7.
 - Se instala el 29 **después** de publicar y abrir la app una vez (si no, copiaría la app vieja).
 - Las camadas no se reescriben: solo "Hoy está en", lo vacío, los que nacen y "Por nacer" → potrillo.
-- Diferencias encontradas entre el Sheet y la app para que Tomás decida: ✅ ROCKERA: Tomás confirmó (14/10) que la fecha es aproximada; queda 01/10/2022 con la nota "la planilla de partos decía 02/11/2022" (ajuste `oct-rockera-fecha-aprox` en la app y ya en el Sheet). ⏳ SUSANA es Alazán (Sheet) o Ruana (app).
+- Diferencias encontradas entre el Sheet y la app para que Tomás decida: ✅ ROCKERA: Tomás confirmó (14/10) que la fecha es aproximada; queda 01/10/2022 con la nota "la planilla de partos decía 02/11/2022" (ajuste `oct-rockera-fecha-aprox` en la app y ya en el Sheet). ✅ SUSANA: Tomás confirmó (16/10) que es ruana; ya estaba así en la app y se corrigió la CAMADA 2020 del Sheet.
 - Tomás confirmó (13/10) que entra en la publicación del 29.
 - Idea de Tomás (13/10): que el Google Sheet "MANADA DC II" quede conectado a la app y no haya que descargar el Excel nunca más.
 - Cómo: una función en Netlify (con la misma clave que el calendario) que entrega los datos de la app, y un script dentro del Sheet (Apps Script) que todos los días a las 7 los trae y reescribe las pestañas CABALLOS, PREÑECES, CAMADAS, SANIDAD, EVENTOS y BAJAS, sin tocar fórmulas ni formato. También va un botón "Actualizar ahora".
 - La app es la fuente de verdad. Lo que se escriba a mano en el Sheet en esas pestañas se pisa, así que las notas a mano van en una pestaña aparte.
 - Requisito: el Sheet tiene que ser una planilla de Google, no un Excel subido a Drive.
+
+## H. 💡 Idea (16/10): genealogía que se completa sola
+- Tomás quiere que al escribir un caballo conocido (ej. SANTA TERESA SPORT, CONCEPCIÓN, POTRANCA BAYA) la app ofrezca el nombre y complete padre, madre, abuelos y bisabuelos, como hace la app **Polo Argentino**.
+- Polo Argentino (iPhone, de Symphony Technology LLC) no tiene una conexión pública para otras apps: no se puede enganchar directo. Se podría pedir acceso al desarrollador.
+- Camino propuesto: una **biblioteca de genealogías propia** en la app, con todos los caballos conocidos (padrillos, madres, abuelos). Tomás manda capturas de los pedigríes de Polo Argentino y se cargan. Al escribir un nombre aparece la lista de conocidos y, al elegir uno, se completa todo el árbol.
+- Hoy ya existe una parte: los padrillos guardan 3 generaciones y, al escribir el padre o la madre, se completan los abuelos si ese caballo ya está cargado.
