@@ -20,6 +20,11 @@ SIEMPRE, sin que lo pida: todo lo que cuenta va a la app **y** al Sheet en el mi
 - EVENTOS del Sheet: una fila por caballo con su precio (HERRERO suma desde ahí). No lleva prácticas ni torneos uno por uno.
 - Las fórmulas de HERRERO arrancan en EVENTOS!5: si se insertan filas arriba, revisar que sigan en 5 (Google las corre solas).
 
+## Reglas del herrero (confirmadas por Tomás)
+- Herrar incluye desvasar: el conteo del desvase arranca desde el último desvase O la última herrada (lo que sea más reciente).
+- Se puede desvasar sin herrar: eso reinicia solo el conteo del desvase, no el de la herrada.
+- Desherrado o ritmo/categoría que no se hierra (madres, potrillos, descanso) → no se avisa herrar.
+
 ## Reglas
 - El repo es público: no subir datos de la quinta (fotos, planillas, PDFs, SQL con datos).
 - Netlify publica solo con `[publicar]` en el mensaje del commit (cada publicación cuesta créditos).
