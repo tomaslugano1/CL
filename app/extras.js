@@ -290,6 +290,10 @@ const AJUSTES={
       await db.collection('caballos').doc(id).set({nombre:'Cría de Pipa 2026',sexo:'Hembra',pelaje:'',categoria:'Potrillos',estado:'Muerto',nac:f,camada:2026,madre:m.nombre,padre:s?.padrillo||'',
         rp:'',chip:'',lugar:'',obs:'Hembra, nació muerta',fotos:[],bajaFecha:f,bajaObs:'Hembra. Nació muerta en el parto del 11/10/2026. La madre (PIPA) también murió en el parto.',catPrevia:'Potrillos'});
       await db.collection('eventos').doc(slugId('e')).set({fecha:f,caballoId:id,caballo:'Cría de Pipa 2026',tipo:'Otro',detalle:'Baja: Muerta (nació muerta, hembra)',obs:'Madre PIPA, murió en el mismo parto',por:uid||''})}},
+  // 18/10/2026: DC (MINI) 30 se llama MÁXIMO (el número queda como apodo)
+  'oct-nombre-maximo':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='DC (MINI) 30');if(!c)return;
+    await db.collection('caballos').doc(c.id).update({nombre:'MÁXIMO',apodo:c.apodo||'DC (MINI) 30'});
+    for(const e of S.eventos.filter(e=>e.caballoId===c.id&&e.caballo!=='MÁXIMO'))await db.collection('eventos').doc(e.id).update({caballo:'MÁXIMO'})},
 };
 // Carga un mismo evento a varios caballos por nombre (si ya está cargado ese día, no lo repite)
 async function cargarGrupo(fecha,tipo,detalle,obs,nombres){for(const n of nombres){const c=S.caballos.find(x=>norm(x.nombre)===norm(n)&&x.estado==='Activo');if(!c)continue;
