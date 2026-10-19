@@ -2,6 +2,7 @@
 """Lector de SOLO LECTURA del EVA (Moodle UCA). Ver agenda/REGLAS.md.
 
 Uso: python3 agenda/eva_moodle.py            -> resumen JSON de todas las materias
+     python3 agenda/eva_moodle.py --novedades [--horas=26] -> solo avisos de foro recientes y menciones de evaluaciones
      python3 agenda/eva_moodle.py --info     -> solo verifica la llave (nombre de usuario)
 La llave se lee de EVA_TOKEN y nunca se imprime. No guarda nada en disco.
 """
@@ -87,7 +88,8 @@ def main():
     for f in ws("mod_forum_get_forums_by_courses", courseids=ids):
         discusiones = ws("mod_forum_get_forum_discussions", forumid=f["id"], sortorder=1, perpage=8).get("discussions", [])
         foros.setdefault(f["course"], []).append({"foro": f["name"], "temas": [
-            {"titulo": d["subject"], "fecha": fecha(d.get("created")), "texto": texto(d.get("message"), 800)}
+            {"titulo": d["subject"], "fecha": fecha(d.get("created")), "ts": d.get("created", 0),
+             "texto": texto(d.get("message"), 800)}
             for d in discusiones]})
     salida = []
     for c in cursos:
@@ -98,7 +100,30 @@ def main():
             secciones.append({"seccion": s["name"], "resumen": texto(s.get("summary")), "items": mods})
         salida.append({"materia": c["fullname"], "secciones": secciones,
                        "tareas": tareas.get(c["id"], []), "foros": foros.get(c["id"], [])})
-    print(json.dumps({"ahora": datetime.now(AR).isoformat(), "materias": salida}, ensure_ascii=False, indent=1))
+    # Resumen de novedades: avisos de foro recientes y menciones de evaluaciones en el aula
+    horas = 26
+    for a in sys.argv:
+        if a.startswith("--horas="):
+            horas = int(a.split("=", 1)[1])
+    limite = datetime.now().timestamp() - horas * 3600
+    clave = re.compile(r"parcial|recuperatorio|examen|evaluaci[oó]n|final|coloquio|integrador", re.I)
+    avisos, menciones = [], []
+    for m in salida:
+        for f in m["foros"]:
+            for t in f["temas"]:
+                if t["ts"] >= limite:
+                    avisos.append({"materia": m["materia"], "titulo": t["titulo"], "fecha": t["fecha"], "texto": t["texto"][:400]})
+        for s_ in m["secciones"]:
+            for txt in [s_["resumen"]] + [i["nombre"] + ": " + i["texto"] for i in s_["items"]]:
+                for linea in txt.split("\n"):
+                    if clave.search(linea) and re.search(r"\d{1,2}[/ ]|lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado", linea, re.I):
+                        menciones.append({"materia": m["materia"], "texto": linea.strip()[:300]})
+    if "--novedades" in sys.argv:
+        print(json.dumps({"ahora": datetime.now(AR).isoformat(), "horas": horas,
+                          "avisos_recientes": avisos, "menciones_evaluaciones": menciones}, ensure_ascii=False, indent=1))
+        return
+    print(json.dumps({"ahora": datetime.now(AR).isoformat(), "materias": salida,
+                      "avisos_recientes": avisos, "menciones_evaluaciones": menciones}, ensure_ascii=False, indent=1))
 
 
 if __name__ == "__main__":
