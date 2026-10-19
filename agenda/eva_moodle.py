@@ -2,6 +2,7 @@
 """Lector de SOLO LECTURA del EVA (Moodle UCA). Ver agenda/REGLAS.md.
 
 Uso: python3 agenda/eva_moodle.py            -> resumen JSON de todas las materias
+     python3 agenda/eva_moodle.py --bajar <materia> <nombre> <carpeta>  -> descarga archivos del aula (solo lectura)
      python3 agenda/eva_moodle.py --novedades [--horas=26] -> solo avisos de foro recientes y menciones de evaluaciones
      python3 agenda/eva_moodle.py --info     -> solo verifica la llave (nombre de usuario)
 La llave se lee de EVA_TOKEN y nunca se imprime. No guarda nada en disco.
@@ -59,6 +60,29 @@ def ws(funcion, **params):
     return res
 
 
+def bajar_archivos(cursos, filtro_materia, filtro_nombre, destino):
+    """Descarga (solo lectura) archivos del aula cuyo nombre contenga filtro_nombre."""
+    os.makedirs(destino, exist_ok=True)
+    bajados = []
+    for c in cursos:
+        if filtro_materia.lower() not in c["fullname"].lower():
+            continue
+        for s in ws("core_course_get_contents", courseid=c["id"]):
+            for m in s.get("modules", []):
+                for f in m.get("contents", []) or []:
+                    url, nombre = f.get("fileurl", ""), f.get("filename", "")
+                    if not url.startswith("https://eva.uca.edu.ar/webservice/pluginfile.php/"):
+                        continue
+                    if filtro_nombre.lower() not in (m["name"] + " " + nombre).lower():
+                        continue
+                    sep = "&" if "?" in url else "?"
+                    ruta = os.path.join(destino, re.sub(r"[^\w.\- ]", "_", nombre))
+                    with urllib.request.urlopen(url + sep + urllib.parse.urlencode({"token": TOKEN}), timeout=120) as r, open(ruta, "wb") as out:
+                        out.write(r.read())
+                    bajados.append({"seccion": s["name"], "recurso": m["name"], "archivo": ruta})
+    return bajados
+
+
 def texto(h, n=1500):
     t = re.sub(r"<br\s*/?>|</p>|</li>|</h\d>", "\n", h or "", flags=re.I)
     t = html.unescape(re.sub(r"<[^>]+>", " ", t))
@@ -79,6 +103,11 @@ def main():
         return
     cursos = [c for c in ws("core_enrol_get_users_courses", userid=info["userid"])
               if not c.get("hidden") and (c.get("enddate", 0) == 0 or c["enddate"] > datetime.now().timestamp())]
+    if "--bajar" in sys.argv:
+        i = sys.argv.index("--bajar")
+        materia, nombre, destino = sys.argv[i + 1], sys.argv[i + 2], sys.argv[i + 3]
+        print(json.dumps(bajar_archivos(cursos, materia, nombre, destino), ensure_ascii=False, indent=1))
+        return
     ids = [c["id"] for c in cursos]
     tareas = {}
     for c in ws("mod_assign_get_assignments", courseids=ids).get("courses", []):
