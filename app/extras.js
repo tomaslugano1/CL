@@ -298,7 +298,7 @@ const AJUSTES={
   'oct-partos-baya-colorada':async()=>{const f='2026-10-21';
     for(const [madre,nombre,sexo,pelaje,obs] of [
       ['BAYA','DC S/N BAYA 26','Hembra','Bayo claro','Cara blanca ancha (lista hasta el hocico) · patas claras'],
-      ['COLORADA POTRA','DC S/N COLORADA POTRA 26','Macho','Colorado','Sin blanco en la cara · blanco abajo en las patas traseras']]){
+      ['COLORADA POTRA','DC S/N COLORADA POTRA 26','Macho','Colorado','Patas blancas']]){
       const m=S.caballos.find(x=>norm(x.nombre)===madre);if(!m)continue;
       if(S.caballos.some(x=>norm(x.madre)===madre&&(x.nac||'')>='2026-08-01'))continue; // ya lo cargó alguien
       const s=S.servicios.filter(x=>norm(x.madre)===madre&&['Preñada','Servida (sin tacto)'].includes(x.estado)).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''))[0];
