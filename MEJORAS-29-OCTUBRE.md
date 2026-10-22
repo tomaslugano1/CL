@@ -145,3 +145,10 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Al guardar: alta del potrillo (o queda como muerto en su camada), el servicio pasa a Parida con el potrillo enlazado ("Nació: DC …"), y la parición queda en el historial de la madre. Se abre la ficha del potrillo.
 - En la ficha de la madre arriba solo queda el servicio en curso; los parida/abortó/vacía van a **Servicios anteriores**. No se borra nada.
 - Arreglado de paso: al dar de alta cualquier caballo, la app volvía a la lista en vez de abrir su ficha.
+
+## J. Partos del 21/10 (cargados el 22/10, se aplican solos al publicar)
+- BAYA parió una **hembra bayo claro**, cara blanca ancha y patas claras → `DC S/N BAYA 26`.
+- COLORADA POTRA parió un **macho colorado**, sin blanco en la cara y con blanco abajo en las patas traseras → `DC S/N COLORADA POTRA 26`.
+- Los dos de IRENITA PORRON. Ajuste `oct-partos-baya-colorada` (servicio → Parida con el potrillo enlazado, parición en la madre, abuelos completos). Ya en el Sheet (CABALLOS, SANIDAD, PREÑECES, CAMADA 2026, EVENTOS).
+- Las fotos (sacadas del video de Tomás) no van al repo: Tomás las sube con "+ Agregar foto" en cada ficha.
+- RESUMEN del Sheet: "Próximos partos" ahora es una fórmula que muestra solo las preñadas (antes era una lista fija).

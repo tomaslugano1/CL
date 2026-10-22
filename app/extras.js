@@ -294,6 +294,19 @@ const AJUSTES={
   'oct-nombre-maximo':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='DC (MINI) 30');if(!c)return;
     await db.collection('caballos').doc(c.id).update({nombre:'MÁXIMO',apodo:c.apodo||'DC (MINI) 30'});
     for(const e of S.eventos.filter(e=>e.caballoId===c.id&&e.caballo!=='MÁXIMO'))await db.collection('eventos').doc(e.id).update({caballo:'MÁXIMO'})},
+  // 21/10/2026: parieron la BAYA (hembra) y la COLORADA POTRA (macho), los dos de IRENITA PORRON. Datos del video de Tomás del 22/10.
+  'oct-partos-baya-colorada':async()=>{const f='2026-10-21';
+    for(const [madre,nombre,sexo,pelaje,obs] of [
+      ['BAYA','DC S/N BAYA 26','Hembra','Bayo claro','Cara blanca ancha (lista hasta el hocico) · patas claras'],
+      ['COLORADA POTRA','DC S/N COLORADA POTRA 26','Macho','Colorado','Sin blanco en la cara · blanco abajo en las patas traseras']]){
+      const m=S.caballos.find(x=>norm(x.nombre)===madre);if(!m)continue;
+      if(S.caballos.some(x=>norm(x.madre)===madre&&(x.nac||'')>='2026-08-01'))continue; // ya lo cargó alguien
+      const s=S.servicios.filter(x=>norm(x.madre)===madre&&['Preñada','Servida (sin tacto)'].includes(x.estado)).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''))[0];
+      const padre=s?.padrillo||'IRENITA PORRON',gp=padresDe(padre)||{},gm=padresDe(madre)||{},id=slugId('c');
+      await db.collection('caballos').doc(id).set({nombre,sexo,pelaje,categoria:'Potrillos',estado:'Activo',nac:f,camada:2026,madre:m.nombre,padre,
+        abueloP:gp.padre||'',abuelaP:gp.madre||'',abueloM:gm.padre||'',abuelaM:gm.madre||'',rp:'',chip:'',lugar:m.lugar||'Doña Cecilia',obs,fotos:[]});
+      if(s)await db.collection('servicios').doc(s.id).update({estado:'Parida',criaId:id,obs:[s.obs,'Parió 21/10/2026: '+nombre+' ('+sexo.toLowerCase()+')'].filter(Boolean).join(' · ')});
+      await db.collection('eventos').doc(slugId('e')).set({fecha:f,caballoId:m.id,caballo:m.nombre,tipo:'Parición',detalle:'Parición: '+sexo.toLowerCase()+' '+pelaje.toLowerCase()+' · '+nombre,obs:'',por:uid||''})}},
 };
 // Carga un mismo evento a varios caballos por nombre (si ya está cargado ese día, no lo repite)
 async function cargarGrupo(fecha,tipo,detalle,obs,nombres){for(const n of nombres){const c=S.caballos.find(x=>norm(x.nombre)===norm(n)&&x.estado==='Activo');if(!c)continue;
