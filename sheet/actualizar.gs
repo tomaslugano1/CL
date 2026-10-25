@@ -81,11 +81,14 @@ function ultimos(D) {
   }
   return u;
 }
+/* En SANIDAD la columna CATEGORÍA decide cada cuántos días se desvasa: los de hechura y jugadores
+   con ritmo "Descanso" (sueltos) van como Descanso (80 días y sin herrar), igual que en la app. */
+const grupoSanidad = c => ['Hechura', 'Jugadores'].indexOf(c.categoria) >= 0 && c.ritmo === 'descanso' ? 'Descanso' : c.categoria;
 function filasSanidad(D) {
   const u = ultimos(D);
   return D.caballos.filter(c => c.estado === 'Activo' && c.categoria !== 'Doma').sort(porCategoria).map(c => {
     const her = u[c.id + '|Herrada'] || '', desh = u[c.id + '|Desherrada'] || '';
-    return { 'CABALLO': c.nombre, 'CATEGORÍA': c.categoria, 'ÚLT. DESPARASIT.': fecha(u[c.id + '|Desparasitación']),
+    return { 'CABALLO': c.nombre, 'CATEGORÍA': grupoSanidad(c), 'ÚLT. DESPARASIT.': fecha(u[c.id + '|Desparasitación']),
       'ÚLT. DESVASE O HERRADA': fecha(u[c.id + '|Desvasada']), 'ÚLT. HERRADA': fecha(her), 'ÚLT. MUELAS': fecha(u[c.id + '|Muelas']),
       _desherrado: !!(her && desh >= her) };
   });
