@@ -769,6 +769,7 @@ document.addEventListener('change',e=>{if(e.target.id==='lugar'){UI.lugar=e.targ
 document.addEventListener('click',e=>{if(e.target.matches?.('input[type=file]'))e.target.onchange=onFile},true);
 async function onFile(e){
   const el=e.target;if(!(el.dataset.foto||el.id==='logo-file')||!el.files?.length||!assets)return;
+  if(!navigator.onLine){toast('Sin señal: la foto queda en tu galería, subila cuando tengas señal');el.value='';return}
   const files=[...el.files];toast(files.length>1?`Subiendo ${files.length} fotos…`:'Subiendo foto…');
   try{const ids=[];for(const f of files){const b=await achicar(f);const r=await assets.upload(b,{type:b.type||'image/jpeg'});ids.push(r.id)}
     if(el.id==='logo-file'){await db.doc('config/app').set({...S.config,logo:ids[0]});toast('Logo actualizado');return}

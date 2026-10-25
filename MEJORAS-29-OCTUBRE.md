@@ -20,7 +20,7 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 | 13 | **Cargar nacimiento**: botón en el servicio, formulario corto (vivo o nació muerto), el servicio pasa a "anteriores" con el potrillo enlazado (sección I) | ✅ |
 | 14 | **Genealogía que se completa sola**: biblioteca con 49 caballos (sección H) | ✅ |
 | 15 | Arreglos: al dar de alta se abre la ficha nueva; Preñez dice Parió/Abortó; Bajas de la más nueva a la más vieja; vacunas de preñez viejas dicen "Sin cargar"; Rockera fecha aproximada | ✅ |
-| 16 | Día de fotos (Inicio): los caballos sin foto, por lugar, con sus señas y un botón "Sacar foto" que abre la cámara | ✅ |
+| 16 | Día de fotos (Inicio): los caballos sin foto, por lugar, con sus señas y un botón "Foto" (cámara o galería) | ✅ |
 | 17 | Alegra, Contienda y Marimorena agarradas desde el 08/10 (fecha aproximada) | ✅ |
 | 18 | Buscar por señas; Progenie de cada madre con qué hace hoy cada cría; aviso de cambios sin subir; Cala fuera de la cuenta | ✅ |
 | 12 | **Datos que se cargan solos**: ventas de PB, Hechura → Descanso, Potranca Baya preñada, Vilma y la 25, Pipa y su cría, Máximo, Rockera, **partos del 21/10 (Baya y Colorada Potra)** | ✅ probado: quedan 52 caballos, 13 madres, 9 en descanso |
@@ -185,7 +185,7 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Inicio: los recuadros se tocan (25/10): Caballos propios → Ver caballos (todos); Preñadas → Madres y partos; Próximo parto → ficha de la próxima en parir; Para hacer → baja a "Para hacer esta semana"; Para revisar → Notas.
 
 ## N. ✅ Día de fotos y yeguas agarradas (25/10)
-- Inicio → "Día de fotos": lista de los caballos que todavía no tienen foto, agrupados por lugar, con categoría, pelaje y señas para reconocerlos. "Sacar foto" abre la cámara del celular y la guarda en la ficha (necesita señal y entrar con el usuario). Arriba, "X de 54 con foto"; abajo, los que ya tienen.
+- Inicio → "Día de fotos": lista de los caballos que todavía no tienen foto, agrupados por lugar, con categoría, pelaje y señas para reconocerlos. "Foto" deja sacarla con la cámara o elegirla de la galería y la guarda en la ficha (necesita señal; sin señal avisa y se sube después desde la galería). Arriba, "X de 54 con foto"; abajo, los que ya tienen.
 - ALEGRA, CONTIENDA y MARIMORENA: agarradas el 08/10/2026 (fecha aproximada; por la lluvia casi no jugaron). En la app dicen "Agarrada desde 08/10 · N días". En el Sheet: EVENTOS (3 filas, sin precio) y observación en CABALLOS.
 
 ## O. ✅ Ideas aprobadas el 25/10
