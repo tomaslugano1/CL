@@ -15,6 +15,12 @@ for r in rows:
   if r['coleccion']=='caballos':
     d['fotos']={'DC S/N BAYA 26':['fb'],'DC S/N COLORADA POTRA 26':['fc']}.get(d['nombre'],[])
   D.setdefault(r['coleccion'],{})[r['id']]=d
+# la lectura de la app no trae los padrillos: van los de la pestaña PADRILLOS del Sheet
+if 'padrillos' not in D:
+  D['padrillos']={'p'+str(i):{'nombre':n,'tipo':t,'padre':pa,'madre':ma} for i,(n,t,pa,ma) in enumerate([
+    ('MACHITOS MERCENARIO','Servicio','OPEN ESPACIAL','MACHITOS MECHERA'),('DOLFINA HULK','Servicio','LUHUK','HAZEL'),('ESPI PULPERO','Servicio','MECHA UNIMOG','ESPI PULPERA'),
+    ('MANADA','Servicio','',''),('IRENITA PORRON','Inseminación','LOS MACHITOS LIBANO','IRENITA CERVEZA'),('SANTA TERESA SPORT','Externo','SPORTIVO','ELLERSTINA PORTUARIA'),
+    ('ESPI EXPLOSIVO','Externo','VAN DUCATI','ESPI EXPLOSIVA'),('DON URBANO MEREQUETENGUE','Externo','RENGO LUICITO','CUMBIA II'),('BENICIO','Externo','',''),('BAYO PEPE C','Externo','',''),])}
 blobs={'c067518b1364657d0cbe25a5f091243a':b64(f'{APP}/logo.jpg','image/jpeg'),'fb':b64(f'{S}/demo/fb.jpg','image/jpeg'),'fc':b64(f'{S}/demo/fc.jpg','image/jpeg')}
 nube=rd('nube.js')
 for a,b in [("let D=leer(LS_DATOS)||{};","let D=leer(LS_DATOS)||JSON.parse(JSON.stringify(window.DC_DEMO||{}));"),
@@ -23,7 +29,11 @@ for a,b in [("let D=leer(LS_DATOS)||{};","let D=leer(LS_DATOS)||JSON.parse(JSON.
             ("window.claude={use:","window.DCAPP={use:")]:
   assert a in nube,a; nube=nube.replace(a,b)
 stub="const nunca=()=>new Promise(()=>{});const px=()=>new Proxy(function(){},{get:(t,k)=>k==='then'?undefined:px(),apply:()=>px()});window.supabase={createClient:()=>({auth:{getSession:nunca,signOut:nunca,signInWithPassword:nunca},from:()=>px(),rpc:nunca,storage:{from:()=>px()}})};"
-demo=("window.DC_DEMO="+json.dumps(D,ensure_ascii=False)+";window.DC_NUBE_LISTA=true;"
+import time
+ver=str(int(time.time()))
+# cada versión nueva del simulador arranca limpia (borra lo probado con la anterior)
+demo=("try{if(localStorage.getItem('dc-demo-v')!=='"+ver+"'){for(const k of Object.keys(localStorage))if(/^dc/.test(k))localStorage.removeItem(k);localStorage.setItem('dc-demo-v','"+ver+"')}}catch(e){}"
+  "window.DC_DEMO="+json.dumps(D,ensure_ascii=False)+";window.DC_NUBE_LISTA=true;"
   "window.confirm=function(m){try{setTimeout(function(){window.toast&&toast('En la app real acá te pregunta: '+String(m).slice(0,60))},50)}catch(e){}return true};"
   "window.alert=function(){};window.prompt=function(m,v){return v||null};")
 scripts={'config.js':"window.DC_CONFIG={url:'https://prueba.invalid',anonKey:'prueba'};",'supabase.js':stub,'nube.js':nube}
