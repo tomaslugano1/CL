@@ -13,55 +13,25 @@ Charlado con Tomás en la otra conversación el 20/10/2026. Pasado acá para seg
 ## Ya puesto
 - **DC (MINI) 30 → MÁXIMO** (el número queda como apodo). Cargado en la app (se aplica el 29).
 
-## LISTA PRINCIPAL (25/10/2026): lo que ya le gustó a Tomás ⭐ + opciones nuevas
+## LISTA PRINCIPAL (filtrada por Tomás el 25/10/2026): estas son las que quedan para elegir
 Cuando elija uno por caballo: cambiar el nombre en la app (ajuste en `app/extras.js`; el número queda como apodo, como con Máximo) y en el Sheet.
 
-**28 · macho alazán · Sta. Teresa Sport × Alazana Potra** (potrero, hereje)
-- ⭐ el Potrero · el Hereje · el Sacrilegio
-- Nuevas: el Mandinga · el Profano · el Irreverente · el Insolente · el Atorrante · el Malandra · el Endemoniado · el Descarriado · el Excomulgado · el Anarquista · el Baldío · el Caño · el Túnel
+| Potrillo | Quedan |
+|---|---|
+| **28** · macho alazán · Sta. Teresa Sport × Alazana Potra | el Potrero · el Hereje · el Sacrilegio · el Mandinga · el Atorrante · el Malandra |
+| **35** · potra · Merequetengue × Alazana Potra | la Farra · la Parranda · la Milonguera · la Jineteada · la Chacarera · la Bailanta · la Jarana · la Kermés · la Gozadera · la Zapada · la Fandanga |
+| **27** · macho bayo · Espi Pulpero × Baya | el Onza · el Patacón · el Doblón · el Siete de Oro · el Real Envido · el Fiado · el Vuelto |
+| **23** · macho colorado · Sta. Teresa Sport × Colorada Potra | el Malambo · el Arriero · el Payador · el Vizcacha · el Bagualero · el Baqueano · el Matrero · el Bagual · el Facón · el Cimarrón |
+| **22** · potra · Espi Pulpero × Guacha | la Chicha · la Caña Seca · la Cuba Libre · la Ginebra · la Mistela · la Grapa · la Resaca · la Petaca · la Damajuana · la Última Lágrima |
+| **40** · macho alazán, cara blanca · Machitos Mercenario × Guacha | el Careta · el Desertor · el Pacifista · el Prófugo · el Tregua · el Polizón · el Indultado |
+| **21** · macho · Espi Pulpero × Peperina | el Vermú · el Aperitivo · el Campari · el Amargo Obrero · el Pimpinela · el Tanguero · el Cambalache · el Milonguero · el Malevo · el Guapo · el Firulete · el Garufa |
+| **34** · macho, pata blanca · Espi Explosivo × Pipa | el Habano · el Montecristo · el Cohiba · el Puro · el Humo · el Bocanada · el Tabaco · el Cigarro (este "si querés") |
+| **33** · macho · Benicio × Pitufa | el Pituco · el Pipicucú · el Vicio · el Copetudo · el Bacán · el Concheto |
+| **30** · Sta. Teresa Sport × Mini | **MÁXIMO** ✅ (ya cargado) |
+| **Potranca de la Baya 2026** · bayo claro, cara blanca · Irenita Porrón × Baya | la Espuma · la Birra · la Bien Fría · la Pinta (le gusta mucho) · la Chopera · la Lata · la Artesanal |
+| **Potrillo de la Colorada 2026** · colorado, patas blancas · Irenita Porrón × Colorada Potra | el Chopp · el Tirado (las nuevas no le gustaron: nueva tanda abajo) |
 
-**35 · potra · Merequetengue × Alazana Potra** (fiesta, baile)
-- ⭐ la Farra · la Parranda · la Milonguera · la Jineteada · la Chacarera · la Bailanta
-- Nuevas: la Jarana · la Juerga · la Fiestera · la Kermés · la Verbena · la Bailonga · la Movida · la Gozadera · la Guaracha · la Murga · la Zapada · la Polca · la Ranchera · la Fandanga
-
-**27 · macho bayo · Espi Pulpero × Baya** (plata, truco)
-- ⭐ el Onza · el Patacón · el Doblón · el Siete de Oro · el Real Envido
-- Nuevas: el Ancho Falso · el Mentiroso · el Fiado · el Vuelto · el Austral · el Real · el Peso Fuerte · el Lingote · el Botín · el Tesoro · el Cobre · el Centavo · el Mostrador · el Siete Bravo
-
-**23 · macho colorado · Sta. Teresa Sport × Colorada Potra** (gaucho, Martín Fierro, guitarra)
-- ⭐ el Malambo · el Arriero · el Payador · el Vizcacha · el Bagualero · el Baqueano · el Matrero · el Bagual
-- Nuevas: el Pingo · el Cimarrón · el Resero · el Tropero · el Pialador · el Rastreador · el Boleador · el Rebenque · el Facón · el Cuchillero · el Picardía · el Sargento Cruz · el Vidalero · el Fogonero
-
-**22 · potra · Espi Pulpero × Guacha** (bebida)
-- ⭐ la Chicha · la Caña Seca · la Cuba Libre · la Ginebra · la Mistela · la Grapa · la Resaca
-- Nuevas: la Petaca · la Damajuana · la Curda · la Mamúa · la Tranca · la Chupandina · la Aloja · la Sidra · la Sangría · la Copita · la Yapa · la Última
-
-**40 · macho alazán, cara blanca · Machitos Mercenario × Guacha** (careta, desertor, pacifista)
-- ⭐ el Careta · el Desertor · el Pacifista · el Prófugo · el Tregua
-- Nuevas: el Fugitivo · el Polizón · el Evadido · el Buscado · el Infiltrado · el Doble Agente · el Espía · el Traidor · el Hippie · el Paz y Amor · el Objetor · el Neutral · el Alto el Fuego · el Indultado · el Disfrazado
-
-**21 · macho · Espi Pulpero × Peperina** (aperitivo, tango)
-- ⭐ el Vermú · el Aperitivo · el Campari · el Amargo Obrero · el Pimpinela · el Tanguero · el Cambalache · el Milonguero
-- Nuevas: el Fernet · el Cinzano · el Hesperidina · el Bitter · el Americano · el Malevo · el Arrabalero · el Guapo · el Firulete · el Gotán · el Fueye · el Garufa · el Choclo · el Farolito
-
-**34 · macho, pata blanca · Espi Explosivo × Pipa** (tabaco, explosivo)
-- ⭐ el Habano · el Montecristo · el Cohiba · el Puro · el Humo · el Bocanada · el Tabaco
-- Nuevas: el Toscano · el Faso · el Cigarro · el Cenicero · el Brasa · el Cubano · el Tabacalero · el Partagás · el Romeo y Julieta · el Vitola · el Petardo · el Polvorín · el Chispazo
-
-**33 · macho · Benicio × Pitufa** (pituco, vicio)
-- ⭐ el Pituco · el Pipicucú · el Vicio · el Copetudo · el Bacán
-- Nuevas: el Paquete · el Petitero · el Niño Bien · el Concheto · el Fifí · el Dandy · el Coqueto · el Gomina · el Fachero · el Pintón · el Señorito · el Caviar · el Champagne · el Distinguido
-
-**30 · Sta. Teresa Sport × Mini** → **MÁXIMO** ✅ (ya cargado)
-
-**Potranca de la Baya 2026 · bayo claro, cara blanca ancha · Irenita Porrón × Baya** (cerveza)
-- ⭐ la Espuma · la Birra · la Bien Fría
-- Nuevas: la Pinta · la Malta · la Cebada · la Burbuja · la Destapada · la Artesanal · la Helada · la Fresquita · la Cervecera · la Chopera · la Lata · la Levadura · la Cosecha
-- (la Rubia no: ya está Rubia T en la manada)
-
-**Potrillo de la Colorada 2026 · colorado, patas blancas · Irenita Porrón × Colorada Potra** (cerveza)
-- ⭐ el Chopp · el Tirado
-- Nuevas: el Fondo Blanco · el Lúpulo · el Brindis · el Salud · el Tostado · el Destapador · el Litro · el Cervecero · el Malteado · el Espumoso · el Chopero · el Bock · el Vaso
+Nueva tanda para el potrillo de la Colorada 2026 (25/10): el Irlandés · el San Patricio · el Tercer Tiempo · el Escabio · el Chinchín · el Otra Vuelta · el Cervezón · el Boliche
 
 Idea de fondo: **una serie por padre**, como los Lucky de La Dolfina. Los del Pulpero, cosas de pulpería (truco, bebida, aperitivo); los del Porrón, cerveza.
 
