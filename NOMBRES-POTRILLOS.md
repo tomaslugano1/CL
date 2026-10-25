@@ -77,3 +77,11 @@ Nombres de sus caballos que encajan con la onda de cada potrillo (el catálogo n
 - Potrillo de la Colorada 2026 (colorado, patas blancas): el Pelirrojo · el Glaciar
 
 Cuando elija: cambiar el nombre en la app (ajuste en `app/extras.js`, el nombre viejo queda como apodo, como con Máximo) y en el Sheet en todas las pestañas.
+
+## Doma (en 9 de Julio) — ideas del 25/10/2026, NO cargar hasta que Tomás lo diga
+- **21** · macho alazán 2022 · Dolfina Hulk × Guacha (fuerza, huérfano): el Patovica · el Ropero · el Increíble · el Mole · el Grandote · el Forzudo · el Bruto · el Furioso · el Huérfano · el Solitario · el Lobo Solitario · el Gigante
+- **24** · macho alazán 2022 · Manada × Ravina (barranca, manada): el Cañadón · el Barranco · el Desfiladero · el Abismo · el Precipicio · el Quebrado · el Montonero · el Malón · el Arreo · el Pampa · el Ventarrón
+- **27** · macho alazán 2022 · Machitos Mercenario × Iniciativa (trabaja por plata, emprendedor): el Changarín · el Rebusque · el Laburante · el Jornalero · el Busca · el Ventajero · el Comisionista · el Cuentapropista · el Monotributo · el Contratista · el Cazador · el Atrevido
+- **34** · macho alazán · Manada × Moraleja (cuentos y enseñanzas): el Escarmiento · el Refrán · el Proverbio · el Sermón · el Consejo · el Dicho · el Cuento · el Esopo · el Sabio · el Colorín Colorado · el Fin del Cuento · el Ejemplo
+- **S/N Baya 23** · macho bayo, 3 patas blancas · Machitos Mercenario × Baya (mercenario de mar, oro): el Dorado · el Corsario · el Pirata · el Bucanero · el Filibustero · el Legionario · el Cosaco · el Mosquetero · el Galeón · el Tres Medias
+- **S/N Parola 23** · potra tobiana · Dolfina Hulk × Parola (la que habla mucho): la Chamuyera · la Bocona · la Cotorra · la Charlatana · la Parlanchina · la Lengua Larga · la Chismosa · la Gritona · la Palabrera · la Mandona · la Increíble · la Pintada
