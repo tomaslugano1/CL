@@ -29,6 +29,7 @@ SIEMPRE, sin que lo pida: todo lo que cuenta va a la app **y** al Sheet en el mi
 - Edades, padres, madres y sangre que faltan: no se saben. Lo cargado es toda la información que hay; no es que no la quiera pasar.
 - No quiere "pausar avisos" ni avisos de madres para preñar o inseminar: de eso se ocupa él. No todo tiene que estar en la app.
 - Nombres de los potrillos y fotos: los pasa él cuando los tenga (para las fotos está el "Día de fotos" del Inicio).
+- Nombres de potrillos: una lista o preselección NO es para cargar. Se cargan en la app y el Sheet solo cuando Tomás diga explícitamente que se carguen.
 
 ## Reglas
 - El repo es público: no subir datos de la quinta (fotos, planillas, PDFs, SQL con datos).
