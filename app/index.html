@@ -415,7 +415,7 @@ function render(){renderNav();try{ajustesUnicos()}catch(e){console.error(e)}rend
 
 function temporadaActual(){return UI.temporada??(+S.config.temporada||new Date().getFullYear())}
 function vInicio(){
-  const act=activos(),t=temporadaActual(),serv=S.servicios.filter(s=>+s.temporada===t);
+  const act=activos(),t=+S.config.temporada||new Date().getFullYear(),serv=S.servicios.filter(s=>+s.temporada===t);
   const vivas=new Set(act.map(c=>norm(c.nombre)));
   const pren=S.servicios.filter(s=>s.estado==='Preñada'&&vivas.has(norm(s.madre))).sort((a,b)=>(a.fpp||'9').localeCompare(b.fpp||'9'));
   const prenT=pren.filter(s=>+s.temporada===t),prenOtra=pren.filter(s=>+s.temporada!==t);
@@ -429,7 +429,7 @@ function vInicio(){
   return `<div class="tiles">
     <div class="tile"><span>Caballos propios</span><b>${act.length}</b><div class="small muted">${cnt.map(([c,n])=>n+' '+c.toLowerCase()).join(' · ')}</div></div>
     <div class="tile"><span>Preñadas</span><b>${pren.length}</b><div class="small muted">${prenOtra.length?prenT.length+' paren esta temporada · '+prenOtra.map(s=>esc(s.madre)+' en '+(s.fpp?s.fpp.slice(0,4):'la próxima')).join(' · '):''}</div></div>
-    <div class="tile"><span>Próximo parto</span>${pasadas.length?`<b style="color:var(--bad)">Atrasado</b><div class="small">${(()=>{const g={};for(const s of pasadas)(g[-diff(s.fpp,hoy())]=g[-diff(s.fpp,hoy())]||[]).push(s);return Object.entries(g).sort((a,b)=>b[0]-a[0]).map(([d,l])=>`<span style="font-weight:700">${nombres(l)}</span>: ${l.length>1?'pasaron':'pasó'} ${d} día${d==1?'':'s'}${l.length>1?' cada una':''}`).join('<br>')})()}</div>`:proxima.length?`<b>${diff(proxima[0].fpp,hoy())} d</b><div class="small muted">${nombres(proxima.filter(s=>s.fpp===proxima[0].fpp))} · ${fmt(proxima[0].fpp)}</div>`:'<b>—</b>'}</div>
+    <div class="tile" data-tab="madres" role="button" tabindex="0" style="cursor:pointer"><span>Próximo parto ›</span>${pasadas.length?`<b style="color:var(--bad)">Atrasado</b><div class="small">${(()=>{const g={};for(const s of pasadas)(g[-diff(s.fpp,hoy())]=g[-diff(s.fpp,hoy())]||[]).push(s);return Object.entries(g).sort((a,b)=>b[0]-a[0]).map(([d,l])=>`<span style="font-weight:700">${nombres(l)}</span>: ${l.length>1?'pasaron':'pasó'} ${d} día${d==1?'':'s'}${l.length>1?' cada una':''}`).join('<br>')})()}</div>`:proxima.length?`<b>${diff(proxima[0].fpp,hoy())} d</b><div class="small muted">${nombres(proxima.filter(s=>s.fpp===proxima[0].fpp))} · ${fmt(proxima[0].fpp)}</div>`:'<b>—</b>'}</div>
     ${(()=>{const t=contarTareas();return `<div class="tile ${t.v?'alert':''}"><span>Para hacer · 7 días</span><b>${t.n}</b><div class="small muted">${t.v} vencidos · ${t.n-t.v} esta semana</div></div>`})()}
     <div class="tile"><span>Para revisar</span><b>${pend}</b></div>
   </div>

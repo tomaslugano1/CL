@@ -1,7 +1,7 @@
 /* Doña Cecilia — diseño general como Polo Breeders (pedido de Tomás el 13/10, se publica el 29/10).
    - Sin la fila de pestañas: barra de arriba finita con el logo, "Doña Cecilia" al centro y la ruedita.
    - La app abre en el Inicio, con un botón grande "Ver caballos" que lleva a la lista igual a PB.
-   - Madres, Camadas, Sanidad, Padrillos y Notas se abren desde el Inicio (y Padrillos también desde CATEGORÍA).
+   - Camadas, Sanidad y Notas se abren desde el Inicio. Padrillos, desde CATEGORÍA. Madres y partos, tocando "Próximo parto".
    - Fuera del Inicio, "‹" junto al logo (o el botón atrás del celular) vuelve al Inicio.
    Los colores siguen siendo los de Doña Cecilia. */
 (function(){
@@ -46,7 +46,7 @@ main .lbar .btn.icon{width:36px;height:36px;min-height:36px}
   /* ---------- Inicio: "Ver caballos" y accesos ---------- */
   const _inicio=vInicio;
   vInicio=function(){return `<button class="pbver" data-tab="caballos">Ver caballos <span>›</span></button>
-    <div class="pbacc">${[['madres','Madres y partos'],['camadas','Camadas'],['sanidad','Sanidad'],['padrillos','Padrillos'],['notas','Notas']].map(([k,t])=>`<button class="chip" data-tab="${k}">${t}</button>`).join('')}</div>`+_inicio()};
+    <div class="pbacc">${[['camadas','Camadas'],['sanidad','Sanidad'],['notas','Notas']].map(([k,t])=>`<button class="chip" data-tab="${k}">${t}</button>`).join('')}</div>`+_inicio()};
 
   /* ---------- Padrillos en CATEGORÍA, como en PB ---------- */
   CATS_LISTA.splice(CATS_LISTA.findIndex(x=>x[0]==='Madres'),0,['__padrillos','Padrillos']);

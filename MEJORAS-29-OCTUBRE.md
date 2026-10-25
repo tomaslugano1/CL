@@ -174,3 +174,8 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Una tarjeta por padrillo usado (los cargados, los padres de la manada y los de los servicios; HULK = DOLFINA HULK): sangre (padre × madre y abuelo materno), nacimiento, pelaje, criador, tipo, **hijos vivos y en qué categoría**, por nacer, vendidos, muertos y camadas.
 - Filtros arriba: Todos · Potrillos · Doma · Hechura · Descanso · Jugadores · Madres · Por nacer ("qué padrillos usé en cada categoría").
 - Tocando uno: datos, pedigree de 3 generaciones, hijos por categoría (se tocan y abren la ficha), por nacer, vendidos y muertos.
+
+## M. ✅ Ajustes del 25/10 (probando el simulador)
+- Inicio: sin los botones repetidos de Padrillos y Madres y partos. "Próximo parto" se toca y abre Madres y partos. Quedan Camadas, Sanidad y Notas.
+- Arreglado: si en Madres se elegía el año 2027, el Inicio mostraba esa temporada ("Próximo parto 301 d"). Ahora el Inicio siempre usa la temporada actual.
+- Padrillos: sin título, botones ni filtros arriba (en la ficha de cada padrillo ya están los hijos por categoría). Para agregar uno: + Alta → Padrillo.

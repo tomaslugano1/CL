@@ -29,7 +29,7 @@ function sangreTxt(p){const s=p.sangre;if(!s.padre&&!s.madre)return '';
 const UNO_CAT={Potrillos:['potrillo','potrillos'],Doma:['en doma','en doma'],Hechura:['en hechura','en hechura'],Descanso:['en descanso','en descanso'],Jugadores:['jugador','jugadores'],Madres:['madre','madres'],Receptoras:['receptora','receptoras']};
 const chipsCats=cats=>CATS.filter(c=>cats[c]).map(c=>`<span class="pill p-none">${cats[c]} ${esc((UNO_CAT[c]||[c.toLowerCase(),c.toLowerCase()])[cats[c]===1?0:1])}</span>`).join(' ');
 
-vPadrillos=function(){const f=UI.padCat||'';
+vPadrillos=function(){const f=''; // sin filtros: en la ficha de cada padrillo ya se ven sus hijos por categoría
   let l=listaPadrillos();
   if(f==='__nacer')l=l.filter(p=>p.porNacer.length);else if(f)l=l.filter(p=>p.cats[f]);
   l.sort((a,b)=>(f&&f!=='__nacer'?(b.cats[f]||0)-(a.cats[f]||0):0)||b.vivos.length-a.vivos.length||b.porNacer.length-a.porNacer.length||a.nombre.localeCompare(b.nombre,'es'));
@@ -42,10 +42,7 @@ vPadrillos=function(){const f=UI.padCat||'';
       ${datos?`<div class="small muted">${esc(datos)}</div>`:''}
       <div class="pc-hijos"><b>${p.vivos.length}</b> hijo${p.vivos.length===1?'':'s'} vivo${p.vivos.length===1?'':'s'} ${chipsCats(p.cats)}</div>
       ${extra?`<div class="small muted">${esc(extra)}</div>`:''}</button>`};
-  return `<div class="head"><h2>Padrillos</h2><div class="row">${canWrite?'<button class="btn" data-act="nombres">Revisar nombres</button><button class="btn pri" data-act="padrillo">+ Agregar padrillo</button>':''}</div></div>
-   <div class="tabs">${CATS_PAD.map(([k,t])=>`<button class="${f===k?'on':''}" data-act="padCat" data-v="${k}">${t}</button>`).join('')}</div>
-   <p class="note" style="margin:0 0 12px">${f==='__nacer'?'Padrillos de las yeguas preñadas hoy.':f?`Padrillos que tienen hijos hoy en ${esc(f)}.`:'No son caballos de Doña Cecilia: solo se usaron para servir. No entran en los totales.'}</p>
-   <div class="pcards">${l.map(tarjeta).join('')||'<div class="empty">Ningún padrillo con hijos en esta categoría.</div>'}</div>
+  return `<div class="pcards">${l.map(tarjeta).join('')||'<div class="empty">Ningún padrillo con hijos en esta categoría.</div>'}</div>
    <p class="lcount">${l.length} padrillo${l.length===1?'':'s'}</p>`};
 EXTRA_ACTS.padCat=d=>{UI.padCat=d.v;render()};
 
