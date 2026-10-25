@@ -62,7 +62,7 @@ vCaballos=function(){
    ${madresTabs?`<div class="tabs">${[['Madres','Madres'],['Receptoras','Receptoras']].map(([k,t])=>`<button class="${cat===k?'on':''}" data-act="fcat" data-v="${k}">${t}</button>`).join('')}</div>`:''}
    ${sel?`<p class="note">Tocá los caballos que querés mover. Después elegí la categoría o el lugar nuevo.</p>`:''}
    <div class="hcards">${l.map(c=>{const e=edad(c.nac);const ds=['Desparasitación','Desvasada'].map(t=>estadoSan(c,t));
-     const meta=[e!==null?e+(e===1?' año':' años'):'',cat===c.categoria?'':c.categoria,c.camada?'Camada '+c.camada:'',c.venta&&cat!=='__venta'?'A la venta':'',enDescanso(c)?textoDescanso(c).linea:'',c.estado!=='Activo'?c.estado+(c.bajaFecha?' '+fmt(c.bajaFecha):'')+(c.bajaPrecio?' · '+c.bajaPrecio:'')+(c.bajaComprador?' · a '+c.bajaComprador:''):''].filter(Boolean).join(' · ');
+     const meta=[e!==null?e+(e===1?' año':' años'):'',cat===c.categoria?'':c.categoria,c.camada?'Camada '+c.camada:'',c.venta&&cat!=='__venta'?'A la venta':'',enDescanso(c)?textoDescanso(c).linea:(typeof trabajoLinea==='function'?trabajoLinea(c):''),c.estado!=='Activo'?c.estado+(c.bajaFecha?' '+fmt(c.bajaFecha):'')+(c.bajaPrecio?' · '+c.bajaPrecio:'')+(c.bajaComprador?' · a '+c.bajaComprador:''):''].filter(Boolean).join(' · ');
      return `<button class="hcard ${esc(c.sexo)} ${c.estado!=='Activo'?'baja':''}" data-${sel?'pick':'open'}="${c.id}">
       ${sel?`<input type="checkbox" tabindex="-1" ${sel.has(c.id)?'checked':''}>`:''}
       ${c.fotos?.length?`<img class="thumb" src="${fotoUrl(c.fotos[0])}" alt="" loading="lazy">`:''}

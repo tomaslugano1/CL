@@ -163,3 +163,9 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 4. Claude lee la app y confirma que quedó todo bien.
 5. Tomás sube las fotos de los potrillos nuevos (+ Agregar foto).
 6. Desde la compu: instalar el script del Sheet (sheet/LEEME.md), 5 minutos.
+
+## K. ✅ Sueltos y agarrados a la vista (pedido 25/10)
+- En la lista y en la ficha: "Suelta desde 27/05 · 151 días" o "Agarrada desde 10/08 · 76 días".
+- Suelto = categoría Descanso (desde que salió) o jugador con ritmo Descanso (desde el último "Suelta"). Agarrado = desde el botón Agarrar o el último "Agarrada…".
+- Sin fecha todavía: ALEGRA, CONTIENDA, MARIMORENA (ritmo Normal, sin movimiento cargado) y CALA (ritmo Descanso, sin "Suelta"). Cuando Tomás diga, se cargan.
+- Pelaje de la potranca de la Baya confirmado: bayo claro.
