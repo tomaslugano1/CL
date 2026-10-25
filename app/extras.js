@@ -121,10 +121,11 @@ EXTRA_ACTS.unificar=async d=>{const g=revisarNombres.gs[+d.k];const j=+(document
   for(const p of S.padrillos){const u={};for(const f of ['nombre','padre','madre'])if(fix(p[f]))u[f]=bueno;if(Object.keys(u).length){await db.collection('padrillos').doc(p.id).update(u);n++}}
   toast(`Unificado como ${bueno} (${n} registro${n===1?'':'s'})`);setTimeout(revisarNombres,300)};
 
-/* Cambiar el nombre de un padrillo o ancestro en todas las fichas, servicios y padrillos que lo mencionan */
+/* Cambiar el nombre de un caballo, padrillo o ancestro en todas las fichas, servicios y padrillos que lo mencionan
+   (al renombrar una madre, sus servicios y sus hijos siguen siendo suyos) */
 async function renombrarEnTodos(viejo,nuevo){const k=norm(viejo);let n=0;if(!k||!nuevo)return 0;
   for(const c of S.caballos){const u={};for(const f of CAMPOS_NOMBRE)if(norm(c[f])===k)u[f]=nuevo;if(Object.keys(u).length){await db.collection('caballos').doc(c.id).update(u);n++}}
-  for(const s of S.servicios)if(norm(s.padrillo)===k){await db.collection('servicios').doc(s.id).update({padrillo:nuevo});n++}
+  for(const s of S.servicios){const u={};if(norm(s.padrillo)===k)u.padrillo=nuevo;if(norm(s.madre)===k)u.madre=nuevo;if(Object.keys(u).length){await db.collection('servicios').doc(s.id).update(u);n++}}
   for(const p of S.padrillos){const u={};for(const f of ['padre','madre',...PAD_GEN.map(x=>x[0])])if(norm(p[f])===k)u[f]=nuevo;if(Object.keys(u).length){await db.collection('padrillos').doc(p.id).update(u);n++}}
   return n}
 

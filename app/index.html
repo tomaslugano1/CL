@@ -644,6 +644,8 @@ function caballoForm(c,pre={},after){
     {k:'abueloP',l:'Abuelo paterno',v:v.abueloP},{k:'abuelaP',l:'Abuela paterna',v:v.abuelaP},{k:'abueloM',l:'Abuelo materno',v:v.abueloM},{k:'abuelaM',l:'Abuela materna',v:v.abuelaM},
     {k:'practicasPrevias',l:'Prácticas antes de la app',type:'number',v:v.practicasPrevias},{k:'torneosPrevios',l:'Torneos antes de la app',type:'number',v:v.torneosPrevios},{k:'venta',l:'A la venta',type:'check',v:v.venta},{k:'embocadura',l:'Embocadura / cómo se ensilla (ej: sin riendillas, 4 riendas)',v:v.embocadura,full:1},{k:'obs',l:'Observaciones / señas (ej: cara blanca, pata blanca)',type:'area',v:v.obs}],
     async d=>{if(!d.camada&&d.nac)d.camada=+d.nac.slice(0,4);
+      if(S.caballos.some(x=>x.id!==c?.id&&norm(x.nombre)===norm(d.nombre))){toast('Ya hay otro caballo que se llama '+d.nombre+'. Elegí otro nombre.');return}
+      if(c&&norm(d.nombre)!==norm(c.nombre)){const n=await renombrarEnTodos(c.nombre,d.nombre);if(n)toast(`Nombre cambiado también en ${n} registro${n>1?'s':''} (servicios, hijos)`)}
       if(c){const mov=[c.categoria!==d.categoria?(c.categoria||'—')+' → '+d.categoria:'',(c.lugar||'')!==(d.lugar||'')?'Lugar: '+(c.lugar||'sin lugar')+' → '+(d.lugar||'sin lugar'):''].filter(Boolean).join(' · ');
         if(mov)await db.collection('eventos').doc(slugId('e')).set({fecha:hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Movimiento',detalle:mov,obs:'',por:uid||''});
         await db.collection('caballos').doc(c.id).update(d);toast('Datos guardados');UI.ficha=c.id;renderFicha();if(c.categoria!=='Doma'&&d.categoria==='Doma'&&!d.ingresoDoma)preguntarDoma(c.id);if(c.categoria!=='Descanso'&&d.categoria==='Descanso')EXTRA_ACTS.aDescanso({id:c.id,ya:1})}

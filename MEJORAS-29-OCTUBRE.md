@@ -200,4 +200,9 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Probado: si la app se cierra a la mitad de los ajustes del 29 y se vuelven a correr, el de los vendidos de Polo Breeders duplicaba las 5 bajas (Chavela, Mirtha, Rumba, Serena, Servilleta). Arreglado: no repite la baja si ya está.
 - Ahora cada ajuste se anota apenas termina (antes se anotaban todos juntos al final): si se corta, sigue desde donde quedó.
 - El 29: que abra la app primero un solo celular (el de Tomás) con buena señal y la deje abierta 1 minuto, hasta que el recuadro de "cambios sin subir" desaparezca. Recién después, los demás.
+- **Prueba de cambios** (`herramientas/prueba_cambios.cjs`): se renombraron madres, preñadas y potrillos, se dejó sin preñadas, parto atrasado, murió una madre con hijos, alta con solo el nombre, Alegra a Descanso, temporada 2027. Todo quedó bien salvo una cosa, ya arreglada:
+  - **Cambiar el nombre de una madre le hacía perder sus servicios y sus hijos** (BAYA → LA BAYA quedaba con 0 servicios y 0 hijos). Ahora el nombre nuevo se cambia también en sus servicios y en las fichas de sus hijos. Igual con cualquier caballo que sea padre o abuelo de otro.
+  - Si se le pone a un caballo el nombre de otro que ya existe, no deja guardar y avisa.
+  - El Sheet (EVENTOS) usa el nombre de hoy del caballo, no el que tenía cuando se cargó el evento.
+- **Hasta el 29: no cambiar nombres de caballos en la app** (la versión publicada todavía tiene el problema). Si hay que cambiar uno, decírselo a Claude.
 

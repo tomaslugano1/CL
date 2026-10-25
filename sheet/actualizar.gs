@@ -52,7 +52,8 @@ function filasBajas(D) {
 }
 
 function filasEventos(D) {
-  return D.eventos.filter(e => e.fecha && SIN_EVENTOS.indexOf(e.tipo) < 0)
+  const nombreHoy = {}; D.caballos.forEach(c => { nombreHoy[c.id] = c.nombre; }); // si al caballo se le cambió el nombre, va el nombre de hoy
+  return D.eventos.map(e => Object.assign({}, e, { caballo: nombreHoy[e.caballoId] || e.caballo })).filter(e => e.fecha && SIN_EVENTOS.indexOf(e.tipo) < 0)
     .sort((a, b) => b.fecha.localeCompare(a.fecha) || (a.caballo || '').localeCompare(b.caballo || ''))
     .map(e => ({ 'FECHA': fecha(e.fecha), 'CABALLO': e.caballo || '', 'EVENTO': e.detalle || e.tipo, 'TIPO': GRUPO_EV[e.tipo] || 'Otro',
       'OBSERVACIÓN': e.obs || '', 'PRECIO': e.precio ? +e.precio || e.precio : '' }));

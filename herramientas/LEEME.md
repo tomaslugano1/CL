@@ -7,3 +7,6 @@
   página, para publicarla como Artifact ("Simulador Doña Cecilia", https://claude.ai/artifact/Pxe8mZZSteYbGYHCzxQ6tF).
   Usa también `<carpeta>/demo/fb.jpg` y `fc.jpg` (fotos de prueba de los potrillos nuevos). Lo que se carga ahí
   queda solo en ese navegador. No subir al repo los datos ni las fotos.
+- `prueba_cambios.cjs <carpeta>`: con los datos de `<carpeta>/app.json` (mejor el `app29.json` de `copia_local`), prueba cambios de nombre, de categoría,
+  de temporada, partos atrasados, bajas y altas casi vacías, y muestra si la app queda entera. Correrla antes de cada `[publicar]`.
+  `copia_local.js` hay que copiarlo como `.cjs` para correrlo (el repo tiene `"type": "module"`).
