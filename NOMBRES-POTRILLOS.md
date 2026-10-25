@@ -26,6 +26,32 @@ Charlado con Tomás en la otra conversación el 20/10/2026. Pasado acá para seg
 | DC (PITUFA) 33 · macho · Benicio × Pitufa | el Pituco · el Pipicucú · el Vicio |
 | DC (ALAZANA POTRA) 28 · macho alazán · Santa Teresa Sport × Alazana Potra | el Potrero · el Hereje · el Sacrilegio |
 
+## ⭐ Los que le gustaron a Tomás el 25/10 (para elegir después)
+| Potrillo | Le gustaron |
+|---|---|
+| Potrillo de la Colorada 2026 · macho colorado · Irenita Porrón × Colorada Potra | el Chopp · el Tirado |
+| Potranca de la Baya 2026 · bayo claro, cara blanca · Irenita Porrón × Baya | la Espuma · la Birra · la Bien Fría |
+| 33 · Benicio × Pitufa | el Copetudo · el Bacán |
+| 40 · Mercenario × Guacha | el Prófugo · el Tregua |
+| 23 · Sport × Colorada Potra | el Baqueano · el Matrero |
+| 22 · Pulpero × Guacha | la Resaca |
+| 21 · Pulpero × Peperina | el Cambalache |
+
+Idea de fondo: **una serie por padre**, como los Lucky de La Dolfina. Los del Pulpero, cosas de pulpería (truco, bebida, aperitivo); los del Porrón, cerveza.
+
+## Ideas sacadas de las formaciones del Abierto de Tortugas 2026 (video de Tomás, 25/10)
+Cómo nombran los demás: frases enteras (Chalo Ma Me Das Plata, Latia Cara o Cruz, Vasca Si Se Puede, Open Mala Mía), series por criador con adjetivos (Hiper Vengativa, Resentida, Impostora; Irenita Jodona, Escaramuza, Inconclusa, La Fílmica), cosas de campo (Bagualita, Peña Gran Reserva, Dorreguero Media Copa, La Viña Clandestina).
+Ojo: el padre de los dos de 2026, Irenita Porrón, es de la línea Irenita, que nombra justo con esta onda.
+- 27 (truco, plata): el Cara o Cruz · el Falta Envido · el Dame Plata
+- 22 (bebida): la Media Copa · la Clandestina · la Gran Reserva
+- 34 (tabaco, Explosivo): el Fogón · el Mecha
+- 40 (careta, desertor): el Impostor
+- 33 (pituco): el Sashimi · el Gran Reserva
+- 35 (fiesta): la Jodona · la Escaramuza · la Chimentera · la Traviesa
+- 21 (tango): el Milonguero
+- 28 (potrero): el Huracán
+- 23 (gaucho): el Bagual (el caballo salvaje; pega con el Bagualero que le gustó)
+
 ## Ideas sacadas del catálogo de La Dolfina Polo Genetics 2025-2026 (lo mandó Tomás el 25/10)
 Nombres de sus caballos que encajan con la onda de cada potrillo (el catálogo no va al repo):
 - 35 (potra, fiesta y baile): la Chalchalera · la Pollera Amarilla · la Pura Joda · la Pandereta · la Molinera
