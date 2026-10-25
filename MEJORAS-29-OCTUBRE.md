@@ -22,6 +22,7 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 | 15 | Arreglos: al dar de alta se abre la ficha nueva; Preñez dice Parió/Abortó; Bajas de la más nueva a la más vieja; vacunas de preñez viejas dicen "Sin cargar"; Rockera fecha aproximada | ✅ |
 | 16 | Día de fotos (Inicio): los caballos sin foto, por lugar, con sus señas y un botón "Sacar foto" que abre la cámara | ✅ |
 | 17 | Alegra, Contienda y Marimorena agarradas desde el 08/10 (fecha aproximada) | ✅ |
+| 18 | Buscar por señas; Progenie de cada madre con qué hace hoy cada cría; aviso de cambios sin subir; Cala fuera de la cuenta | ✅ |
 | 12 | **Datos que se cargan solos**: ventas de PB, Hechura → Descanso, Potranca Baya preñada, Vilma y la 25, Pipa y su cría, Máximo, Rockera, **partos del 21/10 (Baya y Colorada Potra)** | ✅ probado: quedan 52 caballos, 13 madres, 9 en descanso |
 
 ## G. ⏳ Diseño general como Polo Breeders (pedido 13/10)
@@ -186,3 +187,11 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 ## N. ✅ Día de fotos y yeguas agarradas (25/10)
 - Inicio → "Día de fotos": lista de los caballos que todavía no tienen foto, agrupados por lugar, con categoría, pelaje y señas para reconocerlos. "Sacar foto" abre la cámara del celular y la guarda en la ficha (necesita señal y entrar con el usuario). Arriba, "X de 54 con foto"; abajo, los que ya tienen.
 - ALEGRA, CONTIENDA y MARIMORENA: agarradas el 08/10/2026 (fecha aproximada; por la lluvia casi no jugaron). En la app dicen "Agarrada desde 08/10 · N días". En el Sheet: EVENTOS (3 filas, sin precio) y observación en CABALLOS.
+
+## O. ✅ Ideas aprobadas el 25/10
+- **Buscar por señas:** la lupa de Ver caballos entiende palabras sueltas en cualquier orden y sin importar plural o femenino: "bayo pata blanca", "estrella", "yegua zaina", "cara blanca". Busca en nombre, apodo, pelaje, observación, padres, RP, chip, categoría y lugar.
+- **Progenie** (ficha de la madre): arriba un resumen ("5 crías · 4 en la manada · 1 muerta") y cada cría con su camada, el padre y qué hace hoy: Potrillo/Potranca, En doma, Jugando, En descanso, Madre, Vendida (fecha), Murió (fecha), Nació muerto. También lo que viene en camino ("Por nacer") y los abortos. En los padrillos y caballos, igual pero con la madre.
+- **Cambios sin subir:** si se carga algo sin señal, en el Inicio aparece un recuadro amarillo "⟳ 3 cambios sin subir · se suben solos cuando haya señal", y tocándolo se ve cuáles son (ej: "Desvasada — CHINA"). Cuando se suben, aparece "✓ Se subieron 3 cambios a la nube". El botoncito de abajo a la izquierda también lista lo pendiente.
+  - El 29, al abrir la app por primera vez, el recuadro va a mostrar muchos cambios (son los ajustes de esta publicación) y en unos segundos se suben solos.
+- **Cala:** está a la venta pero no está en Doña Cecilia. Su lugar pasa a "Afuera (a la venta)" y no cuenta en Caballos propios, Para hacer, Sanidad ni Día de fotos. Sigue en Ver caballos (A la venta). Si vuelve, se le cambia el lugar y vuelve a contar sola.
+- Ya estaban y no hacía falta hacerlas: cargar a varios de una (Seleccionar / + Sanidad), mover en grupo, ficha para vender, prácticas y torneos, historial (Eventos).

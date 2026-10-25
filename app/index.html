@@ -406,7 +406,8 @@ const seHierra=c=>+intervalo(c,'Herrada')>0;
 function estadoSan(c,tipo){const u=ultimo(c.id,tipo);if(tipo==='Herrada'&&!seHierra(c))return{u,p:'',st:'none',txt:'No se hierra',no:true};
   if(tipo==='Herrada'&&u&&ultimo(c.id,'Desherrada')>=u)return{u,p:'',st:'none',txt:'Desherrado',no:true};if(!u)return{u:'',p:'',st:'none',txt:'Sin dato'};const p=addDays(u,+intervalo(c,tipo)||0),d=diff(p,hoy());
   return{u,p,d,st:d<0?'bad':d<=15?'warn':'ok',txt:d<0?'Vencido':d<=15?'Próximo':'Al día'}}
-const enCampo=c=>c.estado==='Activo'&&c.categoria!=='Doma';
+const fuera=c=>/^afuera/i.test(c.lugar||''); // lugar "Afuera…" (ej: Cala, a la venta en otro lado): no cuenta en la manada ni en sanidad
+const enCampo=c=>c.estado==='Activo'&&c.categoria!=='Doma'&&!fuera(c);
 function vencidos(){const out=[];for(const c of activos().filter(enCampo))for(const t of ['Desparasitación','Desvasada']){const s=estadoSan(c,t);if(s.st==='bad'||s.st==='warn')out.push({c,t,s})}return out.sort((a,b)=>a.s.d-b.s.d)}
 
 /* ---------- render ---------- */
@@ -415,7 +416,7 @@ function render(){renderNav();try{ajustesUnicos()}catch(e){console.error(e)}rend
 
 function temporadaActual(){return UI.temporada??(+S.config.temporada||new Date().getFullYear())}
 function vInicio(){
-  const act=activos(),t=+S.config.temporada||new Date().getFullYear(),serv=S.servicios.filter(s=>+s.temporada===t);
+  const act=activos().filter(c=>!fuera(c)),t=+S.config.temporada||new Date().getFullYear(),serv=S.servicios.filter(s=>+s.temporada===t);
   const vivas=new Set(act.map(c=>norm(c.nombre)));
   const pren=S.servicios.filter(s=>s.estado==='Preñada'&&vivas.has(norm(s.madre))).sort((a,b)=>(a.fpp||'9').localeCompare(b.fpp||'9'));
   const prenT=pren.filter(s=>+s.temporada===t),prenOtra=pren.filter(s=>+s.temporada!==t);
@@ -509,7 +510,7 @@ function vCamadas(){
 
 function sanCell(c,t){const s=estadoSan(c,t);if(s.no)return `<td><div>${fmt(s.u)}</div><span class="pill p-none">No se hierra</span></td>`;return `<td><div>${fmt(s.u)}</div>${s.u?`<span class="pill p-${s.st}">${s.txt} · ${fmt(s.p)}</span>`:'<span class="pill p-none">Sin dato</span>'}</td>`}
 function vSanidad(){
-  const l=activos().filter(c=>c.categoria!=='Doma'&&(!UI.sanCat||c.categoria===UI.sanCat)).sort(sortCab);const k=S.config;
+  const l=activos().filter(c=>c.categoria!=='Doma'&&!fuera(c)&&(!UI.sanCat||c.categoria===UI.sanCat)).sort(sortCab);const k=S.config;
   return `<div class="head"><h2>Sanidad y trabajos</h2>${canWrite?'<button class="btn pri" data-act="gosel">+ Cargar a varios</button>':''}</div>
   <div class="row" style="margin-bottom:14px">${['',...CATS.filter(c=>c!=='Doma')].map(c=>`<button class="chip ${UI.sanCat===c?'on':''}" data-sancat="${c}">${c||'Todas'}</button>`).join('')}</div>
   <div class="tablewrap"><table><thead><tr><th>Caballo</th><th>Categoría</th><th>Desparasitación</th><th>Desvasada</th><th>Herrada</th><th>Muelas</th></tr></thead><tbody>

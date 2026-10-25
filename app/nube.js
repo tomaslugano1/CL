@@ -159,6 +159,7 @@
 #dc-login .err{color:#EE8F7E;opacity:1}
 #dc-estado{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:900;font:500 .75rem Inter,system-ui,sans-serif;background:#0E0E0E;color:#F7F7F5;border:1px solid #333;border-radius:20px;padding:6px 12px;cursor:pointer;opacity:.92}
 #dc-estado.pend{background:#946300;border-color:#946300}
+#dc-menu .dc-pend{margin:2px 0 6px;padding-left:18px;font-size:.78rem;opacity:.9}
 #dc-menu{position:fixed;left:12px;bottom:calc(52px + env(safe-area-inset-bottom,0px));z-index:901;background:#1A1A1A;color:#F7F7F5;border:1px solid #333;border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:4px;font:500 .85rem Inter,system-ui,sans-serif;min-width:220px}
 #dc-menu button{font:inherit;text-align:left;background:none;border:0;color:inherit;padding:8px 10px;border-radius:6px;cursor:pointer}
 #dc-menu button:hover{background:#2A2A2A}
@@ -203,13 +204,28 @@
   /* ---------- cartelito de estado (abajo a la izquierda) ---------- */
   function montarEstado(){montarCss();if(document.getElementById('dc-estado'))return;
     const b=document.createElement('button');b.id='dc-estado';b.type='button';b.onclick=menu;document.body.appendChild(b);estado()}
-  function estado(){const b=document.getElementById('dc-estado');if(!b)return;const n=Object.keys(P).length;
+  /* Qué está esperando señal, en palabras (pedido de Tomás el 25/10/2026) */
+  const queEs=k=>{const j=k.indexOf('/'),col=k.slice(0,j),d=P[k]&&P[k].d;
+    if(d==null)return 'Algo borrado';
+    if(col==='eventos')return [d.tipo==='Otro'?'':d.tipo,d.detalle&&d.detalle!==d.tipo?d.detalle:''].filter(Boolean).join(' · ')+(d.caballo?' — '+d.caballo:'');
+    if(col==='caballos')return 'Datos de '+(d.nombre||'un caballo');
+    if(col==='servicios')return 'Servicio de '+(d.madre||'una yegua');
+    if(col==='notas')return 'Nota: '+(d.titulo||'');
+    if(col==='padrillos')return 'Padrillo '+(d.nombre||'');
+    return 'Ajustes de la app'};
+  window.DC_PENDIENTES=()=>Object.keys(P).map(queEs);
+  let antes=Object.keys(P).length;
+  function estado(){const n=Object.keys(P).length;
+    if(antes>0&&n===0&&!sincronizando)window.dispatchEvent(new CustomEvent('dc-subido',{detail:antes}));
+    if(n!==antes){antes=n;window.dispatchEvent(new CustomEvent('dc-pendientes',{detail:n}))}
+    const b=document.getElementById('dc-estado');if(!b)return;
     b.classList.toggle('pend',n>0);
-    b.textContent=sincronizando?'⟳ Sincronizando…':n?(navigator.onLine?`⟳ ${n} cambio${n>1?'s':''} por subir`:`● Sin señal · ${n} cambio${n>1?'s':''} guardado${n>1?'s':''} en el celular`):navigator.onLine?(ultimoError?'⚠ No se pudo sincronizar':'✓ Al día'):'● Sin señal'}
+    b.textContent=sincronizando?'⟳ Sincronizando…':n?(navigator.onLine?`⟳ ${n} cambio${n>1?'s':''} por subir`:`● Sin señal · ${n} cambio${n>1?'s':''} esperando señal`):navigator.onLine?(ultimoError?'⚠ No se pudo sincronizar':'✓ Al día'):'● Sin señal'}
   function menu(){let m=document.getElementById('dc-menu');if(m){m.remove();return}
     m=document.createElement('div');m.id='dc-menu';const n=Object.keys(P).length;
     m.innerHTML=`<small>${yo?.nombre||''} · ${yo?.email||''}</small>
-      <small>${n?n+' cambio(s) esperando señal':'Todo subido'}${ultimaOk?' · última vez: '+new Date(ultimaOk).toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'}):''}</small>
+      <small>${n?n+' cambio(s) esperando señal · se suben solos':'Todo subido'}${ultimaOk?' · última vez: '+new Date(ultimaOk).toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'}):''}</small>
+      ${n?`<ul class="dc-pend">${Object.keys(P).slice(0,10).map(k=>`<li>${queEs(k).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}</li>`).join('')}${n>10?`<li>y ${n-10} más</li>`:''}</ul>`:''}
       ${ultimoError&&ultimoError!=='sin señal'?`<small style="color:#EE8F7E">${ultimoError}</small>`:''}
       <button data-a="sync">Sincronizar ahora</button><button data-a="nombre">Cambiar mi nombre</button><button data-a="salir">Cerrar sesión</button>`;
     m.onclick=async e=>{const a=e.target.dataset.a;if(!a)return;m.remove();

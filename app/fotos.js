@@ -4,7 +4,7 @@
    en su ficha (usa la misma subida que "+ Agregar foto"). Los que ya tienen foto se ven tachados abajo. */
 function pantallaFotos(redibujar){
   const ov=$('#modal .ov'),scroll=redibujar&&ov?ov.scrollTop:0;
-  const act=activos().slice().sort((a,b)=>(a.lugar||'').localeCompare(b.lugar||'')||porCatOrden(a)-porCatOrden(b)||sortCab(a,b));
+  const act=activos().filter(c=>!fuera(c)).sort((a,b)=>(a.lugar||'').localeCompare(b.lugar||'')||porCatOrden(a)-porCatOrden(b)||sortCab(a,b));
   const sin=act.filter(c=>!c.fotos?.length),con=act.filter(c=>c.fotos?.length);
   const fila=c=>{const señas=[c.pelaje,c.obs].filter(Boolean).join(' · ');
     return `<div class="dfila ${esc(c.sexo||'')}"><div class="grow"><div class="nm">${esc(c.nombre)}${c.apodo?` <span class="muted small">(${esc(c.apodo)})</span>`:''}</div>

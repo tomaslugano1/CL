@@ -39,7 +39,7 @@ const porCategoria = (a, b) => (ORDEN_CAT.indexOf(a.categoria) + 99 * (ORDEN_CAT
 
 function filasCaballos(D) {
   return D.caballos.filter(c => c.estado === 'Activo').sort(porCategoria).map(c => ({
-    'NOMBRE': c.nombre, 'RP': o(c.rp), 'N° CHIP': o(c.chip), 'CATEGORÍA': c.categoria, 'SEXO': o(c.sexo), 'PELAJE': o(c.pelaje),
+    'NOMBRE': c.nombre, 'RP': o(c.rp), 'N° CHIP': o(c.chip), 'CATEGORÍA': /^afuera/i.test(c.lugar || '') ? 'Afuera (a la venta)' : c.categoria, 'SEXO': o(c.sexo), 'PELAJE': o(c.pelaje),
     'FECHA NAC.': c.nac ? fecha(c.nac) : '—', 'CAMADA': c.camada || '—', 'PADRE': o(c.padre), 'MADRE': o(c.madre),
     'OBSERVACIÓN': [c.obs, c.categoria === 'Descanso' && c.descansoDesde ? 'En descanso desde ' + ddmm(c.descansoDesde) + (c.descansoHasta ? ', volver a agarrar ' + ddmm(c.descansoHasta) : '') : ''].filter(Boolean).join(' · '),
     'EMBOCADURA': c.embocadura || '', 'APODO / OTRO NOMBRE': c.apodo || '' }));
@@ -86,7 +86,7 @@ function ultimos(D) {
 const grupoSanidad = c => ['Hechura', 'Jugadores'].indexOf(c.categoria) >= 0 && c.ritmo === 'descanso' ? 'Descanso' : c.categoria;
 function filasSanidad(D) {
   const u = ultimos(D);
-  return D.caballos.filter(c => c.estado === 'Activo' && c.categoria !== 'Doma').sort(porCategoria).map(c => {
+  return D.caballos.filter(c => c.estado === 'Activo' && c.categoria !== 'Doma' && !/^afuera/i.test(c.lugar || '')).sort(porCategoria).map(c => {
     const her = u[c.id + '|Herrada'] || '', desh = u[c.id + '|Desherrada'] || '';
     return { 'CABALLO': c.nombre, 'CATEGORÍA': grupoSanidad(c), 'ÚLT. DESPARASIT.': fecha(u[c.id + '|Desparasitación']),
       'ÚLT. DESVASE O HERRADA': fecha(u[c.id + '|Desvasada']), 'ÚLT. HERRADA': fecha(her), 'ÚLT. MUELAS': fecha(u[c.id + '|Muelas']),

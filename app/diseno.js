@@ -69,6 +69,14 @@ main .lbar .btn.icon{width:36px;height:36px;min-height:36px}
   document.addEventListener('keydown',e=>{const t=e.target;if((e.key==='Enter'||e.key===' ')&&t.classList&&t.classList.contains('toca')){e.preventDefault();t.click()}});
   {const st=document.createElement('style');st.textContent='.tile.toca{cursor:pointer}.tile.toca:active{transform:scale(.98)}.tile.toca:focus-visible{outline:2px solid var(--cuero);outline-offset:2px}.panel.tareas{scroll-margin-top:72px}';document.head.appendChild(st)}
 
+  /* ---------- Inicio: lo que todavía no se subió (pedido de Tomás el 25/10) ---------- */
+  const _ini3=vInicio;
+  vInicio=function(){const l=typeof DC_PENDIENTES==='function'?DC_PENDIENTES():[];
+    return (l.length?`<details class="pbpend"><summary>⟳ ${l.length} cambio${l.length>1?'s':''} sin subir · se ${l.length>1?'suben solos':'sube solo'} cuando haya señal</summary><ul>${l.slice(0,10).map(t=>`<li>${esc(t)}</li>`).join('')}${l.length>10?`<li>y ${l.length-10} más</li>`:''}</ul></details>`:'')+_ini3()};
+  addEventListener('dc-pendientes',()=>{if(UI.tab==='inicio'&&!document.querySelector('#modal .ov'))render()});
+  addEventListener('dc-subido',e=>toast(`✓ Se ${e.detail>1?'subieron '+e.detail+' cambios':'subió el cambio'} a la nube`));
+  {const st=document.createElement('style');st.textContent='.pbpend{margin-bottom:12px;padding:10px 14px;border-radius:12px;background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn);font-size:.9rem}.pbpend summary{cursor:pointer;font-weight:600}.pbpend ul{margin:8px 0 0;padding-left:20px}';document.head.appendChild(st)}
+
   /* ---------- Padrillos en CATEGORÍA, como en PB ---------- */
   CATS_LISTA.splice(CATS_LISTA.findIndex(x=>x[0]==='Madres'),0,['__padrillos','Padrillos']);
   const _fcat=EXTRA_ACTS.fcat;

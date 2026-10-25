@@ -38,11 +38,18 @@ const ICO_LUPA='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stro
 const ICO_PIN='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
 const ICO_CAT='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>';
 function preñadaAhora(c){return c.sexo==='Hembra'&&S.servicios.some(s=>norm(s.madre)===norm(c.nombre)&&s.estado==='Preñada')}
+/* Buscar por nombre o por señas (pedido de Tomás el 25/10/2026): "bayo pata blanca", "estrella", "yegua alazana".
+   Cada palabra tiene que aparecer en algún lado (en cualquier orden), sin importar plural ni masculino/femenino. */
+const raizBusq=w=>{w=w.replace(/(ES|S)$/,'');return w.length>3&&!/\d/.test(w)?w.replace(/[AO]$/,''):w};
+function coincide(c,q){
+  const pal=norm([c.nombre,c.apodo,c.obs,c.rp,c.chip,c.madre,c.padre,c.pelaje,c.categoria,c.lugar,c.embocadura,c.sexo==='Hembra'?'yegua hembra':c.sexo==='Macho'?'macho caballo':''].filter(Boolean).join(' ')).split(/[^A-Z0-9Ñ]+/).filter(Boolean);
+  const todo=pal.join(' ');if(todo.includes(q))return true;
+  return q.split(/\s+/).filter(Boolean).every(w=>{const r=raizBusq(w);return pal.some(p=>p.startsWith(r))})}
 vCaballos=function(){
   const q=norm(UI.q),cat=UI.bajas?'__bajas':UI.cat;
   let l=S.caballos.filter(c=>(cat==='__bajas'?c.estado!=='Activo':c.estado==='Activo')&&(!cat||cat==='__bajas'||(cat==='__venta'?c.venta:c.categoria===cat))
     &&(!UI.lugar||(UI.lugar==='__sin'?!c.lugar:c.lugar===UI.lugar))
-    &&(!q||norm(c.nombre+' '+(c.apodo||'')+' '+(c.obs||'')+' '+c.rp+' '+c.chip+' '+c.madre+' '+c.padre).includes(q)));
+    &&(!q||coincide(c,q)));
   const conCamadas=['Potrillos','Doma'].includes(cat);
   const camadas=conCamadas?[...new Set(l.map(c=>c.camada).filter(Boolean))].sort((a,b)=>b-a):[];
   if(conCamadas&&UI.subCam&&camadas.includes(UI.subCam))l=l.filter(c=>c.camada===UI.subCam);
@@ -53,7 +60,7 @@ vCaballos=function(){
   const madresTabs=['Madres','Receptoras'].includes(cat);
   return `<div class="lbar">${canWrite?(sel?`<button class="btn" data-act="selmover">Cancelar</button>`:`<button class="btn pri" data-act="alta">+ Alta</button><button class="btn" data-act="selmode">+ Sanidad</button><button class="btn" data-act="selmover">Seleccionar</button>`):''}
      ${cat==='Potrillos'&&!sel?'<button class="btn" data-act="fichasPot">Fichas</button>':''}<span style="flex:1"></span><button class="btn icon" data-act="chip" aria-label="Leer chip" title="Leer chip">${ICO_CHIP}</button><button class="btn icon ${buscando?'on':''}" data-act="lupa" aria-label="Buscar" title="Buscar">${ICO_LUPA}</button></div>
-   ${buscando?`<div class="row" style="margin-bottom:10px"><input id="q" class="search" type="search" placeholder="Nombre, RP, chip, madre o seña…" value="${esc(UI.q)}"></div>`:''}
+   ${buscando?`<div class="row" style="margin-bottom:10px"><input id="q" class="search" type="search" placeholder="Nombre o señas: bayo pata blanca, estrella…" value="${esc(UI.q)}"></div>`:''}
    <div class="fchips"><button class="fchip ${UI.drop==='cat'?'on':''}" data-act="drop" data-d="cat">${ICO_CAT}<span>${esc(catTxt)}</span></button><button class="fchip ${UI.drop==='lug'?'on':''}" data-act="drop" data-d="lug">${ICO_PIN}<span>${esc(lugTxt)}</span></button></div>
    ${UI.drop==='cat'?`<div class="fdrop">${CATS_LISTA.map(([k,t])=>`<button class="${cat===k?'on':''}" data-act="fcat" data-v="${k}">${t}</button>`).join('')}</div>`:''}
    ${UI.drop==='lug'?`<div class="fdrop">${[['','Todos'],['__sin','Sin lugar definido'],...lugares().map(x=>[x,x])].map(([k,t])=>`<button class="${(UI.lugar||'')===k?'on':''}" data-act="flug" data-v="${esc(k)}">${esc(t)}</button>`).join('')}</div>`:''}
@@ -154,7 +161,7 @@ renderFicha=function(){
     ${activo?seccionControles(c,evs,'trab','Trabajos',['Desvasada','Herrada','Muelas'],['Desvasada','Herrada','Desherrada','Muelas','Castración']):''}
     ${sec('Eventos',canWrite?`<button class="btn sm pri" data-evento="${c.id}">+ Evento</button>`:'',tbE.html+(evsF.length?`<div class="tlw">${filaEv(evsF[0])}</div>${evsF.length>1?`<details class="desp mas" data-k="${kE}" ${UI.abiertos?.has(kE)?'open':''}><summary><div class="grow">Ver todos (${evsF.length})</div><span class="go">›</span></summary><div class="tlw">${evsF.slice(1).map(filaEv).join('')}</div></details>`:''}`:`<div class="muted small">${tbE.v==='mov'?'Sin movimientos registrados.':'Sin eventos registrados.'}</div>`))}
     ${sec('Pedigree',`<div class="row"><button class="btn sm" data-act="pedShare" data-id="${c.id}">Compartir</button>${canWrite?`<button class="btn sm" data-edit="${c.id}">Editar</button>`:''}</div>`,`<div class="treewrap">${arbol4(c,padre,madre)}</div><p class="note" style="margin:6px 0 0">Deslizá para ver los bisabuelos. Tocá un caballo para abrir su ficha.</p>`)}
-    ${hijos.length?sec(c.sexo==='Hembra'?'Progenie':'Crías','',`<div class="list">${hijos.sort((a,b)=>(b.camada||0)-(a.camada||0)).map(h=>`<button class="hcard ${esc(h.sexo)} chico" data-open="${h.id}"><div class="grow"><div class="nm">${esc(h.nombre)}</div><div class="meta">${[h.camada?'Camada '+h.camada:'',h.estado==='Activo'?h.categoria:h.estado].filter(Boolean).join(' · ')}</div></div><span class="go">›</span></button>`).join('')}</div>`):''}
+    ${progenieSec(c,hijos)}
     ${herm.length?sec('Hermanos (misma madre)','',`<div class="small">${herm.map(h=>`<span class="a" data-open="${h.id}">${esc(h.nombre)}</span>${h.estado!=='Activo'?' ('+esc(h.estado.toLowerCase())+')':''}`).join(' · ')}</div>`):''}
     ${sec('Fotos',assets?`<label class="btn sm pri upl">+ Agregar foto<input type="file" accept="image/*" multiple data-foto="${c.id}"></label>`:'',c.fotos?.length?`<div class="gal">${c.fotos.map((f,k)=>`<figure><a href="${fotoUrl(f)}" target="_blank" rel="noopener"><img src="${fotoUrl(f)}" alt="Foto ${k+1} de ${esc(c.nombre)}" loading="lazy"></a>${assets?`<div class="row">${k?`<button class="btn sm" data-portada="${c.id}|${f}">Portada</button>`:'<span class="small muted">Portada</span>'}<button class="btn sm" data-delfoto="${c.id}|${f}">Borrar</button></div>`:''}</figure>`).join('')}</div>`:`<div class="muted small">${assets?'Todavía no hay fotos. Tocá “+ Agregar foto”, podés sacarla con el celular.':'Sin fotos.'}</div>`)}
     ${canWrite?`<div class="fbtns"><button class="btn ancho" data-edit="${c.id}">Editar datos</button>
@@ -206,3 +213,23 @@ EXTRA_ACTS.agarrar=d=>{const c=byId(d.id);if(!c)return;const dest=c.catPrevia&&c
 /* ================= Bajas: vendidos, muertos y otros ================= */
 const ICO_PRENADA='<svg class="ico-pre" viewBox="0 0 32 20" width="30" height="19" aria-label="Preñada" role="img"><title>Preñada</title><g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="12" height="5" rx="2.5" stroke-width="0"/><path d="M13 8 16 3l2 1-2 5z" stroke-width=".8"/><path d="M16 3l4 1.5-.5 1.5-2.5-.5z" stroke-width=".8"/><path d="M5.5 11v6M8 11v6M12.5 11v6M15 11v6M4.5 8 2 12" fill="none" stroke-width="1.5"/><rect x="21" y="11" width="7" height="3" rx="1.5" stroke-width="0"/><path d="M26.5 11.5l2-3 1.2.6-1.4 2.9z" stroke-width=".6"/><path d="M28.5 8.5l2.5.9-.3.9-1.4-.3z" stroke-width=".6"/><path d="M22 13.5V17M24 13.5V17M26.5 13.5V17M27.8 13.5V17" fill="none" stroke-width="1.1"/></g></svg>';
 EXTRA_ACTS.btab=d=>{UI.bajaTab=d.v;render()};
+
+/* Progenie (pedido de Tomás el 25/10/2026): cada cría con qué hace hoy (jugando, en doma, vendida, murió),
+   arriba un resumen, y en las madres también lo que viene en camino y los abortos. */
+function hoyHace(h){const f=h.sexo==='Hembra';
+  if(h.estado==='Activo')return {Potrillos:f?'Potranca':'Potrillo',Doma:'En doma',Hechura:'En hechura',Jugadores:'Jugando',Descanso:'En descanso',Madres:'Madre',Receptoras:'Receptora'}[h.categoria]||h.categoria;
+  if(h.estado==='Vendido')return (f?'Vendida':'Vendido')+(h.bajaFecha?' '+fmt(h.bajaFecha):'');
+  if(h.estado==='Muerto')return h.bajaFecha&&h.nac&&h.bajaFecha===h.nac?(f?'Nació muerta':'Nació muerto'):'Murió'+(h.bajaFecha?' '+fmt(h.bajaFecha):'');
+  return h.estado}
+function progenieSec(c,hijos){
+  const madre=c.sexo==='Hembra',srv=madre?S.servicios.filter(x=>norm(x.madre)===norm(c.nombre)):[];
+  const porNacer=srv.filter(x=>x.estado==='Preñada'),abortos=srv.filter(x=>x.estado==='Abortó');
+  if(!hijos.length&&!porNacer.length&&!abortos.length)return '';
+  const vivos=hijos.filter(h=>h.estado==='Activo'),cuenta=(n,a,b)=>n?`${n} ${n===1?a:b}`:'';
+  const resumen=[cuenta(hijos.length,'cría','crías'),cuenta(vivos.filter(h=>h.categoria==='Jugadores').length,'jugando','jugando'),
+    cuenta(vivos.filter(h=>h.categoria!=='Jugadores').length,'en la manada','en la manada'),cuenta(hijos.filter(h=>h.estado==='Vendido').length,'vendida','vendidas'),
+    cuenta(hijos.filter(h=>h.estado==='Muerto').length,'muerta','muertas'),cuenta(porNacer.length,'por nacer','por nacer'),cuenta(abortos.length,'aborto','abortos')].filter(Boolean).join(' · ');
+  const otro=h=>madre?(h.padre?'de '+h.padre:''):(h.madre?'de '+h.madre:'');
+  const fila=h=>`<button class="hcard ${esc(h.sexo)} chico ${h.estado!=='Activo'?'baja':''}" data-open="${h.id}"><div class="grow"><div class="nm">${esc(h.nombre)}</div><div class="meta">${esc([h.camada?'Camada '+h.camada:'',otro(h)].filter(Boolean).join(' · '))}</div></div><span class="pill ${h.estado==='Activo'?'p-ok':'p-none'}">${esc(hoyHace(h))}</span><span class="go">›</span></button>`;
+  const extra=x=>`<div class="hcard chico baja"><div class="grow"><div class="nm">${x.estado==='Preñada'?'Por nacer':'Abortó'}</div><div class="meta">${esc([x.temporada?'Temporada '+x.temporada:'',x.padrillo?'de '+x.padrillo:'',x.estado==='Preñada'&&x.fpp?'parto '+fmt(x.fpp):''].filter(Boolean).join(' · '))}</div></div></div>`;
+  return sec(madre?'Progenie':'Crías','',`<p class="small muted" style="margin:0 0 8px">${esc(resumen)}</p><div class="list">${porNacer.map(extra).join('')}${hijos.slice().sort((a,b)=>(b.camada||0)-(a.camada||0)||sortCab(a,b)).map(fila).join('')}${abortos.map(extra).join('')}</div>`)}

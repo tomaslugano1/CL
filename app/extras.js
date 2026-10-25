@@ -296,6 +296,9 @@ const AJUSTES={
     for(const e of S.eventos.filter(e=>e.caballoId===c.id&&e.caballo!=='MÁXIMO'))await db.collection('eventos').doc(e.id).update({caballo:'MÁXIMO'})},
   // 21/10/2026: parieron la BAYA (hembra) y la COLORADA POTRA (macho), los dos de IRENITA PORRON. Datos del video de Tomás del 22/10.
   // 25/10/2026: Tomás confirma que ALEGRA, CONTIENDA y MARIMORENA se agarraron el 8/10/2026 (fecha aproximada; por la lluvia casi no jugaron)
+  // 25/10/2026: Tomás: CALA está a la venta pero no está en Doña Cecilia y no la cuenta (ni en la manada ni en sanidad)
+  'oct-cala-fuera':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='CALA');if(!c||/^afuera/i.test(c.lugar||''))return;
+    await db.collection('caballos').doc(c.id).update({lugar:'Afuera (a la venta)',venta:true})},
   'oct-agarradas-0810':async()=>{const f='2026-10-08';
     for(const n of ['ALEGRA','CONTIENDA','MARIMORENA']){const c=S.caballos.find(x=>norm(x.nombre)===n);if(!c||c.agarradoEl)continue;
       await db.collection('caballos').doc(c.id).update({agarradoEl:f});
