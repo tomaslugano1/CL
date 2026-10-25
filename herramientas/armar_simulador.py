@@ -1,4 +1,4 @@
-import json,base64,re,sys
+import os,json,base64,re,sys
 APP='/home/user/CL/app'; S=sys.argv[1]
 rd=lambda f:open(f'{APP}/{f}',encoding='utf-8').read()
 b64=lambda p,t:f'data:{t};base64,'+base64.b64encode(open(p,'rb').read()).decode()
@@ -13,7 +13,8 @@ rows=json.load(open(f'{S}/app29.json'));D={}
 for r in rows:
   d=dict(r['data'])
   if r['coleccion']=='caballos':
-    d['fotos']={'DC S/N BAYA 26':['fb'],'DC S/N COLORADA POTRA 26':['fc']}.get(d['nombre'],[])
+    # las fotos de la app (bajadas a <carpeta>/demo/fotos/<id>.jpg, achicadas) y las de prueba de los potrillos nuevos
+    d['fotos']=[f for f in (d.get('fotos') or []) if os.path.exists(f'{S}/demo/fotos/{f}.jpg')] or {'DC S/N BAYA 26':['fb'],'DC S/N COLORADA POTRA 26':['fc']}.get(d['nombre'],[])
   D.setdefault(r['coleccion'],{})[r['id']]=d
 # la lectura de la app no trae los padrillos: van los de la pestaña PADRILLOS del Sheet
 if 'padrillos' not in D:
@@ -22,6 +23,9 @@ if 'padrillos' not in D:
     ('MANADA','Servicio','',''),('IRENITA PORRON','Inseminación','LOS MACHITOS LIBANO','IRENITA CERVEZA'),('SANTA TERESA SPORT','Externo','SPORTIVO','ELLERSTINA PORTUARIA'),
     ('ESPI EXPLOSIVO','Externo','VAN DUCATI','ESPI EXPLOSIVA'),('DON URBANO MEREQUETENGUE','Externo','RENGO LUICITO','CUMBIA II'),('BENICIO','Externo','',''),('BAYO PEPE C','Externo','',''),])}
 blobs={'c067518b1364657d0cbe25a5f091243a':b64(f'{APP}/logo.jpg','image/jpeg'),'fb':b64(f'{S}/demo/fb.jpg','image/jpeg'),'fc':b64(f'{S}/demo/fc.jpg','image/jpeg')}
+for c in D.get('caballos',{}).values():
+  for f in c.get('fotos') or []:
+    if f not in blobs:blobs[f]=b64(f'{S}/demo/fotos/{f}.jpg','image/jpeg')
 nube=rd('nube.js')
 for a,b in [("let D=leer(LS_DATOS)||{};","let D=leer(LS_DATOS)||JSON.parse(JSON.stringify(window.DC_DEMO||{}));"),
             ("let yo=leer(LS_YO);","let yo=leer(LS_YO)||{id:'prueba',email:'prueba@donacecilia',nombre:'Prueba'};"),
