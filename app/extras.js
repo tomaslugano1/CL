@@ -251,6 +251,7 @@ const AJUSTES={
       if(!d.nac)delete d.nac;if(!d.pelaje)delete d.pelaje;if(d.nac)d.camada=+d.nac.slice(0,4);
       let id=c?.id;if(c)await db.collection('caballos').doc(c.id).update(d);
       else{id=slugId('c');await db.collection('caballos').doc(id).set({categoria:'Jugadores',lugar:'',padre:'',madre:'',chip:'',rp:'',obs:'Dato de Polo Breeders (vendidos)',...d})}
+      if(!S.eventos.some(e=>e.caballoId===id&&/^Baja: Vendido/.test(e.detalle||'')))
       await db.collection('eventos').doc(slugId('e')).set({fecha:d.bajaFecha,caballoId:id,caballo:v.nombre,tipo:'Otro',detalle:'Baja: Vendido'+(d.bajaComprador?' a '+d.bajaComprador:''),obs:['Precio: '+d.bajaPrecio,d.bajaObs].filter(Boolean).join(' · '),por:uid||''})}},
   // Los de Hechura se largaron a descanso alrededor del 19/9/2026
   'oct-hechura-descanso':async()=>{for(const c of S.caballos.filter(x=>x.estado==='Activo'&&x.categoria==='Hechura')){
@@ -324,8 +325,8 @@ async function cargarGrupo(fecha,tipo,detalle,obs,nombres){for(const n of nombre
 let _ajustando=false;
 async function ajustesUnicos(){if(_ajustando||!canWrite||!db||!window.DC_NUBE_LISTA||!S.loaded.caballos||!S.loaded.eventos||!S.loaded.config||!S.loaded.servicios||!S.caballos.length)return;
   const hechos=new Set(S.config.ajustes||[]),pend=Object.keys(AJUSTES).filter(k=>!hechos.has(k));if(!pend.length)return;
-  _ajustando=true;try{for(const k of pend){await AJUSTES[k]();hechos.add(k)}
-    await db.doc('config/app').set({...S.config,ajustes:[...hechos]});S.config.ajustes=[...hechos]}
+  // Se anota cada ajuste apenas termina: si la app se cierra a la mitad, la próxima vez sigue desde ahí y no repite
+  _ajustando=true;try{for(const k of pend){await AJUSTES[k]();hechos.add(k);S.config.ajustes=[...hechos];await db.doc('config/app').set({...S.config,ajustes:[...hechos]})}}
   catch(e){console.error('ajustes',e)}finally{_ajustando=false}}
 
 /* ================= Ritmo de trabajo, días y precios del herrero ================= */

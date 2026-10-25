@@ -195,3 +195,9 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
   - El 29, al abrir la app por primera vez, el recuadro va a mostrar muchos cambios (son los ajustes de esta publicación) y en unos segundos se suben solos.
 - **Cala:** está a la venta pero no está en Doña Cecilia. Su lugar pasa a "Afuera (a la venta)" y no cuenta en Caballos propios, Para hacer, Sanidad ni Día de fotos. Sigue en Ver caballos (A la venta). Si vuelve, se le cambia el lugar y vuelve a contar sola.
 - Ya estaban y no hacía falta hacerlas: cargar a varios de una (Seleccionar / + Sanidad), mover en grupo, ficha para vender, prácticas y torneos, historial (Eventos).
+
+## P. ✅ Revisión crítica antes del 29 (25/10)
+- Probado: si la app se cierra a la mitad de los ajustes del 29 y se vuelven a correr, el de los vendidos de Polo Breeders duplicaba las 5 bajas (Chavela, Mirtha, Rumba, Serena, Servilleta). Arreglado: no repite la baja si ya está.
+- Ahora cada ajuste se anota apenas termina (antes se anotaban todos juntos al final): si se corta, sigue desde donde quedó.
+- El 29: que abra la app primero un solo celular (el de Tomás) con buena señal y la deje abierta 1 minuto, hasta que el recuadro de "cambios sin subir" desaparezca. Recién después, los demás.
+
