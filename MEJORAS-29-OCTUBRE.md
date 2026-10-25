@@ -17,7 +17,10 @@ Estado: ✅ hecho · 🔨 en curso · ⏳ pendiente
 | 9 | **Aviso de las 8** todos los días, notificaciones que se arreglan solas, la app se actualiza sola | ✅ |
 | 10 | **Bajas** con Vendidos/Muertos/Otros, precio y comprador | ✅ |
 | 11 | Detalles: −1 en prácticas y torneos, torneo con copa, dibujito de preñada, observación solo en Doma y Potrillos | ✅ |
-| 12 | **Datos que se cargan solos**: ventas de PB, Hechura → Descanso, Potranca Baya preñada, Vilma y la 25, Pipa y su cría | ✅ probado: quedan 52 caballos, 13 madres, 9 en descanso |
+| 13 | **Cargar nacimiento**: botón en el servicio, formulario corto (vivo o nació muerto), el servicio pasa a "anteriores" con el potrillo enlazado (sección I) | ✅ |
+| 14 | **Genealogía que se completa sola**: biblioteca con 49 caballos (sección H) | ✅ |
+| 15 | Arreglos: al dar de alta se abre la ficha nueva; Preñez dice Parió/Abortó; Bajas de la más nueva a la más vieja; vacunas de preñez viejas dicen "Sin cargar"; Rockera fecha aproximada | ✅ |
+| 12 | **Datos que se cargan solos**: ventas de PB, Hechura → Descanso, Potranca Baya preñada, Vilma y la 25, Pipa y su cría, Máximo, Rockera, **partos del 21/10 (Baya y Colorada Potra)** | ✅ probado: quedan 52 caballos, 13 madres, 9 en descanso |
 
 ## G. ⏳ Diseño general como Polo Breeders (pedido 13/10)
 - Hoy: arriba hay una fila de 7 botones que se desliza (Inicio, Caballos, Madres, Camadas, Sanidad, Padrillos, Notas) y la ruedita ocupa una fila sola; en el celular "Sanidad" queda cortado. Sanidad y Camadas son tablas anchas que en el celular quedan apretadas. Tomás lo ve "tosco".
@@ -152,3 +155,11 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Los dos de IRENITA PORRON. Ajuste `oct-partos-baya-colorada` (servicio → Parida con el potrillo enlazado, parición en la madre, abuelos completos). Ya en el Sheet (CABALLOS, SANIDAD, PREÑECES, CAMADA 2026, EVENTOS).
 - Las fotos (sacadas del video de Tomás) no van al repo: Tomás las sube con "+ Agregar foto" en cada ficha.
 - RESUMEN del Sheet: "Próximos partos" ahora es una fórmula que muestra solo las preñadas (antes era una lista fija).
+
+## El día 29, en orden
+1. Tomás mira la página con las capturas (https://claude.ai/artifact/Ptq8X9fQNzRGzi56kDRXEE) y avisa si algo no va.
+2. Claude publica una sola vez (commit con `[publicar]` en `claude/happy-davinci-ekp0k5`).
+3. Tomás abre la app **con señal** y espera a que diga que está todo subido: ahí se cargan solos los datos (ventas, descanso, Pipa, partos del 21/10, Máximo…).
+4. Claude lee la app y confirma que quedó todo bien.
+5. Tomás sube las fotos de los potrillos nuevos (+ Agregar foto).
+6. Desde la compu: instalar el script del Sheet (sheet/LEEME.md), 5 minutos.
