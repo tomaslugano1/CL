@@ -117,7 +117,12 @@ function mezclarFilasCamada(enc, ultimaCol, filas, formulas, datos) {
   const usadas = new Set();
   let cambios = 0;
   for (const c of datos.caballos) {
-    let f = cN >= 0 ? filas.find(x => !usadas.has(x) && normK(x[cN]) === normK(c.nombre)) : null;
+    // La fila es de este caballo si el nombre coincide (también "MÁXIMO — DC (MINI) 30": nombre nuevo — número viejo),
+    // si figura con su apodo (el número de antes) o si tiene el mismo chip.
+    const cC = col('N° CHIP'), chip = String(c.chip || '').replace(/\D/g, '');
+    const esEste = x => { const t = String(x[cN] || ''), partes = t.split(/\s+[—-]\s+/).map(normK);
+      return partes.indexOf(normK(c.nombre)) >= 0 || (!!c.apodo && partes.indexOf(normK(c.apodo)) >= 0) || (chip.length >= 10 && cC >= 0 && String(x[cC] || '').replace(/\D/g, '') === chip); };
+    let f = cN >= 0 ? filas.find(x => !usadas.has(x) && esEste(x)) : null;
     let nombrar = false;
     if (!f && cH >= 0 && cM >= 0) { f = filas.find(x => !usadas.has(x) && norm(x[cH]) === 'POR NACER' && normK(x[cM]) === normK(c.madre)); nombrar = !!f; } // la madre parió
     if (!f && cM >= 0) f = filas.find(x => !usadas.has(x) && sinNombre(x) && mismaMadre(x[cM], c.madre)); // cría anotada sin nombre

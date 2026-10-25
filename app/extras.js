@@ -296,6 +296,13 @@ const AJUSTES={
   'oct-nombre-maximo':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='DC (MINI) 30');if(!c)return;
     await db.collection('caballos').doc(c.id).update({nombre:'MÁXIMO',apodo:c.apodo||'DC (MINI) 30'});
     for(const e of S.eventos.filter(e=>e.caballoId===c.id&&e.caballo!=='MÁXIMO'))await db.collection('eventos').doc(e.id).update({caballo:'MÁXIMO'})},
+  // 25/10/2026: Tomás eligió los nombres de 7 potrillos (el número queda como apodo, como con Máximo). Faltan el 28 y el 22.
+  'oct-nombres-potrillos-25':async()=>{
+    for(const [viejo,nuevo] of [['DC (ALAZANA POTRA) 35','ZAPADA'],['DC (BAYA) 27','PATACÓN'],['DC (COLORADA POTRA) 23','MATRERO'],['DC (GUACHA) 40','GARUFA'],
+      ['DC (PEPERINA) 21','CAMBALACHE'],['DC (PIPA) 34','HABANO'],['DC (PITUFA) 33','PITUCO']]){
+      const c=S.caballos.find(x=>norm(x.nombre)===norm(viejo));if(!c||S.caballos.some(x=>x.id!==c.id&&norm(x.nombre)===norm(nuevo)))continue;
+      await db.collection('caballos').doc(c.id).update({nombre:nuevo,apodo:c.apodo||viejo});
+      for(const e of S.eventos.filter(e=>e.caballoId===c.id&&e.caballo!==nuevo))await db.collection('eventos').doc(e.id).update({caballo:nuevo})}},
   // 21/10/2026: parieron la BAYA (hembra) y la COLORADA POTRA (macho), los dos de IRENITA PORRON. Datos del video de Tomás del 22/10.
   // 25/10/2026: Tomás confirma que ALEGRA, CONTIENDA y MARIMORENA se agarraron el 8/10/2026 (fecha aproximada; por la lluvia casi no jugaron)
   // 25/10/2026: Tomás: CALA está a la venta pero no está en Doña Cecilia y no la cuenta (ni en la manada ni en sanidad)

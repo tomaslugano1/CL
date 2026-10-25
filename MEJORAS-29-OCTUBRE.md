@@ -205,4 +205,6 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
   - Si se le pone a un caballo el nombre de otro que ya existe, no deja guardar y avisa.
   - El Sheet (EVENTOS) usa el nombre de hoy del caballo, no el que tenía cuando se cargó el evento.
 - **Hasta el 29: no cambiar nombres de caballos en la app** (la versión publicada todavía tiene el problema). Si hay que cambiar uno, decírselo a Claude.
+- **Nombres de 7 potrillos** (elegidos por Tomás el 25/10): Zapada (35), Patacón (27), Matrero (23), Garufa (40), Cambalache (21), Habano (34), Pituco (33). El número viejo queda como apodo. En el Sheet ya están (CABALLOS, CAMADA 2024 y 2025, SANIDAD, EVENTOS y las demás pestañas donde figuraban).
+- Arreglado en el script del Sheet: reconocía mal las filas de CAMADA escritas como "MÁXIMO — DC (MINI) 30" y el 29 las habría duplicado. Ahora las reconoce por nombre, apodo o chip.
 
