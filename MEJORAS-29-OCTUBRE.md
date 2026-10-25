@@ -169,3 +169,8 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Suelto = categoría Descanso (desde que salió) o jugador con ritmo Descanso (desde el último "Suelta"). Agarrado = desde el botón Agarrar o el último "Agarrada…".
 - Sin fecha todavía: ALEGRA, CONTIENDA, MARIMORENA (ritmo Normal, sin movimiento cargado) y CALA (ritmo Descanso, sin "Suelta"). Cuando Tomás diga, se cargan.
 - Pelaje de la potranca de la Baya confirmado: bayo claro.
+
+## L. ✅ Padrillos (pedido 25/10)
+- Una tarjeta por padrillo usado (los cargados, los padres de la manada y los de los servicios; HULK = DOLFINA HULK): sangre (padre × madre y abuelo materno), nacimiento, pelaje, criador, tipo, **hijos vivos y en qué categoría**, por nacer, vendidos, muertos y camadas.
+- Filtros arriba: Todos · Potrillos · Doma · Hechura · Descanso · Jugadores · Madres · Por nacer ("qué padrillos usé en cada categoría").
+- Tocando uno: datos, pedigree de 3 generaciones, hijos por categoría (se tocan y abren la ficha), por nacer, vendidos y muertos.
