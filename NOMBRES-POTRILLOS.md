@@ -19,7 +19,7 @@ Cuando elija uno por caballo: cambiar el nombre en la app (ajuste en `app/extras
 | Potrillo | Quedan |
 |---|---|
 | **28** · macho alazán · Sta. Teresa Sport × Alazana Potra | el Potrero · el Hereje · el Sacrilegio · el Mandinga · el Atorrante · el Malandra |
-| **35** · potra · Merequetengue × Alazana Potra | la Farra · la Parranda · la Milonguera · la Jineteada · la Chacarera · la Bailanta · la Jarana · la Kermés · la Gozadera · la Zapada · la Fandanga |
+| **35** · potra · Merequetengue × Alazana Potra | la Farra · la Parranda · la Milonguera · la Milonga · la Jineteada · la Chacarera · la Bailanta · la Jarana · la Kermés · la Gozadera · la Zapada · la Fandanga |
 | **27** · macho bayo · Espi Pulpero × Baya | el Onza · el Patacón · el Doblón · el Siete de Oro · el Real Envido · el Fiado · el Vuelto |
 | **23** · macho colorado · Sta. Teresa Sport × Colorada Potra | el Malambo · el Arriero · el Payador · el Vizcacha · el Bagualero · el Baqueano · el Matrero · el Bagual · el Facón · el Cimarrón |
 | **22** · potra · Espi Pulpero × Guacha | la Chicha · la Caña Seca · la Cuba Libre · la Ginebra · la Mistela · la Grapa · la Resaca · la Petaca · la Damajuana · la Última Lágrima |
@@ -32,6 +32,7 @@ Cuando elija uno por caballo: cambiar el nombre en la app (ajuste en `app/extras
 | **Potrillo de la Colorada 2026** · colorado, patas blancas · Irenita Porrón × Colorada Potra | el Chopp · el Tirado (las nuevas no le gustaron: nueva tanda abajo) |
 
 Nueva tanda para el potrillo de la Colorada 2026 (25/10): el Irlandés · el San Patricio · el Tercer Tiempo · el Escabio · el Chinchín · el Otra Vuelta · el Cervezón · el Boliche
+Otra tanda, por el lado del borracho (pedido de Tomás: "el borracho, el mamado, el fisura"): el Mamado · el Fisura · el Curda · el Bolinga · el Escabiador · el Achispado · el Entonado · el Alegrón · el Chupandino · el Dado Vuelta · el Pasado de Copas · el Hipo · el Zigzag · el Resacoso · el Último en Irse
 
 Idea de fondo: **una serie por padre**, como los Lucky de La Dolfina. Los del Pulpero, cosas de pulpería (truco, bebida, aperitivo); los del Porrón, cerveza.
 
