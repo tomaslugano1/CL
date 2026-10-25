@@ -46,7 +46,7 @@ main .lbar .btn.icon{width:36px;height:36px;min-height:36px}
   /* ---------- Inicio: "Ver caballos" y accesos ---------- */
   const _inicio=vInicio;
   vInicio=function(){return `<button class="pbver" data-tab="caballos">Ver caballos <span>›</span></button>
-    <div class="pbacc">${[['camadas','Camadas'],['sanidad','Sanidad'],['notas','Notas']].map(([k,t])=>`<button class="chip" data-tab="${k}">${t}</button>`).join('')}</div>`+_inicio()};
+    <div class="pbacc">${[['camadas','Camadas'],['sanidad','Sanidad'],['notas','Notas']].map(([k,t])=>`<button class="chip" data-tab="${k}">${t}</button>`).join('')}<button class="chip" data-act="diaFotos">Día de fotos</button></div>`+_inicio()};
 
   /* ---------- Inicio: cada recuadro se toca (pedido de Tomás el 25/10) ---------- */
   const tocar=(html,label,attrs)=>html.replace(`<div class="tile"><span>${label}</span>`,`<div class="tile toca" ${attrs} role="button" tabindex="0"><span>${label} ›</span>`)

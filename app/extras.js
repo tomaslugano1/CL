@@ -295,6 +295,12 @@ const AJUSTES={
     await db.collection('caballos').doc(c.id).update({nombre:'MÁXIMO',apodo:c.apodo||'DC (MINI) 30'});
     for(const e of S.eventos.filter(e=>e.caballoId===c.id&&e.caballo!=='MÁXIMO'))await db.collection('eventos').doc(e.id).update({caballo:'MÁXIMO'})},
   // 21/10/2026: parieron la BAYA (hembra) y la COLORADA POTRA (macho), los dos de IRENITA PORRON. Datos del video de Tomás del 22/10.
+  // 25/10/2026: Tomás confirma que ALEGRA, CONTIENDA y MARIMORENA se agarraron el 8/10/2026 (fecha aproximada; por la lluvia casi no jugaron)
+  'oct-agarradas-0810':async()=>{const f='2026-10-08';
+    for(const n of ['ALEGRA','CONTIENDA','MARIMORENA']){const c=S.caballos.find(x=>norm(x.nombre)===n);if(!c||c.agarradoEl)continue;
+      await db.collection('caballos').doc(c.id).update({agarradoEl:f});
+      if(!S.eventos.some(e=>e.caballoId===c.id&&e.tipo==='Movimiento'&&e.fecha===f))
+        await db.collection('eventos').doc(slugId('e')).set({fecha:f,caballoId:c.id,caballo:c.nombre,tipo:'Movimiento',detalle:'Agarrada',obs:'Fecha aproximada',por:uid||''})}},
   'oct-partos-baya-colorada':async()=>{const f='2026-10-21';
     for(const [madre,nombre,sexo,pelaje,obs] of [
       ['BAYA','DC S/N BAYA 26','Hembra','Bayo claro','Cara blanca ancha (lista hasta el hocico) · patas claras'],
