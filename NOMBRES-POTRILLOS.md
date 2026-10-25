@@ -10,15 +10,20 @@ Charlado con Tomás en la otra conversación el 20/10/2026. Pasado acá para seg
 - Nada de traducciones a otros idiomas que no se puedan gritar.
 - "Guacha" = sin padre ni madre. No confundir con "gaucho".
 
-## Ya puesto (en la app se aplica el 29; en el Sheet ya está)
-- **DC (MINI) 30 → MÁXIMO**
-- 25/10/2026, elegidos por Tomás: **DC (ALAZANA POTRA) 35 → ZAPADA** · **DC (BAYA) 27 → PATACÓN** · **DC (COLORADA POTRA) 23 → MATRERO** · **DC (GUACHA) 40 → GARUFA** · **DC (PEPERINA) 21 → CAMBALACHE** · **DC (PIPA) 34 → HABANO** · **DC (PITUFA) 33 → PITUCO**
-- El número de antes queda como apodo (se sigue encontrando con la lupa).
+## Ya puesto
+- **DC (MINI) 30 → MÁXIMO** (el número queda como apodo). Cargado en la app (se aplica el 29).
 
-## Falta elegir
-- **28:** el Mandinga o el Malandra
-- **22:** la Caña Seca, la Damajuana o la Petaca
-- **Potranca de la Baya 2026** y **potrillo de la Colorada 2026** (ver abajo)
+## Preselección de Tomás (25/10/2026) — NO cargar hasta que lo diga
+- 28: el Mandinga / el Malandra
+- 35: la Zapada
+- 27: el Patacón
+- 23: el Matrero
+- 22: la Caña Seca / la Damajuana / la Petaca
+- 40: el Garufa
+- 21: el Cambalache
+- 34: el Habano
+- 33: el Pituco
+- 30: Máximo ✅ (ya cargado)
 
 ## LISTA PRINCIPAL (filtrada por Tomás el 25/10/2026): estas son las que quedan para elegir
 Cuando elija uno por caballo: cambiar el nombre en la app (ajuste en `app/extras.js`; el número queda como apodo, como con Máximo) y en el Sheet.
