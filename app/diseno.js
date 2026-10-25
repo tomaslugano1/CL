@@ -48,6 +48,27 @@ main .lbar .btn.icon{width:36px;height:36px;min-height:36px}
   vInicio=function(){return `<button class="pbver" data-tab="caballos">Ver caballos <span>›</span></button>
     <div class="pbacc">${[['camadas','Camadas'],['sanidad','Sanidad'],['notas','Notas']].map(([k,t])=>`<button class="chip" data-tab="${k}">${t}</button>`).join('')}</div>`+_inicio()};
 
+  /* ---------- Inicio: cada recuadro se toca (pedido de Tomás el 25/10) ---------- */
+  const tocar=(html,label,attrs)=>html.replace(`<div class="tile"><span>${label}</span>`,`<div class="tile toca" ${attrs} role="button" tabindex="0"><span>${label} ›</span>`)
+    .replace(`<div class="tile alert"><span>${label}</span>`,`<div class="tile alert toca" ${attrs} role="button" tabindex="0"><span>${label} ›</span>`)
+    .replace(`<div class="tile "><span>${label}</span>`,`<div class="tile toca" ${attrs} role="button" tabindex="0"><span>${label} ›</span>`);
+  const _ini2=vInicio;
+  vInicio=function(){let h=_ini2();
+    h=tocar(h,'Caballos propios','data-act="iniVer"');                 // → Ver caballos, todos
+    h=tocar(h,'Preñadas','data-tab="madres"');                         // → Madres y partos
+    h=h.replace('<div class="tile" data-tab="madres" role="button" tabindex="0" style="cursor:pointer"><span>Próximo parto ›</span>',
+      '<div class="tile toca" data-act="iniParto" role="button" tabindex="0"><span>Próximo parto ›</span>');   // → ficha de la próxima en parir
+    h=tocar(h,'Para hacer · 7 días','data-act="iniHacer"');            // → baja a "Para hacer esta semana"
+    h=tocar(h,'Para revisar','data-tab="notas"');                      // → Notas
+    return h};
+  EXTRA_ACTS.iniVer=()=>{UI.cat='';UI.bajas=false;UI.subCam=null;UI.lugar='';UI.tab='caballos';render();window.scrollTo(0,0)};
+  EXTRA_ACTS.iniParto=()=>{const t=+S.config.temporada||new Date().getFullYear();
+    const s=S.servicios.filter(x=>x.estado==='Preñada'&&+x.temporada===t&&x.fpp&&findByName(x.madre)?.estado==='Activo').sort((a,b)=>a.fpp.localeCompare(b.fpp))[0];
+    const m=s&&findByName(s.madre);if(m){UI.ficha=m.id;renderFicha()}else{UI.tab='madres';render()}};
+  EXTRA_ACTS.iniHacer=()=>{const el=document.querySelector('.panel.tareas');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})};
+  document.addEventListener('keydown',e=>{const t=e.target;if((e.key==='Enter'||e.key===' ')&&t.classList&&t.classList.contains('toca')){e.preventDefault();t.click()}});
+  {const st=document.createElement('style');st.textContent='.tile.toca{cursor:pointer}.tile.toca:active{transform:scale(.98)}.tile.toca:focus-visible{outline:2px solid var(--cuero);outline-offset:2px}.panel.tareas{scroll-margin-top:72px}';document.head.appendChild(st)}
+
   /* ---------- Padrillos en CATEGORÍA, como en PB ---------- */
   CATS_LISTA.splice(CATS_LISTA.findIndex(x=>x[0]==='Madres'),0,['__padrillos','Padrillos']);
   const _fcat=EXTRA_ACTS.fcat;

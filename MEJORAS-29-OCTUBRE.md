@@ -179,3 +179,4 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Inicio: sin los botones repetidos de Padrillos y Madres y partos. "Próximo parto" se toca y abre Madres y partos. Quedan Camadas, Sanidad y Notas.
 - Arreglado: si en Madres se elegía el año 2027, el Inicio mostraba esa temporada ("Próximo parto 301 d"). Ahora el Inicio siempre usa la temporada actual.
 - Padrillos: sin título, botones ni filtros arriba (en la ficha de cada padrillo ya están los hijos por categoría). Para agregar uno: + Alta → Padrillo.
+- Inicio: los recuadros se tocan (25/10): Caballos propios → Ver caballos (todos); Preñadas → Madres y partos; Próximo parto → ficha de la próxima en parir; Para hacer → baja a "Para hacer esta semana"; Para revisar → Notas.
