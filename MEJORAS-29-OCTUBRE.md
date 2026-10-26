@@ -170,7 +170,7 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 ## K. ✅ Sueltos y agarrados a la vista (pedido 25/10)
 - En la lista y en la ficha: "Suelta desde 27/05 · 151 días" o "Agarrada desde 10/08 · 76 días".
 - Suelto = categoría Descanso (desde que salió) o jugador con ritmo Descanso (desde el último "Suelta"). Agarrado = desde el botón Agarrar o el último "Agarrada…".
-- Sin fecha todavía: ALEGRA, CONTIENDA, MARIMORENA (ritmo Normal, sin movimiento cargado) y CALA (ritmo Descanso, sin "Suelta"). Cuando Tomás diga, se cargan.
+- ALEGRA, CONTIENDA y MARIMORENA: agarradas el 08/10 (ver N). CALA: afuera, a la venta (no cuenta).
 - Pelaje de la potranca de la Baya confirmado: bayo claro.
 
 ## L. ✅ Padrillos (pedido 25/10)
@@ -206,4 +206,12 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
   - El Sheet (EVENTOS) usa el nombre de hoy del caballo, no el que tenía cuando se cargó el evento.
 - **Hasta el 29: no cambiar nombres de caballos en la app** (la versión publicada todavía tiene el problema). Si hay que cambiar uno, decírselo a Claude.
 - Arreglado en el script del Sheet: reconocía mal las filas de CAMADA escritas como "MÁXIMO — DC (MINI) 30" y el 29 las habría duplicado. Ahora las reconoce por nombre, apodo o chip.
+
+## Q. ✅ Revisión general del 26/10
+- **GitHub:** todo subido en `claude/happy-davinci-ekp0k5` (y copia en `claude/nifty-cray-80hmov`). La única publicación hasta ahora fue la del 06/10, desde happy-davinci: Netlify publica desde esa rama.
+- **Supabase:** la lectura de datos anda, las fotos se ven (el depósito de fotos es público), y las notificaciones están configuradas (claves creadas y 3 iPhones anotados).
+- **Aviso diario al celular:** simulado con los datos. Hoy todavía avisa "parto atrasado" de Baya, Colorada y Pipa (porque los partos se publican el 29); después del 29 queda: desvasar Falucho, Guerrera, Hammer y Roman (atrasado), herrar 9, desvasar 6 en la semana. Arreglado: el aviso no cuenta a los que están "Afuera" (Cala), igual que la app.
+- **Recorrida completa en la copia de prueba:** las 7 pantallas, las 10 categorías, las 76 fichas, 60 formularios de edición, los 13 padrillos, los 15 servicios, búsquedas, altas, nacimiento, aborto, agarrar y los menús de la ruedita: sin errores.
+- **Sheet vs app (como queda el 29):** los mismos 54 caballos, cada uno en la misma categoría.
+- **Lo que no se puede ver desde acá:** la página de Netlify y su configuración. El 29, antes de publicar, Tomás mira en Netlify → Site configuration → Build & deploy → Branches que la rama de producción sea `claude/happy-davinci-ekp0k5`, y que haya créditos.
 

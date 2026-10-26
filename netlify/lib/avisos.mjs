@@ -54,7 +54,7 @@ function preparar(filas) {
   const vence = [];   // { t, c, p }
   const ctrls = controles(D.config);
   for (const c of D.caballos) {
-    if (c.estado !== 'Activo' || c.categoria === 'Doma') continue;
+    if (c.estado !== 'Activo' || c.categoria === 'Doma' || /^afuera/i.test(c.lugar || '')) continue; // "Afuera" (ej: Cala, a la venta en otro lado): igual que en la app
     if (c.categoria === 'Descanso' && c.descansoHasta) vence.push({ t: 'Agarrar', c, p: c.descansoHasta });
     for (const t of Object.keys(VERBO_BASE)) {
       if (t === 'Agarrar') continue;
