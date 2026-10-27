@@ -225,6 +225,6 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Rama de producción: `claude/happy-davinci-ekp0k5` ✅. Lo que está online es la publicación del **1/10** ("Muelas cada 365 días…"): todo lo posterior sale el 29.
 - Créditos: período 29/9 → 28/10, se renuevan el **jueves 29/10**. Quedan 28, pero Netlify tiene las publicaciones en pausa hasta la renovación.
 - Cada publicación gasta ~15 créditos. Casi todo el gasto del mes fue al principio (más de 10 publicaciones el 1/10). Los intentos de después figuran "Skipped"/"Canceled": no gastaron.
-- Faltan 29 créditos sin explicar (243 usados + 28 = 271): probablemente es uso de la página (visitas, el calendario, el aviso diario). A revisar en el detalle de uso.
+- Detalle del período (visto el 27/10): 300 créditos por mes en el plan gratis. Se fueron en **20 publicaciones × 15 = 300**. El uso de la app (funciones, visitas, datos) es casi nada: ~3 créditos por mes (0,1 por día). Conclusión: el único gasto que importa son las publicaciones; da para unas 19 por mes. Publicar siempre todo junto.
 - El 29: confirmar en Netlify que los créditos se renovaron y que las publicaciones ya no están en pausa; recién ahí, una sola publicación con todo junto. Guardar créditos para una más de reserva.
 
