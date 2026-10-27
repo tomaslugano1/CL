@@ -615,7 +615,12 @@ function escanerChip(){UI.ficha=null;
   const probar=forzar=>{const ch=i.value.replace(/\D/g,'');if(!ch||(!forzar&&ch.length<15))return;const m=S.caballos.filter(c=>String(c.chip||'').replace(/\D/g,'')===ch);
     if(m.length===1){UI.ficha=m[0].id;renderFicha();return}
     $('#chip-msg').textContent=m.length?'Hay más de un caballo con ese chip.':'Ningún caballo tiene el chip '+ch+'.';
-    if(!m.length&&canWrite){$('#chip-acc').innerHTML='<button type="button" class="btn" data-act="close">Cancelar</button><button type="button" class="btn pri" id="chip-alta">Dar de alta con este chip</button>';$('#chip-alta').onclick=()=>caballoForm(null,{chip:ch})}};
+    if(!m.length&&canWrite){const sin=activos().filter(c=>!String(c.chip||'').replace(/\D/g,'')).sort(sortCab); // caballos que todavía no tienen chip cargado
+      $('#chip-acc').innerHTML=(sin.length?`<label style="width:100%;text-align:left">¿De qué caballo es?<select id="chip-cab"><option value="">Elegí el caballo…</option>${sin.map(c=>`<option value="${c.id}">${esc(c.nombre)}${c.categoria?' · '+esc(c.categoria):''}</option>`).join('')}</select></label><button type="button" class="btn pri" id="chip-asig">Guardar el chip en ese caballo</button>`:'')
+        +'<button type="button" class="btn" data-act="close">Cancelar</button><button type="button" class="btn" id="chip-alta">Es un caballo nuevo: darlo de alta</button>';
+      $('#chip-alta').onclick=()=>caballoForm(null,{chip:ch});
+      const asig=$('#chip-asig');if(asig)asig.onclick=async()=>{const id=$('#chip-cab').value;if(!id){toast('Elegí el caballo');return}
+        await db.collection('caballos').doc(id).update({chip:ch});toast('Chip guardado en '+byId(id).nombre);UI.ficha=id;renderFicha()}}};
   i.addEventListener('input',()=>probar(false));i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();probar(true)}})}
 function closeModal(){UI.ficha=null;$('#modal').innerHTML=''}
 function form(title,fields,onSave,extra=''){

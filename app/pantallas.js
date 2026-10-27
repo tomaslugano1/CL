@@ -233,3 +233,18 @@ function progenieSec(c,hijos){
   const fila=h=>`<button class="hcard ${esc(h.sexo)} chico ${h.estado!=='Activo'?'baja':''}" data-open="${h.id}"><div class="grow"><div class="nm">${esc(h.nombre)}</div><div class="meta">${esc([h.camada?'Camada '+h.camada:'',otro(h)].filter(Boolean).join(' · '))}</div></div><span class="pill ${h.estado==='Activo'?'p-ok':'p-none'}">${esc(hoyHace(h))}</span><span class="go">›</span></button>`;
   const extra=x=>`<div class="hcard chico baja"><div class="grow"><div class="nm">${x.estado==='Preñada'?'Por nacer':'Abortó'}</div><div class="meta">${esc([x.temporada?'Temporada '+x.temporada:'',x.padrillo?'de '+x.padrillo:'',x.estado==='Preñada'&&x.fpp?'parto '+fmt(x.fpp):''].filter(Boolean).join(' · '))}</div></div></div>`;
   return sec(madre?'Progenie':'Crías','',`<p class="small muted" style="margin:0 0 8px">${esc(resumen)}</p><div class="list">${porNacer.map(extra).join('')}${hijos.slice().sort((a,b)=>(b.camada||0)-(a.camada||0)||sortCab(a,b)).map(fila).join('')}${abortos.map(extra).join('')}</div>`)}
+
+/* Lector de chips por Bluetooth (pedido de Tomás el 27/10/2026): sin tocar ningún botón.
+   Los lectores en modo teclado ("HID") escriben el número muy rápido, como si fuera un teclado.
+   Si llegan 15 números o más en menos de un segundo (una persona no tipea tan rápido), se abre la ficha de ese caballo.
+   Si ningún caballo tiene ese chip, se abre la ventanita del chip con la opción de darlo de alta. */
+{let buf='',ult=0,timer=null;
+  const leido=ch=>{const m=S.caballos.filter(c=>String(c.chip||'').replace(/\D/g,'')===ch);
+    if(m.length===1){closeModal();UI.ficha=m[0].id;renderFicha();toast('Chip leído: '+m[0].nombre);return}
+    escanerChip();const i=$('#chip-in');if(i){i.value=ch;i.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}))}};
+  document.addEventListener('keydown',e=>{
+    const t=e.target;if(t&&(/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable))return; // escribiendo en un campo: lo maneja ese campo
+    const ahora=Date.now();
+    if(/^\d$/.test(e.key)){if(ahora-ult>120)buf='';ult=ahora;buf+=e.key;clearTimeout(timer);
+      timer=setTimeout(()=>{const ch=buf;buf='';if(ch.length>=15)leido(ch)},200);return}
+    if(e.key==='Enter'&&buf.length>=15&&ahora-ult<300){clearTimeout(timer);const ch=buf;buf='';e.preventDefault();leido(ch)}})}

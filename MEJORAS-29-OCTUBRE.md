@@ -215,3 +215,9 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - **Sheet vs app (como queda el 29):** los mismos 54 caballos, cada uno en la misma categoría.
 - **Lo que no se puede ver desde acá:** la página de Netlify y su configuración. El 29, antes de publicar, Tomás mira en Netlify → Site configuration → Build & deploy → Branches que la rama de producción sea `claude/happy-davinci-ekp0k5`, y que haya créditos.
 
+## R. ✅ Lector de chips sin botones y Día de fotos (27/10)
+- **Lector Bluetooth:** con la app abierta, se pasa el lector por el caballo y se abre su ficha sola (sin tocar nada). Funciona con lectores en modo teclado ("HID"), que escriben el número rápido; una persona tipeando no lo dispara, y si se está escribiendo en un campo tampoco.
+  - Si el chip no es de ningún caballo: "¿De qué caballo es?" → se elige y queda guardado (hoy solo los 10 potrillos tienen chip cargado). O "Es un caballo nuevo: darlo de alta".
+  - Antes de comprar un lector: conectarlo al iPhone por Bluetooth, abrir Notas y escanear. Si aparece el número en Notas, anda con la app.
+- **Día de fotos:** el botón del Inicio dice cuántos faltan ("Día de fotos · faltan 43") y desaparece solo cuando todos tienen foto.
+
