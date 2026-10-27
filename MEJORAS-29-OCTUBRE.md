@@ -208,7 +208,7 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Arreglado en el script del Sheet: reconocía mal las filas de CAMADA escritas como "MÁXIMO — DC (MINI) 30" y el 29 las habría duplicado. Ahora las reconoce por nombre, apodo o chip.
 
 ## Q. ✅ Revisión general del 26/10
-- **GitHub:** todo subido en `claude/happy-davinci-ekp0k5` (y copia en `claude/nifty-cray-80hmov`). La única publicación hasta ahora fue la del 06/10, desde happy-davinci: Netlify publica desde esa rama.
+- **GitHub:** todo subido en `claude/happy-davinci-ekp0k5` (y copia en `claude/nifty-cray-80hmov`). Netlify publica desde esa rama (confirmado por Tomás en Netlify el 27/10).
 - **Supabase:** la lectura de datos anda, las fotos se ven (el depósito de fotos es público), y las notificaciones están configuradas (claves creadas y 3 iPhones anotados).
 - **Aviso diario al celular:** simulado con los datos. Hoy todavía avisa "parto atrasado" de Baya, Colorada y Pipa (porque los partos se publican el 29); después del 29 queda: desvasar Falucho, Guerrera, Hammer y Roman (atrasado), herrar 9, desvasar 6 en la semana. Arreglado: el aviso no cuenta a los que están "Afuera" (Cala), igual que la app.
 - **Recorrida completa en la copia de prueba:** las 7 pantallas, las 10 categorías, las 76 fichas, 60 formularios de edición, los 13 padrillos, los 15 servicios, búsquedas, altas, nacimiento, aborto, agarrar y los menús de la ruedita: sin errores.
@@ -220,4 +220,11 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
   - Si el chip no es de ningún caballo: "¿De qué caballo es?" → se elige y queda guardado (hoy solo los 10 potrillos tienen chip cargado). O "Es un caballo nuevo: darlo de alta".
   - Antes de comprar un lector: conectarlo al iPhone por Bluetooth, abrir Notas y escanear. Si aparece el número en Notas, anda con la app.
 - **Día de fotos:** el botón del Inicio dice cuántos faltan ("Día de fotos · faltan 43") y desaparece solo cuando todos tienen foto.
+
+## S. Netlify y créditos (revisado por Tomás con Claude en Chrome, 27/10)
+- Rama de producción: `claude/happy-davinci-ekp0k5` ✅. Lo que está online es la publicación del **1/10** ("Muelas cada 365 días…"): todo lo posterior sale el 29.
+- Créditos: período 29/9 → 28/10, se renuevan el **jueves 29/10**. Quedan 28, pero Netlify tiene las publicaciones en pausa hasta la renovación.
+- Cada publicación gasta ~15 créditos. Casi todo el gasto del mes fue al principio (más de 10 publicaciones el 1/10). Los intentos de después figuran "Skipped"/"Canceled": no gastaron.
+- Faltan 29 créditos sin explicar (243 usados + 28 = 271): probablemente es uso de la página (visitas, el calendario, el aviso diario). A revisar en el detalle de uso.
+- El 29: confirmar en Netlify que los créditos se renovaron y que las publicaciones ya no están en pausa; recién ahí, una sola publicación con todo junto. Guardar créditos para una más de reserva.
 
