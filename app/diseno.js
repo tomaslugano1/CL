@@ -1,0 +1,55 @@
+/* Doña Cecilia — diseño general como Polo Breeders (pedido de Tomás el 13/10, se publica el 29/10).
+   - Sin la fila de pestañas: barra de arriba finita con el logo, "Doña Cecilia" al centro y la ruedita.
+   - La app abre en el Inicio, con un botón grande "Ver caballos" que lleva a la lista igual a PB.
+   - Camadas, Sanidad y Notas se abren desde el Inicio. Padrillos, desde CATEGORÍA. Madres y partos, tocando "Próximo parto".
+   - Fuera del Inicio, "‹" junto al logo (o el botón atrás del celular) vuelve al Inicio.
+   Los colores siguen siendo los de Doña Cecilia. */
+(function(){
+  /* ---------- barra de arriba ---------- */
+  const bar=document.querySelector('header .bar'),gear=bar.querySelector('.gear').outerHTML;
+  bar.innerHTML=`<div class="pbhead"><button class="pbhome" data-act="inicio" aria-label="Inicio"><span class="pbback" aria-hidden="true">‹</span><div class="logo" id="logo"><span>DC</span></div></button>
+    <h1>Doña Cecilia</h1><span class="who" id="who"></span>${gear}</div><nav id="nav"></nav>`;
+
+  const css=document.createElement('style');css.textContent=`
+header .bar{padding:8px 12px;gap:0}
+.pbhead{display:flex;align-items:center;gap:8px;min-height:48px;position:relative}
+.pbhead h1{position:absolute;left:50%;transform:translateX(-50%);font-family:var(--display);font-size:1.2rem;margin:0;white-space:nowrap;pointer-events:none}
+.pbhome{display:flex;align-items:center;gap:2px;background:none;border:0;color:inherit;padding:0;cursor:pointer}
+.pbback{font-size:30px;line-height:1;width:18px;display:none}
+body:not(.en-inicio) .pbback{display:inline}
+.pbhead .logo{width:38px;height:38px}
+.pbhead .who{display:none}
+.pbhead .gear{margin-left:auto;width:40px;height:40px;border-radius:50%}
+#nav{display:none}
+main .lbar{gap:6px}
+main .lbar .btn{min-height:36px;padding:6px 11px;font-size:.8rem;white-space:nowrap}
+main .lbar .btn.icon{width:36px;height:36px;min-height:36px}
+.pbver{display:flex;justify-content:space-between;align-items:center;width:100%;padding:18px 20px;margin-bottom:10px;border:0;border-radius:14px;background:var(--campo);color:var(--on-pri);font:700 1.1rem var(--body);cursor:pointer}
+.pbver span{font-size:1.6rem;line-height:1}
+.pbacc{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:18px}
+.pbacc::-webkit-scrollbar{display:none}
+.pbacc .chip{flex:none;padding:8px 14px;font-weight:600}`;
+  document.head.appendChild(css);
+
+  /* ---------- volver al Inicio (renderNav, en index.html, deja el paso en el historial) ---------- */
+  const alInicio=()=>{empujado=false;UI.tab='inicio';UI.sel=null;UI.drop=null;render();window.scrollTo(0,0)};
+  EXTRA_ACTS.inicio=()=>{if(UI.tab==='inicio')return;if(empujado&&history.state&&history.state.dcTab)history.back();else alInicio()};
+  addEventListener('popstate',()=>{
+    if(!empujado||NAV.pila.length||$('#modal').innerHTML.trim()||(history.state&&history.state.dcTab))return;
+    alInicio()});
+
+  /* ---------- Inicio: los recuadros que se tocan (los arma vInicio) ---------- */
+  EXTRA_ACTS.iniVer=()=>{UI.cat='';UI.bajas=false;UI.subCam=null;UI.lugar='';UI.tab='caballos';render();window.scrollTo(0,0)};
+  EXTRA_ACTS.iniParto=()=>{const t=+S.config.temporada||new Date().getFullYear();
+    const s=S.servicios.filter(x=>x.estado==='Preñada'&&+x.temporada===t&&x.fpp&&findByName(x.madre)?.estado==='Activo').sort((a,b)=>a.fpp.localeCompare(b.fpp))[0];
+    const m=s&&findByName(s.madre);if(m){UI.ficha=m.id;renderFicha()}else{UI.tab='madres';render()}};
+  EXTRA_ACTS.iniHacer=()=>{const el=document.querySelector('.panel.tareas');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})};
+  document.addEventListener('keydown',e=>{const t=e.target;if((e.key==='Enter'||e.key===' ')&&t.classList&&t.classList.contains('toca')){e.preventDefault();t.click()}});
+  {const st=document.createElement('style');st.textContent='.tile.toca{cursor:pointer}.tile.toca:active{transform:scale(.98)}.tile.toca:focus-visible{outline:2px solid var(--cuero);outline-offset:2px}.panel.tareas{scroll-margin-top:72px}';document.head.appendChild(st)}
+
+  /* ---------- Inicio: lo que todavía no se subió (pedido de Tomás el 25/10; el cartel lo arma vInicio) ---------- */
+  addEventListener('dc-pendientes',()=>{if(UI.tab==='inicio'&&!document.querySelector('#modal .ov'))render()});
+  addEventListener('dc-subido',e=>toast(`✓ Se ${e.detail>1?'subieron '+e.detail+' cambios':'subió el cambio'} a la nube`));
+  {const st=document.createElement('style');st.textContent='.pbpend{margin-bottom:12px;padding:10px 14px;border-radius:12px;background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn);font-size:.9rem}.pbpend summary{cursor:pointer;font-weight:600}.pbpend ul{margin:8px 0 0;padding-left:20px}';document.head.appendChild(st)}
+
+})();
