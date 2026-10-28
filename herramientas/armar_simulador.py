@@ -50,6 +50,7 @@ html=html.replace('claude.use(','DCAPP.use(')
 html=re.sub(r'<script>window\.DC_BLOBS=.*?</script>','<script>window.DC_BLOBS='+json.dumps(blobs)+';'+demo+'</script>',html,count=1,flags=re.S)
 # Excel adentro (la app lo carga aparte)
 banner='''<style>#dc-estado{display:none!important}
+.afab{bottom:calc(96px + env(safe-area-inset-bottom,0px))!important}
 #prueba{position:fixed;left:0;right:0;bottom:0;z-index:99;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;
  padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));background:#B8860B;color:#fff;font:600 13px/1.3 Inter,system-ui,sans-serif;text-align:center}
 #prueba button{font:700 12px Inter,system-ui,sans-serif;border:1.5px solid #fff;background:transparent;color:#fff;border-radius:8px;padding:5px 10px;cursor:pointer}
