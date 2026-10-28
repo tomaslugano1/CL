@@ -251,4 +251,17 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
   - **Plata:** herrero de un caballo (este año y total), precio promedio de venta, "qué le vendí a X".
   - **Embriones y receptoras**; **negaciones** (no preñadas, sin castrar, sin desparasitar, sin herrar, no están a la venta).
   - **Dos preguntas en un mensaje:** "los hijos de la Guacha y cuándo pare la Martina" (si la segunda no nombra caballo, usa el de la primera).
+- Asistente, sexta ronda (29/10, "hacé todos" otra vez): 12 tipos más, probados (109 preguntas de los grupos + 848 por caballo, 0 fallas; las 1.303 y 1.140 de antes siguen en 0):
+  - **Abreviaturas de WhatsApp:** q, xq, cdo, dnd, hnos, cuants, ctos, prox, ult, tb… y nombres con una letra de menos ("mrtina").
+  - **Pedirle que cargue algo** ("cargá que parió la Martina", "dale de baja a la China"): contesta que solo lee, explica con qué botón se hace y deja la ficha.
+  - **Rangos de fechas:** "entre marzo y junio", "desde agosto", "hasta junio", "en 2025", "este año", "el año pasado".
+  - **Comparar años:** nacimientos, herrero, ventas, muertes, preñeces, prácticas y torneos ("2025 contra 2026", "este año o el pasado").
+  - **Porcentajes y promedios:** % de preñez de la temporada, machos y hembras por camada, crías por madre, herrero por mes y por caballo.
+  - **Rankings por período:** quién jugó más (este mes, en septiembre, entre meses), en qué caballo se gastó más herrero, herrero mes por mes.
+  - **Polo de un caballo:** en qué torneos jugó (con fechas), última práctica, último torneo, última vez que jugó.
+  - **Edad de los chicos en meses:** "1 año y 11 meses (23 meses)".
+  - **Buscar en las notas:** "¿qué anoté de la China?", "notas sobre herrero".
+  - **Qué significa cada cosa:** puntitos, colores, atrasado, por vencer, ventana de parto, agarrado/suelto, Hechura, desvasar, FPP, ritmo, número, "cambios sin subir", Afuera. Y "¿por qué la China está en rojo?" dice qué tiene vencido.
+  - **Los de afuera:** "¿quiénes están afuera?", "¿cuántos hay a la venta afuera?".
+  - **Mensajes largos:** hasta 4 preguntas juntas, separadas con punto, "y", "también" o "después".
   - Falta: repetir todas las pruebas con los datos reales el 29, después de publicar.
