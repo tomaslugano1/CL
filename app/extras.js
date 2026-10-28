@@ -88,6 +88,11 @@ function nombresConocidos(){const m=new Map();const add=(n,peso)=>{n=String(n||'
   return [...m.values()]}
 /* Dos nombres parecen el mismo caballo: iguales salvo puntos/abreviaturas, una o dos letras de diferencia,
    o uno es el final del otro con el prefijo del haras (HULK / DOLFINA HULK). */
+/* Un nombre de la biblioteca de genealogías, escrito como ya está en la app: si en la app dice HULK, no se mete DOLFINA HULK
+   (lo mismo con LOSMACHITOS LIBANO / LOS MACHITOS LIBANO). Así al autocompletar no aparecen dos formas del mismo caballo. */
+function comoEnLaApp(n,ks=nombresConocidos()){n=String(n||'').trim();if(!n)return n;const k=norm(n);if(ks.some(x=>norm(x.n)===k))return n;
+  const ali=norm(ALIAS_PEDIGRI[k]||''),rev=Object.keys(ALIAS_PEDIGRI).filter(a=>norm(ALIAS_PEDIGRI[a])===k).map(norm);
+  const m=ks.filter(x=>parecidos(n,x.n)||(ali&&norm(x.n)===ali)||rev.includes(norm(x.n))).sort((a,b)=>b.usos-a.usos)[0];return m?m.n:n}
 function parecidos(a,b){const x=canon(a),y=canon(b);if(!x||!y||norm(a)===norm(b))return false;if(x===y)return true;
   // números distintos = caballos distintos (Cría 2021 / Cría 2023, DC 28 / DC 35)
   if((x.match(/\d+/g)||[]).join(' ')!==(y.match(/\d+/g)||[]).join(' '))return false;

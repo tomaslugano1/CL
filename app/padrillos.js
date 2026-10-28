@@ -9,7 +9,7 @@ const clavePad=n=>{const k=norm(n);return (typeof ALIAS_PEDIGRI!=='undefined'&&A
 function listaPadrillos(){const m=new Map();
   const nodo=(nombre)=>{const k=clavePad(nombre);if(!k)return null;
     if(!m.has(k)){const lib=pedigriConocido(nombre);
-      m.set(k,{k,nombre:lib?.nombre||String(nombre).toUpperCase().trim(),reg:null,lib,hijos:[],servicios:[]})}return m.get(k)};
+      m.set(k,{k,nombre:comoEnLaApp(lib?.nombre||String(nombre).toUpperCase().trim()),reg:null,lib,hijos:[],servicios:[]})}return m.get(k)};
   for(const p of S.padrillos){const n=nodo(p.nombre);if(n){n.reg=p;n.nombre=p.nombre}}
   for(const c of S.caballos)if(c.padre){const n=nodo(c.padre);if(n)n.hijos.push(c)}
   for(const s of S.servicios)if(s.padrillo){const n=nodo(s.padrillo);if(n)n.servicios.push(s)}

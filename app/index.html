@@ -642,7 +642,7 @@ function fieldHtml(f){const id='f-'+f.k,v=f.v??'';const cls=f.full?'full':'';
   return `<label class="${cls}">${f.l}<input id="${id}" type="${f.type||'text'}" value="${esc(v)}" ${f.list?`list="${f.list}"`:''} ${f.req?'required':''}></label>`}
 /* Sugerencias al escribir. Suma la biblioteca de genealogías (genealogias.js): machos para Padre y abuelos (dl-pad),
    hembras para Madre y abuelas (dl-gen-h). La lista de madres de los servicios (dl-hembras) son solo las de la app. */
-function datalists(){const lib=[...PED_LIB.values()],opt=l=>l.map(v=>`<option value="${esc(v.nombre)}">`).join('');
+function datalists(){const conocidos=nombresConocidos(),lib=[...PED_LIB.values()].map(v=>({...v,nombre:comoEnLaApp(v.nombre,conocidos)})),opt=l=>[...new Set(l.map(v=>v.nombre))].map(n=>`<option value="${esc(n)}">`).join('');
   return `<datalist id="dl-pad">${S.padrillos.map(p=>`<option value="${esc(p.nombre)}">`).join('')}${[...new Set(S.caballos.map(c=>c.padre).filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join('')}${opt(lib.filter(v=>v.sexo!=='Hembra'))}</datalist>
   <datalist id="dl-hembras">${S.caballos.filter(c=>c.sexo==='Hembra').map(c=>`<option value="${esc(c.nombre)}">`).join('')}</datalist><datalist id="dl-lug">${lugares().map(l=>`<option value="${esc(l)}">`).join('')}</datalist>`
     +`<datalist id="dl-gen-h">${opt([...S.caballos.filter(c=>c.sexo==='Hembra').map(c=>({nombre:c.nombre})),...lib.filter(v=>v.sexo==='Hembra')])}</datalist>`}
@@ -690,7 +690,7 @@ function conectarGenealogia(){
     const el=document.getElementById(id);if(el&&document.getElementById(l))el.setAttribute('list',l)}
   const lado=(campo,ab,aba)=>{const el=document.getElementById('f-'+campo);if(!el)return;
     const llenar=()=>{const g=padresDe(el.value);if(!g)return;let n=0;
-      for(const [k,v] of [[ab,g.padre],[aba,g.madre]]){const f=document.getElementById('f-'+k);if(f&&!f.value.trim()&&v){f.value=v;n++}}
+      for(const [k,v] of [[ab,g.padre],[aba,g.madre]]){const f=document.getElementById('f-'+k);if(f&&!f.value.trim()&&v){f.value=comoEnLaApp(v);n++}}
       if(n)toast('Abuelos completados con '+g.de)};
     el.addEventListener('change',llenar);el.addEventListener('blur',llenar)};
   lado('padre','abueloP','abuelaP');lado('madre','abueloM','abuelaM');
