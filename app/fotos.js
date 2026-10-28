@@ -21,8 +21,6 @@ function pantallaFotos(redibujar){
 const porCatOrden=c=>{const i=['Potrillos','Doma','Hechura','Descanso','Jugadores','Madres','Receptoras'].indexOf(c.categoria);return i<0?99:i};
 EXTRA_ACTS.diaFotos=()=>pantallaFotos();
 NAV.rehacer['p:Día de fotos']=()=>pantallaFotos();
-/* Cuando sube una foto, la lista se actualiza sola (sin perder dónde estabas) */
-{const r0=render;render=function(){const r=r0.apply(this,arguments);if(document.querySelector('#modal [data-diafotos]'))pantallaFotos(true);return r}}
 {const st=document.createElement('style');st.textContent=`
 .dfila .grow{flex:1;min-width:0}.dfila{display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:1px solid var(--line);margin-bottom:8px;background:var(--surface)}
 .dfila.Macho{background:var(--macho)}.dfila.Hembra{background:var(--hembra)}.dfila .nm{font-weight:700}.dfila .meta{font-size:13px;color:var(--muted)}

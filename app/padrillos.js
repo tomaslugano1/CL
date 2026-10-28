@@ -4,12 +4,11 @@
    Arriba se filtra por categoría ("qué padrillos usé en los potrillos, en la doma…").
    Junta los padrillos cargados en Padrillos, los padres de los caballos de la manada y los de los servicios,
    y entiende las distintas formas de escribir el mismo nombre (HULK = DOLFINA HULK). */
-const CATS_PAD=[['','Todos'],['Potrillos','Potrillos'],['Doma','Doma'],['Hechura','Hechura'],['Descanso','Descanso'],['Jugadores','Jugadores'],['Madres','Madres'],['__nacer','Por nacer']];
 const clavePad=n=>{const k=norm(n);return (typeof ALIAS_PEDIGRI!=='undefined'&&ALIAS_PEDIGRI[k])?norm(ALIAS_PEDIGRI[k]):k};
 
 function listaPadrillos(){const m=new Map();
   const nodo=(nombre)=>{const k=clavePad(nombre);if(!k)return null;
-    if(!m.has(k)){const lib=typeof pedigriConocido==='function'?pedigriConocido(nombre):null;
+    if(!m.has(k)){const lib=pedigriConocido(nombre);
       m.set(k,{k,nombre:lib?.nombre||String(nombre).toUpperCase().trim(),reg:null,lib,hijos:[],servicios:[]})}return m.get(k)};
   for(const p of S.padrillos){const n=nodo(p.nombre);if(n){n.reg=p;n.nombre=p.nombre}}
   for(const c of S.caballos)if(c.padre){const n=nodo(c.padre);if(n)n.hijos.push(c)}
@@ -29,10 +28,10 @@ function sangreTxt(p){const s=p.sangre;if(!s.padre&&!s.madre)return '';
 const UNO_CAT={Potrillos:['potrillo','potrillos'],Doma:['en doma','en doma'],Hechura:['en hechura','en hechura'],Descanso:['en descanso','en descanso'],Jugadores:['jugador','jugadores'],Madres:['madre','madres'],Receptoras:['receptora','receptoras']};
 const chipsCats=cats=>CATS.filter(c=>cats[c]).map(c=>`<span class="pill p-none">${cats[c]} ${esc((UNO_CAT[c]||[c.toLowerCase(),c.toLowerCase()])[cats[c]===1?0:1])}</span>`).join(' ');
 
-vPadrillos=function(){const f=''; // sin filtros: en la ficha de cada padrillo ya se ven sus hijos por categoría
-  let l=listaPadrillos();
-  if(f==='__nacer')l=l.filter(p=>p.porNacer.length);else if(f)l=l.filter(p=>p.cats[f]);
-  l.sort((a,b)=>(f&&f!=='__nacer'?(b.cats[f]||0)-(a.cats[f]||0):0)||b.vivos.length-a.vivos.length||b.porNacer.length-a.porNacer.length||a.nombre.localeCompare(b.nombre,'es'));
+/* Sin filtros: en la ficha de cada padrillo ya se ven sus hijos por categoría */
+function vPadrillos(){
+  const l=listaPadrillos();
+  l.sort((a,b)=>b.vivos.length-a.vivos.length||b.porNacer.length-a.porNacer.length||a.nombre.localeCompare(b.nombre,'es'));
   const tarjeta=p=>{const lib=p.lib,datos=[lib?.nac?(lib.nac.length>4?fmt(lib.nac):lib.nac):'',lib?.pelaje||'',lib?.criador||''].filter(Boolean).join(' · ');
     const extra=[p.porNacer.length?`${p.porNacer.length} por nacer`:'',p.vendidos.length?`${p.vendidos.length} vendido${p.vendidos.length>1?'s':''}`:'',
       p.muertos.length?`${p.muertos.length} muerto${p.muertos.length>1?'s':''}`:'',p.camadas.length?'camadas '+(p.camadas.length>1?p.camadas[0]+'–'+p.camadas[p.camadas.length-1]:p.camadas[0]):''].filter(Boolean).join(' · ');
@@ -43,8 +42,7 @@ vPadrillos=function(){const f=''; // sin filtros: en la ficha de cada padrillo y
       <div class="pc-hijos"><b>${p.vivos.length}</b> hijo${p.vivos.length===1?'':'s'} vivo${p.vivos.length===1?'':'s'} ${chipsCats(p.cats)}</div>
       ${extra?`<div class="small muted">${esc(extra)}</div>`:''}</button>`};
   return `<div class="pcards">${l.map(tarjeta).join('')||'<div class="empty">Ningún padrillo con hijos en esta categoría.</div>'}</div>
-   <p class="lcount">${l.length} padrillo${l.length===1?'':'s'}</p>`};
-EXTRA_ACTS.padCat=d=>{UI.padCat=d.v;render()};
+   <p class="lcount">${l.length} padrillo${l.length===1?'':'s'}</p>`}
 
 /* Ficha del padrillo: pedigree, hijos por categoría, por nacer, vendidos y muertos */
 EXTRA_ACTS.padVer=d=>{const p=listaPadrillos().find(x=>x.k===d.k);if(!p)return;NAV.rehacer['p:'+(p.manada?'MANADA':p.nombre)]=()=>EXTRA_ACTS.padVer({k:d.k});

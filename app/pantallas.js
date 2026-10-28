@@ -26,15 +26,14 @@ addEventListener('popstate',()=>{if(NAV.silencio){NAV.silencio--;return}
 /* "‹", Cancelar y Escape: una pantalla para atrás */
 function navAtras(){if(NAV.pila.length)history.back();else{UI.ficha=null;$('#modal').innerHTML=''}}
 /* Cerrar después de guardar: si abajo hay una ficha, se vuelve a ella; si no, se cierra todo */
-const _cerrarTodo=closeModal;
-closeModal=function(){const p=NAV.pila;let n=0;
+function closeModal(){const p=NAV.pila;let n=0;
   while(p.length&&p[p.length-1].k.startsWith('p:')){p.pop();n++}
   const top=navTop();
   if(n&&top&&byId(top.k.slice(2))){NAV.silencio++;history.go(-n);UI.ficha=top.k.slice(2);renderFicha();return}
-  n+=p.length;p.length=0;_cerrarTodo();if(n){NAV.silencio++;history.go(-n)}};
+  n+=p.length;p.length=0;UI.ficha=null;$('#modal').innerHTML='';if(n){NAV.silencio++;history.go(-n)}}
 
 /* ================= Lista de caballos ================= */
-const CATS_LISTA=[['__venta','A la venta'],['','Todos'],['Jugadores','Jugadores'],['Descanso','Descanso'],['Hechura','Hechura'],['Doma','Doma'],['Potrillos','Potrillos'],['Madres','Madres'],['__bajas','Bajas']];
+const CATS_LISTA=[['__venta','A la venta'],['','Todos'],['Jugadores','Jugadores'],['Descanso','Descanso'],['Hechura','Hechura'],['Doma','Doma'],['Potrillos','Potrillos'],['__padrillos','Padrillos'],['Madres','Madres'],['__bajas','Bajas']];
 const ICO_LUPA='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
 const ICO_PIN='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
 const ICO_CAT='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>';
@@ -46,7 +45,7 @@ function coincide(c,q){
   const pal=norm([c.nombre,c.apodo,c.obs,c.rp,c.chip,c.madre,c.padre,c.pelaje,c.categoria,c.lugar,c.embocadura,c.sexo==='Hembra'?'yegua hembra':c.sexo==='Macho'?'macho caballo':''].filter(Boolean).join(' ')).split(/[^A-Z0-9Ñ]+/).filter(Boolean);
   const todo=pal.join(' ');if(todo.includes(q))return true;
   return q.split(/\s+/).filter(Boolean).every(w=>{const r=raizBusq(w);return pal.some(p=>p.startsWith(r))})}
-vCaballos=function(){
+function vCaballos(){
   const q=norm(UI.q),cat=UI.bajas?'__bajas':UI.cat;
   let l=S.caballos.filter(c=>(cat==='__bajas'?c.estado!=='Activo':c.estado==='Activo')&&(!cat||cat==='__bajas'||(cat==='__venta'?c.venta:c.categoria===cat))
     &&(!UI.lugar||(UI.lugar==='__sin'?!c.lugar:c.lugar===UI.lugar))
@@ -70,7 +69,7 @@ vCaballos=function(){
    ${madresTabs?`<div class="tabs">${[['Madres','Madres'],['Receptoras','Receptoras']].map(([k,t])=>`<button class="${cat===k?'on':''}" data-act="fcat" data-v="${k}">${t}</button>`).join('')}</div>`:''}
    ${sel?`<p class="note">Tocá los caballos que querés mover. Después elegí la categoría o el lugar nuevo.</p>`:''}
    <div class="hcards">${l.map(c=>{const e=edad(c.nac);const ds=['Desparasitación','Desvasada'].map(t=>estadoSan(c,t));
-     const meta=[e!==null?e+(e===1?' año':' años'):'',cat===c.categoria?'':c.categoria,c.camada?'Camada '+c.camada:'',c.venta&&cat!=='__venta'?'A la venta':'',enDescanso(c)?textoDescanso(c).linea:(typeof trabajoLinea==='function'?trabajoLinea(c):''),c.estado!=='Activo'?c.estado+(c.bajaFecha?' '+fmt(c.bajaFecha):'')+(c.bajaPrecio?' · '+c.bajaPrecio:'')+(c.bajaComprador?' · a '+c.bajaComprador:''):''].filter(Boolean).join(' · ');
+     const meta=[e!==null?e+(e===1?' año':' años'):'',cat===c.categoria?'':c.categoria,c.camada?'Camada '+c.camada:'',c.venta&&cat!=='__venta'?'A la venta':'',enDescanso(c)?textoDescanso(c).linea:(trabajoLinea(c)),c.estado!=='Activo'?c.estado+(c.bajaFecha?' '+fmt(c.bajaFecha):'')+(c.bajaPrecio?' · '+c.bajaPrecio:'')+(c.bajaComprador?' · a '+c.bajaComprador:''):''].filter(Boolean).join(' · ');
      return `<button class="hcard ${esc(c.sexo)} ${c.estado!=='Activo'?'baja':''}" data-${sel?'pick':'open'}="${c.id}">
       ${sel?`<input type="checkbox" tabindex="-1" ${sel.has(c.id)?'checked':''}>`:''}
       ${c.fotos?.length?`<img class="thumb" src="${fotoUrl(c.fotos[0])}" alt="" loading="lazy">`:''}
@@ -79,9 +78,9 @@ vCaballos=function(){
       ${c.estado==='Activo'&&enCampo(c)?`<div class="dots" title="Desparasitación · Desvasada">${ds.map(s=>`<span class="dot d-${s.st}"></span>`).join('')}</div>`:''}
       ${sel?'':'<span class="go">›</span>'}</button>`}).join('')||'<div class="empty">No hay caballos en esta categoría.</div>'}</div>
    ${l.length?`<p class="lcount">${l.length} caballo${l.length===1?'':'s'}</p>`:''}
-   ${sel?`<div class="selbar"><b>${sel.size} elegidos</b><button class="btn sm" data-act="selall">Todos</button><button class="btn sm pri" data-act="moverCat" ${sel.size?'':'disabled'}>Cambiar categoría</button><button class="btn sm pri" data-act="moverLug" ${sel.size?'':'disabled'}>Cambiar lugar</button></div>`:''}`};
+   ${sel?`<div class="selbar"><b>${sel.size} elegidos</b><button class="btn sm" data-act="selall">Todos</button><button class="btn sm pri" data-act="moverCat" ${sel.size?'':'disabled'}>Cambiar categoría</button><button class="btn sm pri" data-act="moverLug" ${sel.size?'':'disabled'}>Cambiar lugar</button></div>`:''}`}
 EXTRA_ACTS.drop=d=>{UI.drop=UI.drop===d.d?null:d.d;render()};
-EXTRA_ACTS.fcat=d=>{UI.drop=null;UI.subCam=null;if(d.v==='__bajas'){UI.bajas=true;UI.cat=''}else{UI.bajas=false;UI.cat=d.v}render()};
+EXTRA_ACTS.fcat=d=>{UI.drop=null;if(d.v==='__padrillos'){UI.tab='padrillos';render();window.scrollTo(0,0);return}UI.subCam=null;if(d.v==='__bajas'){UI.bajas=true;UI.cat=''}else{UI.bajas=false;UI.cat=d.v}render()};
 EXTRA_ACTS.flug=d=>{UI.drop=null;UI.lugar=d.v;render()};
 EXTRA_ACTS.subcam=d=>{UI.subCam=d.v?+d.v:null;render()};
 EXTRA_ACTS.lupa=()=>{if(UI.buscar&&!UI.q){UI.buscar=false;render();return}UI.buscar=true;render();const q=$('#q');q&&q.focus()};
@@ -103,15 +102,21 @@ function filasControl(c,tipos,evs){return tipos.map(t=>{const s=estadoSan(c,t);c
   return `<details class="desp" data-k="${k}" ${UI.abiertos?.has(k)?'open':''}><summary><div class="grow">${t}<div class="sub">Última ${fmt(s.u)}${s.p?' · próxima '+fmt(s.p):''}</div></div><span class="pill p-${s.st}">${s.txt}</span><span class="go">›</span></summary>
    <div class="hist">${h.map(x=>`<div class="li"><div>${fmt(x.fecha)}${x.tipo!==t?' · '+esc(x.tipo):''}${x.obs?`<div class="sub">${esc(x.obs)}</div>`:''}</div>${x.precio?`<span class="small muted">${$$(x.precio)}</span>`:''}</div>`).join('')||'<div class="muted small">Sin registros.</div>'}
    ${t==='Herrada'&&s.p&&canWrite?`<button class="btn sm" data-act="desherrar" data-id="${c.id}">Ya no está herrado</button>`:''}</div></details>`}).join('')}
-function seccionControles(c,evs,k,titulo,tipos,tiposHist){const tb=tabsSec(k,[['act','Actual'],['hist','Historial']]);
+/* En Sanidad suma los controles nuevos que tienen registro y, en las madres preñadas, las dosis de preñez (pb.js) */
+function seccionControles(c,evs,k,titulo,tipos,tiposHist){let ds=[];
+  if(k==='san'){tipos=[...tipos,...ctrlDiasActivos(c).filter(ct=>ultimo(c.id,ct.k)).map(ct=>ct.k)];tiposHist=[...tiposHist,...CONTROLES_DEF.map(x=>x.base||x.k)];ds=esCatMadre(c)?dosisPrenez(c):[]}
+  const tb=tabsSec(k,[['act','Actual'],['hist','Historial']]);
   const hist=evs.filter(x=>tiposHist.includes(x.tipo));
-  return sec(titulo,'',tb.html+(tb.v==='act'?`<div class="list">${filasControl(c,tipos,evs)}</div>`:hist.length?`<div class="tlw">${hist.map(filaEv).join('')}</div>`:'<div class="muted small">Sin registros.</div>'))}
+  let h=sec(titulo,'',tb.html+(tb.v==='act'?`<div class="list">${filasControl(c,tipos,evs)}</div>`:hist.length?`<div class="tlw">${hist.map(filaEv).join('')}</div>`:'<div class="muted small">Sin registros.</div>'));
+  if(ds.length&&tb.v==='act'){const filas=ds.map(x=>`<div class="li"><div>${esc(x.k)}<div class="sub">Toca el ${fmt(x.due)}</div></div><span class="pill ${x.hecha?'p-ok':x.d<0&&x.due<PRENEZ_DESDE?'p-none':x.d<0?'p-bad':x.d<=15?'p-warn':'p-none'}">${x.hecha?'Hecha '+fmt(x.hecha.fecha):x.d<0&&x.due<PRENEZ_DESDE?'Sin cargar':x.d<0?'Vencida':x.d<=15?'En '+x.d+' d':'Pendiente'}</span></div>`).join('');
+    h=h.replace(/<\/section>$/,`<div class="sub" style="margin-top:6px;font-weight:700">Vacunas de preñez</div><div class="list">${filas}</div></section>`)}
+  return h}
 function esMadre(c){return c.sexo==='Hembra'&&(['Madres','Receptoras'].includes(c.categoria)||S.servicios.some(s=>norm(s.madre)===norm(c.nombre)))}
 function seccionServicios(c){const serv=S.servicios.filter(s=>norm(s.madre)===norm(c.nombre)).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||'')||(+b.temporada-+a.temporada));
   const pre=serv.find(s=>s.estado==='Preñada');
   const der=canWrite&&c.estado==='Activo'?`<button class="btn sm pri" data-act="nacimiento" data-m="${esc(c.nombre)}" ${pre?`data-s="${pre.id}"`:''}>+ Nacimiento</button>`:'';
   const tarjeta=s=>{const st=estadoRepro(s);const ab=s.estado==='Abortó',enCurso=['Preñada','Servida (sin tacto)'].includes(s.estado);
-    const cria=s.estado==='Parida'&&typeof criaDeServicio==='function'?criaDeServicio(s):null;
+    const cria=s.estado==='Parida'&&criaDeServicio(s);
     return `<div class="scard"><div class="mtop"><span class="sub" style="margin:0">${fmt(s.fecha)}</span><span class="pill ${ab?'p-bad':st.pill}">${ab?'Abortó':esc(s.estado||'—')}</span>
        <span style="margin-left:auto" class="row">${s.padrillo&&enCurso?`<button class="btn sm" data-act="pedShare" data-s="${s.id}" aria-label="Pedigree del potrillo">Pedigree</button>`:''}${canWrite?`<button class="btn sm" data-serv="${s.id}" aria-label="Editar servicio">Editar</button>`:''}</span></div>
       <div class="snom">${s.padrillo?`<span class="a" data-open-name="${esc(s.padrillo)}">${esc(s.padrillo)}</span>`:'Sin padrillo'}${s.tipo?` <span class="sub" style="display:inline">· ${esc(s.tipo)}</span>`:''}</div>
@@ -130,7 +135,11 @@ function seccionPrenez(c){const s=servUltimo(c.nombre);const st=estadoRepro(s);c
   return sec('Preñez'+(s.temporada?` <span class="muted small">· para ${esc(s.temporada)}</span>`:''),st.cuenta&&pre?`<span class="pill ${st.cpill}">${st.cuenta}</span>`:cerro?`<span class="pill ${s.estado==='Parida'?'p-ok':'p-bad'}">${s.estado==='Parida'?'Parió':'Abortó'}</span>`:'',
     `${cerro?`<p class="note" style="margin:0 0 8px">${s.estado==='Parida'?'Parió':'Abortó'} de ${esc(s.padrillo||'—')}. Cuando la vuelvan a servir, cargá el servicio nuevo con <b>+ Servicio</b>.</p>`:''}<div class="pbtns">${btn('Vacía','Vacía',vacia)}${btn('Preñada','Preñada',pre)}</div>${s.estado==='Servida (sin tacto)'?'<p class="note" style="margin:0">Servida '+fmt(s.fecha)+': falta la ecografía. Tocá Preñada o Vacía para cargarla.</p>':''}
      <div class="kvl">${filas.map(([k,v])=>`<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>${barraGest(st)}`,'repro')}
-renderFicha=function(){
+/* Al dar de alta un caballo, la ficha se pide un instante antes de tenerlo en memoria: espera hasta 2 segundos y la abre */
+let intentosFicha=0;
+function renderFicha(){
+  if(UI.ficha&&!byId(UI.ficha)&&intentosFicha<20){intentosFicha++;const id=UI.ficha;setTimeout(()=>{if(UI.ficha===id)renderFicha()},100);return}
+  intentosFicha=0;
   const c=byId(UI.ficha);if(!c){closeModal();return}
   const e=edad(c.nac),activo=c.estado==='Activo';
   const evs=S.eventos.filter(x=>x.caballoId===c.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
@@ -152,7 +161,7 @@ renderFicha=function(){
     ${c.obs||c.embocadura?`<div class="senas">${c.obs?`<div><span>Observación</span>${esc(c.obs)}</div>`:''}${c.embocadura?`<div><span>Embocadura</span>${esc(c.embocadura)}</div>`:''}</div>`:''}
     ${c.fotos?.length?`<img class="cover" src="${fotoUrl(c.fotos[0])}" alt="${esc(c.nombre)}">`:''}
     ${sec('Datos','',`<div class="kvl">${datos.map(([k,v])=>`<div><span>${k}</span><b>${esc(v||'—')}</b></div>`).join('')}</div>`)}
-    ${typeof botonesEtapa==='function'?botonesEtapa(c):''}
+    ${botonesEtapa(c)}
     ${!activo?sec('Baja','',`<div class="kvl"><div><span>Motivo</span><b>${esc(c.estado)}</b></div><div><span>Fecha</span><b>${fmt(c.bajaFecha)}</b></div>${c.bajaPrecio?`<div><span>Precio</span><b>${esc(c.bajaPrecio)}</b></div>`:''}${c.bajaComprador?`<div><span>Comprador</span><b>${esc(c.bajaComprador)}</b></div>`:''}${c.bajaObs?`<div><span>Detalle</span><b>${esc(c.bajaObs)}</b></div>`:''}</div>`):''}
     ${enDescanso(c)&&activo?seccionDescanso(c):''}
     ${esMadre(c)?seccionServicios(c)+seccionPrenez(c):''}
@@ -168,11 +177,9 @@ renderFicha=function(){
     ${canWrite?`<div class="fbtns"><button class="btn ancho" data-edit="${c.id}">Editar datos</button>
       ${c.venta&&activo?`<button class="btn ancho" data-venta="${c.id}">Ficha de venta</button>`:''}
       ${activo?`<button class="btn ancho danger" data-baja="${c.id}">Dar de baja</button>`:`<button class="btn ancho" data-alta-de-nuevo="${c.id}">Volver a activo</button>`}</div>`:''}
-   </div></div></div>`};
+   </div></div></div>`}
 
 /* ================= Reproducción: nacimiento y aborto ================= */
-EXTRA_ACTS.nacimiento=d=>{const s=d.s&&S.servicios.find(x=>x.id===d.s);if(s){partoForm(s);return}
-  const m=findByName(d.m);caballoForm(null,{nombre:'DC S/N '+norm(d.m),categoria:'Potrillos',nac:hoy(),camada:+hoy().slice(0,4),madre:norm(d.m),lugar:m?.lugar||'Doña Cecilia'})};
 EXTRA_ACTS.aborto=d=>{const s=S.servicios.find(x=>x.id===d.id);if(!s)return;
   form('Registrar aborto · '+s.madre,[{k:'fecha',l:'Fecha',type:'date',v:hoy(),req:1},{k:'obs',l:'Observaciones (opcional)',type:'area'}],
    async v=>{await db.collection('servicios').doc(s.id).update({estado:'Abortó',fpp:'',obs:[s.obs,'Abortó '+fmt(v.fecha)+(v.obs?': '+v.obs:'')].filter(Boolean).join(' · ')});
@@ -190,8 +197,9 @@ EXTRA_ACTS.menos=async d=>{const c=byId(d.id);if(!c)return;const t=d.t,nom=t==='
 
 /* ================= Descanso: categoría con fecha de salida y de vuelta ================= */
 const enDescanso=c=>c.categoria==='Descanso';
-function textoDescanso(c){const d=c.descansoDesde?diff(hoy(),c.descansoDesde):null,v=c.descansoHasta?diff(c.descansoHasta,hoy()):null;
-  return {d,v,linea:[d!==null?`${d} día${d===1?'':'s'} de descanso`:'',v===null?'':v<0?`agarrar: pasó ${-v} d`:v===0?'agarrar HOY':`agarrar en ${v} d`].filter(Boolean).join(' · ')}}
+/* La línea dice "Suelta desde 27/05 · 151 días" cuando se sabe desde cuándo (trabajo.js) */
+function textoDescanso(c){const d=c.descansoDesde?diff(hoy(),c.descansoDesde):null,v=c.descansoHasta?diff(c.descansoHasta,hoy()):null,l=trabajoLinea(c);
+  return {d,v,linea:[l||(d!==null?`${d} día${d===1?'':'s'} de descanso`:''),v===null?'':v<0?`agarrar: pasó ${-v} d`:v===0?'agarrar HOY':`agarrar en ${v} d`].filter(Boolean).join(' · ')}}
 function seccionDescanso(c){const t=textoDescanso(c);
   return sec('Descanso',t.v!==null?`<span class="pill ${t.v<0?'p-bad':t.v<=7?'p-warn':'p-none'}">${t.v<0?'Pasó '+(-t.v)+' d':t.v===0?'Hoy':'Faltan '+t.v+' d'}</span>`:'',
    `<div class="kvl"><div><span>Salió a descanso</span><b>${fmt(c.descansoDesde)}${t.d!==null?` (${t.d} días)`:''}</b></div><div><span>Volver a agarrar</span><b>${fmt(c.descansoHasta)}</b></div><div><span>Venía de</span><b>${esc(c.catPrevia||'—')}</b></div></div>
@@ -209,7 +217,6 @@ EXTRA_ACTS.agarrar=d=>{const c=byId(d.id);if(!c)return;const dest=c.catPrevia&&c
      await db.collection('eventos').doc(slugId('e')).set({fecha:v.fecha,caballoId:c.id,caballo:c.nombre,tipo:'Movimiento',detalle:'Descanso → '+v.cat+' (agarrado)',obs:[c.descansoDesde?'Estuvo '+diff(v.fecha,c.descansoDesde)+' días de descanso':'',v.obs].filter(Boolean).join(' · '),por:uid||''});
      toast(c.nombre+' vuelve a '+v.cat);UI.ficha=c.id;renderFicha()})};
 /* El botón "Descanso" del ritmo manda el caballo a la categoría Descanso */
-{const r=EXTRA_ACTS.ritmo;EXTRA_ACTS.ritmo=d=>d.r==='descanso'?EXTRA_ACTS.aDescanso({id:d.id}):r(d)}
 
 /* ================= Bajas: vendidos, muertos y otros ================= */
 const ICO_PRENADA='<svg class="ico-pre" viewBox="0 0 32 20" width="30" height="19" aria-label="Preñada" role="img"><title>Preñada</title><g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="12" height="5" rx="2.5" stroke-width="0"/><path d="M13 8 16 3l2 1-2 5z" stroke-width=".8"/><path d="M16 3l4 1.5-.5 1.5-2.5-.5z" stroke-width=".8"/><path d="M5.5 11v6M8 11v6M12.5 11v6M15 11v6M4.5 8 2 12" fill="none" stroke-width="1.5"/><rect x="21" y="11" width="7" height="3" rx="1.5" stroke-width="0"/><path d="M26.5 11.5l2-3 1.2.6-1.4 2.9z" stroke-width=".6"/><path d="M28.5 8.5l2.5.9-.3.9-1.4-.3z" stroke-width=".6"/><path d="M22 13.5V17M24 13.5V17M26.5 13.5V17M27.8 13.5V17" fill="none" stroke-width="1.1"/></g></svg>';

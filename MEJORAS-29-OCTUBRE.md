@@ -264,4 +264,12 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
   - **Qué significa cada cosa:** puntitos, colores, atrasado, por vencer, ventana de parto, agarrado/suelto, Hechura, desvasar, FPP, ritmo, número, "cambios sin subir", Afuera. Y "¿por qué la China está en rojo?" dice qué tiene vencido.
   - **Los de afuera:** "¿quiénes están afuera?", "¿cuántos hay a la venta afuera?".
   - **Mensajes largos:** hasta 4 preguntas juntas, separadas con punto, "y", "también" o "después".
+- Asistente, séptima ronda (28/10): **refinar la respuesta anterior** ("de esas, ¿cuáles son alazanas?", "solo las hembras", "sacá las de jugadores", "ordenalas por edad / por nombre") y **"no, la otra"** (otro caballo con un nombre parecido). Además, "a la venta" se combina con los otros filtros ("yeguas alazanas a la venta"). 120 preguntas de los grupos + 848 por caballo, 0 fallas.
   - Falta: repetir todas las pruebas con los datos reales el 29, después de publicar.
+
+## U. Código ordenado, sin parches (28/10)
+- Antes, unas 25 funciones se definían en un archivo y otro las reemplazaba o envolvía (sanidad, tareas, ficha, Inicio, Madres, genealogía, cerrar pantallas, formulario de evento y de baja…). Ahora cada una está **una sola vez**, con todo junto, y un comentario dice qué parte viene de qué archivo.
+- Se sacó lo que ya no se usaba: funciones viejas reemplazadas (árbol viejo, formulario de baja y de evento viejos, lista vieja de padrillos), acciones repetidas y controles "por si no cargó tal archivo" (siempre cargan todos).
+- El asistente quedó en una sola pieza ordenada: entender la pregunta → armar respuestas → responder (1 preguntas de uso, 2 cómo se hace / sí o no / filtros, 3 lo de siempre).
+- Prueba: "foto" de todo lo que muestra la app antes y después (2.323 controles: 7 pantallas, 9 categorías, 76 fichas, formularios, sanidad de cada caballo, preñeces, tareas, genealogías y 1.429 respuestas del asistente): **0 diferencias**. La recorrida completa, el lector de chip, el atrás, los cambios de nombre y categoría dan exactamente lo mismo que antes.
+- Los AJUSTES de datos (19) se sacan después del 29, cuando la app publicada los aplique a los datos reales y se confirme que quedaron.

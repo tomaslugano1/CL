@@ -31,36 +31,14 @@ main .lbar .btn.icon{width:36px;height:36px;min-height:36px}
 .pbacc .chip{flex:none;padding:8px 14px;font-weight:600}`;
   document.head.appendChild(css);
 
-  /* ---------- la app abre en el Inicio ---------- */
-  UI.tab='inicio';
-  let empujado=false; // si se entró a otra pantalla desde el Inicio, hay un paso en el historial para volver con "atrás"
-  renderNav=function(){
-    if(UI.tab!=='inicio'&&!empujado){empujado=true;history.pushState({dcTab:1},'')}
-    document.body.classList.toggle('en-inicio',UI.tab==='inicio')};
+  /* ---------- volver al Inicio (renderNav, en index.html, deja el paso en el historial) ---------- */
   const alInicio=()=>{empujado=false;UI.tab='inicio';UI.sel=null;UI.drop=null;render();window.scrollTo(0,0)};
   EXTRA_ACTS.inicio=()=>{if(UI.tab==='inicio')return;if(empujado&&history.state&&history.state.dcTab)history.back();else alInicio()};
   addEventListener('popstate',()=>{
     if(!empujado||NAV.pila.length||$('#modal').innerHTML.trim()||(history.state&&history.state.dcTab))return;
     alInicio()});
 
-  /* ---------- Inicio: "Ver caballos" y accesos ---------- */
-  const _inicio=vInicio;
-  vInicio=function(){return `<button class="pbver" data-tab="caballos">Ver caballos <span>›</span></button>
-    <div class="pbacc">${[['camadas','Camadas'],['sanidad','Sanidad'],['notas','Notas']].map(([k,t])=>`<button class="chip" data-tab="${k}">${t}</button>`).join('')}${(n=>n?`<button class="chip" data-act="diaFotos">Día de fotos · faltan ${n}</button>`:'')(activos().filter(c=>!fuera(c)&&!c.fotos?.length).length)}</div>`+_inicio()};
-
-  /* ---------- Inicio: cada recuadro se toca (pedido de Tomás el 25/10) ---------- */
-  const tocar=(html,label,attrs)=>html.replace(`<div class="tile"><span>${label}</span>`,`<div class="tile toca" ${attrs} role="button" tabindex="0"><span>${label} ›</span>`)
-    .replace(`<div class="tile alert"><span>${label}</span>`,`<div class="tile alert toca" ${attrs} role="button" tabindex="0"><span>${label} ›</span>`)
-    .replace(`<div class="tile "><span>${label}</span>`,`<div class="tile toca" ${attrs} role="button" tabindex="0"><span>${label} ›</span>`);
-  const _ini2=vInicio;
-  vInicio=function(){let h=_ini2();
-    h=tocar(h,'Caballos propios','data-act="iniVer"');                 // → Ver caballos, todos
-    h=tocar(h,'Preñadas','data-tab="madres"');                         // → Madres y partos
-    h=h.replace('<div class="tile" data-tab="madres" role="button" tabindex="0" style="cursor:pointer"><span>Próximo parto ›</span>',
-      '<div class="tile toca" data-act="iniParto" role="button" tabindex="0"><span>Próximo parto ›</span>');   // → ficha de la próxima en parir
-    h=tocar(h,'Para hacer · 7 días','data-act="iniHacer"');            // → baja a "Para hacer esta semana"
-    h=tocar(h,'Para revisar','data-tab="notas"');                      // → Notas
-    return h};
+  /* ---------- Inicio: los recuadros que se tocan (los arma vInicio) ---------- */
   EXTRA_ACTS.iniVer=()=>{UI.cat='';UI.bajas=false;UI.subCam=null;UI.lugar='';UI.tab='caballos';render();window.scrollTo(0,0)};
   EXTRA_ACTS.iniParto=()=>{const t=+S.config.temporada||new Date().getFullYear();
     const s=S.servicios.filter(x=>x.estado==='Preñada'&&+x.temporada===t&&x.fpp&&findByName(x.madre)?.estado==='Activo').sort((a,b)=>a.fpp.localeCompare(b.fpp))[0];
@@ -69,16 +47,9 @@ main .lbar .btn.icon{width:36px;height:36px;min-height:36px}
   document.addEventListener('keydown',e=>{const t=e.target;if((e.key==='Enter'||e.key===' ')&&t.classList&&t.classList.contains('toca')){e.preventDefault();t.click()}});
   {const st=document.createElement('style');st.textContent='.tile.toca{cursor:pointer}.tile.toca:active{transform:scale(.98)}.tile.toca:focus-visible{outline:2px solid var(--cuero);outline-offset:2px}.panel.tareas{scroll-margin-top:72px}';document.head.appendChild(st)}
 
-  /* ---------- Inicio: lo que todavía no se subió (pedido de Tomás el 25/10) ---------- */
-  const _ini3=vInicio;
-  vInicio=function(){const l=typeof DC_PENDIENTES==='function'?DC_PENDIENTES():[];
-    return (l.length?`<details class="pbpend"><summary>⟳ ${l.length} cambio${l.length>1?'s':''} sin subir · se ${l.length>1?'suben solos':'sube solo'} cuando haya señal</summary><ul>${l.slice(0,10).map(t=>`<li>${esc(t)}</li>`).join('')}${l.length>10?`<li>y ${l.length-10} más</li>`:''}</ul></details>`:'')+_ini3()};
+  /* ---------- Inicio: lo que todavía no se subió (pedido de Tomás el 25/10; el cartel lo arma vInicio) ---------- */
   addEventListener('dc-pendientes',()=>{if(UI.tab==='inicio'&&!document.querySelector('#modal .ov'))render()});
   addEventListener('dc-subido',e=>toast(`✓ Se ${e.detail>1?'subieron '+e.detail+' cambios':'subió el cambio'} a la nube`));
   {const st=document.createElement('style');st.textContent='.pbpend{margin-bottom:12px;padding:10px 14px;border-radius:12px;background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn);font-size:.9rem}.pbpend summary{cursor:pointer;font-weight:600}.pbpend ul{margin:8px 0 0;padding-left:20px}';document.head.appendChild(st)}
 
-  /* ---------- Padrillos en CATEGORÍA, como en PB ---------- */
-  CATS_LISTA.splice(CATS_LISTA.findIndex(x=>x[0]==='Madres'),0,['__padrillos','Padrillos']);
-  const _fcat=EXTRA_ACTS.fcat;
-  EXTRA_ACTS.fcat=d=>{if(d.v==='__padrillos'){UI.drop=null;UI.tab='padrillos';render();window.scrollTo(0,0);return}_fcat(d)};
 })();

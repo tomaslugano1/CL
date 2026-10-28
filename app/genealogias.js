@@ -65,33 +65,7 @@ const ALIAS_PEDIGRI={'HULK':'DOLFINA HULK','DON URBANO MEREQUETENGUE':'DON URBAN
   'I. PORRON':'IRENITA PORRON','PORRON':'IRENITA PORRON','PULPERO':'ESPI PULPERO','EXPLOSIVO':'ESPI EXPLOSIVO','MERCENARIO':'MACHITOS MERCENARIO',
   'LOS MACHITOS LIBANO':'LOSMACHITOS LIBANO','RENGO LUICITO':'RENGO LUISITO','SANTATERESA SPORT':'SANTA TERESA SPORT','STA. TERESA SPORT':'SANTA TERESA SPORT'};
 
-(function(){
-  const lib=new Map();
-  for(const [n,[padre,madre,nac,sexo,pelaje,criador]] of Object.entries(PEDIGRIS))lib.set(norm(n),{nombre:n,padre,madre,nac,sexo,pelaje,criador});
-  const buscar=n=>{const k=norm(n);if(!k)return null;return lib.get(k)||lib.get(norm(ALIAS_PEDIGRI[k]||''))||null};
-  window.pedigriConocido=buscar;
-  /* El índice de genealogía suma la biblioteca, siempre después de lo cargado en la app */
-  const idx0=indiceGenealogia;
-  indiceGenealogia=function(){const m=idx0();if(m._conLib)return m;
-    for(const [k,v] of lib)if(!m.has(k))m.set(k,{padre:v.padre,madre:v.madre});
-    for(const [a,n] of Object.entries(ALIAS_PEDIGRI)){const v=lib.get(norm(n));if(v&&!m.has(norm(a)))m.set(norm(a),{padre:v.padre,madre:v.madre})}
-    m._conLib=true;return m};
-  /* Al escribir Padre/Madre: también busca en la biblioteca (lo cargado en la app manda) */
-  const pd0=padresDe;
-  padresDe=function(n){const r=pd0(n);if(r&&(r.padre||r.madre))return r;const v=buscar(n);return v?{padre:v.padre,madre:v.madre,de:'la biblioteca de genealogías ('+v.nombre+')'}:r};
-  /* Sugerencias al escribir, en la ficha del caballo: machos conocidos para Padre y abuelos,
-     hembras conocidas para Madre y abuelas (la lista de madres de los servicios no cambia) */
-  const dl0=datalists;
-  datalists=function(){const vals=[...lib.values()],opt=l=>l.map(v=>`<option value="${esc(v.nombre)}">`).join('');
-    const propias=S.caballos.filter(c=>c.sexo==='Hembra').map(c=>({nombre:c.nombre}));
-    return dl0().replace('</datalist>',opt(vals.filter(v=>v.sexo!=='Hembra'))+'</datalist>')
-      +`<datalist id="dl-gen-h">${opt([...propias,...vals.filter(v=>v.sexo==='Hembra')])}</datalist>`};
-  const cg0=conectarGenealogia;
-  conectarGenealogia=function(){
-    for(const [id,l] of [['f-madre','dl-gen-h'],['f-abueloP','dl-pad'],['f-abuelaP','dl-gen-h'],['f-abueloM','dl-pad'],['f-abuelaM','dl-gen-h']]){
-      const el=document.getElementById(id);if(el&&document.getElementById(l))el.setAttribute('list',l)}
-    const r=cg0.apply(this,arguments);
-    // si el padre o la madre ya vienen puestos (por ejemplo al cargar un parto), completar los abuelos de una
-    for(const id of ['f-padre','f-madre']){const el=document.getElementById(id);if(el&&el.value.trim())el.dispatchEvent(new Event('change'))}
-    return r};
-})();
+/* La biblioteca, por nombre (y por sus otras formas de escribirlo). La usan padresDe, indiceGenealogia y datalists. */
+const PED_LIB=new Map();
+for(const [n,[padre,madre,nac,sexo,pelaje,criador]] of Object.entries(PEDIGRIS))PED_LIB.set(norm(n),{nombre:n,padre,madre,nac,sexo,pelaje,criador});
+function pedigriConocido(n){const k=norm(n);if(!k)return null;return PED_LIB.get(k)||PED_LIB.get(norm(ALIAS_PEDIGRI[k]||''))||null}

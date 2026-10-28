@@ -55,6 +55,11 @@ const casos=await p.evaluate(()=>{const A=activos().filter(x=>!fuera(x)),m=A.fil
   for(const t of ['que significa el punto rojo','que significa atrasado','que es la ventana de parto','que significan los colores','que quiere decir agarrada','que es hechura','que es desvasar','que significa fpp'])q('Qué significa',t,'[A-Z]{3,}');
   q('Afuera','quienes estan afuera','AFUERA');q('Afuera','cuantos hay a la venta afuera','AFUERA');
   q('Largas','edad de la '+n(j[0])+'. donde esta la '+n(j[1])+'. hijos de la '+n(con)+'. cuando pare la '+n(pre),'\\n\\n[\\s\\S]*\\n\\n[\\s\\S]*\\n\\n');
+  // refinar la respuesta anterior (van en orden: cada una usa la lista de la anterior)
+  q('Refinar','quienes estan en jugadores','JUGADORES');q('Refinar','de esas cuales son alazanas','^DE ESOS \\d+, ');q('Refinar','ordenalas por edad','^LOS MISMOS');
+  q('Refinar','caballos a la venta','VENTA');q('Refinar','de esos solo las hembras','^DE ESOS');q('Refinar','saca las de jugadores','SIN LOS');
+  q('Refinar','hijos de '+n(con),'HIJ');q('Refinar','de esos cuantos estan vivos','VIVOS');q('Refinar','ordenalos por nombre','ORDENADOS POR NOMBRE');
+  q('Refinar','hijos de la '+n(con),'HIJ');q('Refinar','no, la otra','CUAL|NO HAY OTRO|'+esc(norm(con.nombre).split(' ')[0]));
   return C});
 let mal=0;const por={};for(const [g,t,re] of casos){const r=await p.evaluate(q=>{try{return responder(q).txt}catch(e){return 'ERROR '+e.message}},t);
   const ok=new RegExp(re).test(r.normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase())&&!/NO TE ENTENDI|UNDEFINED|^ERROR /.test(r.toUpperCase());por[g]=(por[g]||0)+1;

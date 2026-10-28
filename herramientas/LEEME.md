@@ -14,3 +14,6 @@
 - `prueba_asistente.cjs <carpeta>`: le hace al asistente ~900 preguntas (12 tipos por cada caballo, más errores de tipeo en los nombres) y lista las que contestó mal. Correrla después de tocar `app/asistente.js`.
 - `prueba_completa_asistente.cjs <carpeta>`: ~1.300 preguntas con control del dato (no solo que conteste): cada caballo, categoría, padrillo, lugar y preguntas generales. Guarda preguntas y respuestas en `<carpeta>/todo.json` (de ahí sale la planilla para Tomás).
 - `prueba_asistente_grupos.cjs <carpeta>`: los 26 tipos de pregunta de la quinta y sexta ronda (WhatsApp, pedidos de cargar, rangos, comparar años, porcentajes, rankings, polo, meses, notas, qué significa, afuera, mensajes largos, más los 14 de antes: (seguimiento, voz, cómo se hace, sí/no, filtros, comparar, períodos, movimientos, nietos/sangre, plata, embriones, negaciones, dos en una) y, por cada caballo, sí/no, seguimiento, movimientos, nietos y herrero. Arma las preguntas con los datos.
+- `foto_app.cjs <carpeta> <salida.json>` y `comparar_fotos.py antes.json despues.json`: foto de todo lo que muestra la app
+  (pantallas, fichas, formularios, sanidad, preñez, tareas, genealogía y ~1.400 respuestas del asistente). Para ordenar código
+  sin cambiar nada: foto antes, foto después, y tiene que dar 0 diferencias.

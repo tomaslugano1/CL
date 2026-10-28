@@ -5,7 +5,6 @@
 /* ================= Receptoras ================= */
 if(!CATS.includes('Receptoras'))CATS.push('Receptoras');
 const esCatMadre=c=>['Madres','Receptoras'].includes(c.categoria);
-{const g=grupoInt;grupoInt=c=>c.categoria==='Receptoras'?'Madres':g(c)}
 
 /* ================= Controles de sanidad ================= */
 const TODAS='todas';
@@ -23,13 +22,6 @@ Object.assign(GRUPO_EV,{'Análisis':['Análisis','#3B6FB6'],'Enfermedad':['Enfer
 function controles(){const g=S.config.controles||{};return CONTROLES_DEF.map(c=>({...c,...(g[c.k]||{}),activo:g[c.k]?.activo??c.activo??true}))}
 const ctrlPor=k=>controles().find(c=>c.k===k);
 const aplica=(ct,c)=>ct.cats===TODAS||(ct.cats||[]).includes(c.categoria);
-/* Días de los controles nuevos (Anemia, Influenza…). Los de siempre siguen igual. */
-{const iv=intervalo;intervalo=(c,tipo)=>{const ct=ctrlPor(tipo);if(ct&&ct.dias)return ct.activo&&aplica(ct,c)?+ct.dias:0;
-  if(tipo==='Desparasitación'&&c.categoria==='Receptoras')return S.config.despMadres;return iv(c,tipo)}}
-/* Si al cargar se cambió el vencimiento (días), vale ese */
-{const es=estadoSan;estadoSan=(c,tipo)=>{const s=es(c,tipo);if(!s.u||tipo==='Desvasada'||s.no)return s;
-  const e=S.eventos.filter(x=>x.caballoId===c.id&&x.tipo===tipo&&x.fecha===s.u&&+x.dias>0)[0];if(!e)return s;
-  const p=addDays(s.u,+e.dias),d=diff(p,hoy());return{...s,p,d,st:d<0?'bad':d<=15?'warn':'ok',txt:d<0?'Vencido':d<=15?'Próximo':'Al día'}}}
 /* Dosis de preñez de una madre preñada: cuándo toca cada una y si ya se dio */
 function dosisPrenez(c){const s=S.servicios.filter(x=>norm(x.madre)===norm(c.nombre)&&x.estado==='Preñada'&&x.fecha).sort((a,b)=>b.fecha.localeCompare(a.fecha))[0];if(!s)return[];const out=[];
   for(const ct of controles().filter(x=>x.meses&&x.activo&&aplica(x,c)))for(const m of ct.meses){const due=addDays(s.fecha,Math.round(m*30.4)),base=ct.base||ct.k;
@@ -39,26 +31,7 @@ function dosisPrenez(c){const s=S.servicios.filter(x=>norm(x.madre)===norm(c.nom
 /* Controles por días con registro (para la ficha y el aviso) */
 const ctrlDiasActivos=c=>controles().filter(ct=>ct.dias&&ct.activo&&aplica(ct,c));
 
-/* "Para hacer esta semana": suma controles nuevos y dosis de preñez */
-{const ts=tareasSemana;tareasSemana=(dias=7)=>{const r=ts(dias),lim=addDays(hoy(),dias),extra={};
-  for(const c of activos().filter(enCampo)){
-    for(const ct of ctrlDiasActivos(c)){if(!ultimo(c.id,ct.k))continue;const s=estadoSan(c,ct.k);if(!s.p||s.p>lim)continue;
-      const lugar=c.lugar||'Sin lugar',k=lugar+'|'+ct.k;(extra[k]=extra[k]||{lugar,t:ct.k,items:[]}).items.push({c,s})}
-    for(const x of dosisPrenez(c)){if(x.hecha||x.due<PRENEZ_DESDE||x.due>lim||x.d<-30)continue;
-      const lugar=c.lugar||'Sin lugar',k=lugar+'|'+x.ct.k;(extra[k]=extra[k]||{lugar,t:x.ct.base||x.ct.k,etiqueta:x.ct.k,items:[]}).items.push({c,s:{p:x.due,d:x.d}})}}
-  for(const g of Object.values(extra)){VERBO[g.etiqueta||g.t]=VERBO[g.etiqueta||g.t]||('Dar '+(g.etiqueta||g.t));g.items.sort((a,b)=>a.s.d-b.s.d);r.grupos.push(g.etiqueta?{...g,t:g.t}:g)}
-  r.grupos.sort((a,b)=>a.lugar.localeCompare(b.lugar)||a.t.localeCompare(b.t));return r}}
 for(const ct of CONTROLES_DEF)VERBO[ct.k]=VERBO[ct.k]||('Dar '+ct.k);
-
-/* Ficha: la sección Sanidad muestra los controles que tienen registro y, en las madres preñadas, las dosis de preñez */
-{const sc=seccionControles;seccionControles=(c,evs,k,titulo,tipos,tiposHist)=>{
-  if(k!=='san')return sc(c,evs,k,titulo,tipos,tiposHist);
-  const extra=ctrlDiasActivos(c).filter(ct=>ultimo(c.id,ct.k)).map(ct=>ct.k);
-  let h=sc(c,evs,k,titulo,[...tipos,...extra],[...tiposHist,...CONTROLES_DEF.map(x=>x.base||x.k)]);
-  const ds=esCatMadre(c)?dosisPrenez(c):[];
-  if(ds.length&&(UI.tabsFicha?.san||'act')==='act'){const filas=ds.map(x=>`<div class="li"><div>${esc(x.k)}<div class="sub">Toca el ${fmt(x.due)}</div></div><span class="pill ${x.hecha?'p-ok':x.d<0&&x.due<PRENEZ_DESDE?'p-none':x.d<0?'p-bad':x.d<=15?'p-warn':'p-none'}">${x.hecha?'Hecha '+fmt(x.hecha.fecha):x.d<0&&x.due<PRENEZ_DESDE?'Sin cargar':x.d<0?'Vencida':x.d<=15?'En '+x.d+' d':'Pendiente'}</span></div>`).join('');
-    h=h.replace(/<\/section>$/,`<div class="sub" style="margin-top:6px;font-weight:700">Vacunas de preñez</div><div class="list">${filas}</div></section>`)}
-  return h}}
 
 /* ================= Sanidad masiva (como Polo Breeders) ================= */
 const DROGAS=['Ivomec','Dectomax','Moxidectina','Febendazol','Ibomec + praz','Cydectin Alfa'];
@@ -116,9 +89,9 @@ EXTRA_ACTS.altaNac=()=>{const ms=activos().filter(c=>c.sexo==='Hembra'&&(esCatMa
 EXTRA_ACTS.nacDe=d=>EXTRA_ACTS.nacimiento({m:d.m,s:d.s});
 
 /* ================= Baja (Venta · Muerte · Jubilado · Otro · Eliminar) ================= */
-bajaForm=c=>pantalla('Baja · '+c.nombre,grande('bajaTipo','Venta','Precio, comprador y fecha',`data-id="${c.id}" data-v="Vendido"`)+grande('bajaTipo','Muerte','Fecha y causa',`data-id="${c.id}" data-v="Muerto"`)
+function bajaForm(c){return pantalla('Baja · '+c.nombre,grande('bajaTipo','Venta','Precio, comprador y fecha',`data-id="${c.id}" data-v="Vendido"`)+grande('bajaTipo','Muerte','Fecha y causa',`data-id="${c.id}" data-v="Muerto"`)
   +grande('bajaTipo','Jubilado','Deja de trabajar pero sigue siendo de Doña Cecilia',`data-id="${c.id}" data-v="Jubilado"`)+grande('bajaTipo','Otro motivo','',`data-id="${c.id}" data-v="Otro"`)
-  +`<p class="note">La baja no borra nada: queda en Bajas y en su camada, pero deja de contarse.</p>`+`<button class="bigbtn peligro" data-act="eliminarCab" data-id="${c.id}"><b>Eliminar</b><span>Solo si se cargó por error. Se borra la ficha.</span></button>`);
+  +`<p class="note">La baja no borra nada: queda en Bajas y en su camada, pero deja de contarse.</p>`+`<button class="bigbtn peligro" data-act="eliminarCab" data-id="${c.id}"><b>Eliminar</b><span>Solo si se cargó por error. Se borra la ficha.</span></button>`)}
 EXTRA_ACTS.bajaTipo=d=>{const c=byId(d.id),est=d.v,venta=est==='Vendido';
   form({Vendido:'Venta',Muerto:'Muerte',Jubilado:'Jubilado',Otro:'Baja'}[est]+' · '+c.nombre,[{k:'bajaFecha',l:'Fecha',type:'date',v:hoy(),req:1},
     ...(venta?[{k:'bajaPrecio',l:'Precio de venta',v:c.precio||''},{k:'bajaComprador',l:'Comprador'}]:[]),{k:'bajaObs',l:est==='Muerto'?'Causa':'Detalle',type:'area'}],
@@ -144,7 +117,7 @@ const EV_CATS={
   'Manejo':['Agarrada del lote','Suelta','Movimiento'],
   'Otro':['Otro']};
 const catDeEvento=t=>Object.keys(EV_CATS).find(k=>EV_CATS[k].includes(t))||'Sanidad';
-eventoForm=function(ids,tipo){const one=ids.length===1?byId(ids[0]):null;const cat0=catDeEvento(tipo||'Desparasitación');
+function eventoForm(ids,tipo){const one=ids.length===1?byId(ids[0]):null;const cat0=catDeEvento(tipo||'Desparasitación');
   form(one?'Nuevo evento · '+one.nombre:`Cargar a ${ids.length} caballos`,[{k:'fecha',l:'Fecha del evento',type:'date',v:hoy(),req:1},
     {k:'cat',l:'Categoría',type:'select',opts:Object.keys(EV_CATS),v:cat0},{k:'tipo',l:'Evento',type:'select',opts:EV_CATS[cat0],v:tipo||EV_CATS[cat0][0]},
     {k:'detalle',l:'Detalle (producto, resultado, a dónde…)',full:1},{k:'precio',l:'Precio por caballo (herrero)',type:'number'},{k:'obs',l:'Anotaciones',type:'area'}],
@@ -155,7 +128,7 @@ eventoForm=function(ids,tipo){const one=ids.length===1?byId(ids[0]):null;const c
      for(const id of ids){const c=byId(id);const e={...d,tipo:tipoG,detalle:det,caballoId:id,caballo:c?.nombre||'',por:uid||''};if(!e.precio)delete e.precio;await db.collection('eventos').doc(slugId('e')).set(e)}
      toast(ids.length>1?`Cargado a ${ids.length} caballos`:'Evento cargado');if(ids.length>1){UI.sel=null;closeModal();render()}else{UI.ficha=ids[0];renderFicha()}});
   const cs=$('#f-cat'),ts=$('#f-tipo');cs.addEventListener('change',()=>{ts.innerHTML=EV_CATS[cs.value].map(o=>`<option>${esc(o)}</option>`).join('');ts.dispatchEvent(new Event('change'))});
-  conectarPrecio()};
+  conectarPrecio()}
 
 /* ================= Seleccionar: cambiar categoría o lugar a muchos juntos ================= */
 EXTRA_ACTS.selmover=()=>{UI.sel=UI.sel?null:new Set();render()};
@@ -169,8 +142,8 @@ function botonesEtapa(c){if(!canWrite||c.estado!=='Activo')return '';const sig=E
   if(sig)b.push(`<button class="btn pri" data-act="pasarA" data-id="${c.id}" data-v="${sig}">${c.categoria==='Doma'?'Entregado de doma → Hechura':'Pasar a '+sig}</button>`);
   if(['Hechura','Jugadores'].includes(c.categoria))b.push(`<button class="btn" data-act="aDescanso" data-id="${c.id}">Mandar a descanso</button>`);
   b.push(`<button class="btn" data-act="pasarA" data-id="${c.id}">Otra categoría</button>`);
-  const desde=c.categoria==='Doma'&&c.ingresoDoma?` · en doma desde ${fmt(c.ingresoDoma)} (${diff(hoy(),c.ingresoDoma)} días)`:'';
-  return sec('Categoría','',`<div class="sub" style="margin:0">Hoy: <b>${esc(c.categoria)}</b>${desde}</div><div class="row">${b.join('')}</div>`)}
+  const desde=c.categoria==='Doma'&&c.ingresoDoma?` · en doma desde ${fmt(c.ingresoDoma)} (${diff(hoy(),c.ingresoDoma)} días)`:'',l=trabajoLinea(c);
+  return sec('Categoría','',`<div class="sub" style="margin:0">Hoy: <b>${esc(c.categoria)}</b>${l?' · '+l.charAt(0).toLowerCase()+l.slice(1):''}${desde}</div><div class="row">${b.join('')}</div>`)}
 EXTRA_ACTS.pasarA=d=>{if(d.v==='Descanso')return EXTRA_ACTS.aDescanso({id:d.id});formPaso([d.id],d.v||null)};
 /* Formulario del cambio (uno o varios caballos). dest = null: se elige la categoría en el formulario. */
 function formPaso(ids,dest){const one=ids.length===1?byId(ids[0]):null,desdeDoma=one?.categoria==='Doma';

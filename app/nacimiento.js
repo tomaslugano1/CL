@@ -39,16 +39,9 @@ function formNacimiento(s,madreNombre){
   const nm=document.getElementById('f-nombre');if(nm){nm.focus();nm.setSelectionRange(nm.value.length,nm.value.length)}}
 
 /* Todos los caminos al nacimiento usan este formulario */
-partoForm=s=>formNacimiento(s);
 EXTRA_ACTS.nacimiento=d=>{const s=d.s&&S.servicios.find(x=>x.id===d.s);formNacimiento(s||null,d.m)};
 
 /* La cría de un servicio parido (enlazada al cargar el nacimiento, o buscada por madre y camada) */
 function criaDeServicio(s){if(s.criaId)return byId(s.criaId);
   return S.caballos.find(c=>norm(c.madre)===norm(s.madre)&&+c.camada===+s.temporada)||null}
 
-/* Al dar de alta un caballo, la app pedía abrir su ficha un instante antes de tenerlo en memoria,
-   no lo encontraba y cerraba la pantalla. Ahora espera (hasta 2 segundos) y la abre. */
-{const rf0=renderFicha;let intentos=0;
-  renderFicha=function(){
-    if(UI.ficha&&!byId(UI.ficha)&&intentos<20){intentos++;const id=UI.ficha;setTimeout(()=>{if(UI.ficha===id)renderFicha()},100);return}
-    intentos=0;return rf0.apply(this,arguments)}}

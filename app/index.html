@@ -362,13 +362,11 @@ body:has(.selbar) #dc-estado{display:none}
 <script>
 const CATS=['Potrillos','Doma','Hechura','Jugadores','Descanso','Madres'];
 const TIPOS=['Práctica','Torneo','Desparasitación','Desvasada','Herrada','Desherrada','Vacuna','Anemia','Muelas','Veterinario','Tacto / Eco','Servicio','Parición','Aborto','Castración','Movimiento','Revisión','Otro'];
-const TABS=[['inicio','Inicio'],['caballos','Caballos'],['madres','Madres'],['camadas','Camadas'],['sanidad','Sanidad'],['padrillos','Padrillos'],['notas','Notas']];
 const S={caballos:[],eventos:[],servicios:[],padrillos:[],notas:[],config:{despMadres:180,despResto:90,muelas:365,desvasar:60,herrar:45,temporada:2026},loaded:{}};
 const UI={tab:'inicio',cat:'',lugar:'',q:'',bajas:false,sel:null,camada:null,temporada:null,sanCat:'',notaFiltro:'pend',ficha:null,abiertos:new Set()};
 // Recuerda qué desplegables de la ficha están abiertos (para que no se cierren al actualizar)
 document.addEventListener('toggle',e=>{const k=e.target?.dataset?.k;if(!k)return;e.target.open?UI.abiertos.add(k):UI.abiertos.delete(k)},true);
 let db=null,user=null,uid=null,canWrite=true,names={},assets=null,downloads=null;
-try{const t=localStorage.getItem('dc-tab');if(t&&TABS.some(x=>x[0]===t))UI.tab=t}catch(e){}
 
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -398,21 +396,32 @@ const INTERV_DEF={Potrillos:{desv:45,herr:0},Madres:{desv:80,herr:0},Hechura:{de
 const PRECIOS_DEF={'Desvasada':20000,'Herrada':35000};
 function tablaInt(){const t={},g=S.config.intervalos||{};for(const k in INTERV_DEF)t[k]={...INTERV_DEF[k],...(g[k]||{})};return t}
 /* Jugadores sin ritmo elegido = Normal ("fuerte" de una versión anterior también cuenta como Normal) */
-function grupoInt(c){if(c.categoria==='Descanso')return 'descanso';const r=c.ritmo==='fuerte'?'normal':c.ritmo;if(r&&['Hechura','Jugadores'].includes(c.categoria))return r;return c.categoria==='Jugadores'?'normal':c.categoria}
+function grupoInt(c){if(c.categoria==='Receptoras')return 'Madres';if(c.categoria==='Descanso')return 'descanso';const r=c.ritmo==='fuerte'?'normal':c.ritmo;if(r&&['Hechura','Jugadores'].includes(c.categoria))return r;return c.categoria==='Jugadores'?'normal':c.categoria}
 function precios(){return {...PRECIOS_DEF,...(S.config.precios||{})}}
-function intervalo(c,tipo){const k=S.config;if(tipo==='Muelas')return +k.muelas||365;if(tipo==='Desparasitación')return c.categoria==='Madres'?k.despMadres:k.despResto;
+/* Los controles nuevos (Anemia, Influenza…) tienen sus días en ⚙ Configuración (pb.js) */
+function intervalo(c,tipo){const k=S.config,ct=ctrlPor(tipo);if(ct&&ct.dias)return ct.activo&&aplica(ct,c)?+ct.dias:0;
+  if(tipo==='Muelas')return +k.muelas||365;if(tipo==='Desparasitación')return esCatMadre(c)?k.despMadres:k.despResto;
   const g=tablaInt()[grupoInt(c)];if(!g)return tipo==='Desvasada'?k.desvasar:k.herrar;return tipo==='Desvasada'?g.desv:g.herr}
 const seHierra=c=>+intervalo(c,'Herrada')>0;
 function estadoSan(c,tipo){const u=ultimo(c.id,tipo);if(tipo==='Herrada'&&!seHierra(c))return{u,p:'',st:'none',txt:'No se hierra',no:true};
-  if(tipo==='Herrada'&&u&&ultimo(c.id,'Desherrada')>=u)return{u,p:'',st:'none',txt:'Desherrado',no:true};if(!u)return{u:'',p:'',st:'none',txt:'Sin dato'};const p=addDays(u,+intervalo(c,tipo)||0),d=diff(p,hoy());
+  if(tipo==='Herrada'&&u&&ultimo(c.id,'Desherrada')>=u)return{u,p:'',st:'none',txt:'Desherrado',no:true};if(!u)return{u:'',p:'',st:'none',txt:'Sin dato'};
+  // si al cargar se cambió el vencimiento (días), vale ese
+  const e=tipo!=='Desvasada'&&S.eventos.find(x=>x.caballoId===c.id&&x.tipo===tipo&&x.fecha===u&&+x.dias>0);
+  const p=addDays(u,e?+e.dias:+intervalo(c,tipo)||0),d=diff(p,hoy());
   return{u,p,d,st:d<0?'bad':d<=15?'warn':'ok',txt:d<0?'Vencido':d<=15?'Próximo':'Al día'}}
 const fuera=c=>/^afuera/i.test(c.lugar||''); // lugar "Afuera…" (ej: Cala, a la venta en otro lado): no cuenta en la manada ni en sanidad
 const enCampo=c=>c.estado==='Activo'&&c.categoria!=='Doma'&&!fuera(c);
 function vencidos(){const out=[];for(const c of activos().filter(enCampo))for(const t of ['Desparasitación','Desvasada']){const s=estadoSan(c,t);if(s.st==='bad'||s.st==='warn')out.push({c,t,s})}return out.sort((a,b)=>a.s.d-b.s.d)}
 
 /* ---------- render ---------- */
-function renderNav(){$('#nav').innerHTML=TABS.map(([k,l])=>`<button class="${UI.tab===k?'on':''}" data-tab="${k}">${l}</button>`).join('')}
-function render(){renderNav();try{ajustesUnicos()}catch(e){console.error(e)}renderLogo();const m=$('#main');const f={inicio:vInicio,caballos:vCaballos,madres:vMadres,camadas:vCamadas,sanidad:vSanidad,padrillos:vPadrillos,notas:vNotas}[UI.tab];m.innerHTML=f();if(UI.ficha)renderFicha()}
+/* No hay fila de pestañas (diseno.js): la app abre en el Inicio. Si se entra a otra pantalla desde el Inicio,
+   queda un paso en el historial para volver con "atrás"; fuera del Inicio se ve "‹" junto al logo. */
+let empujado=false;
+function renderNav(){
+  if(UI.tab!=='inicio'&&!empujado){empujado=true;history.pushState({dcTab:1},'')}
+  document.body.classList.toggle('en-inicio',UI.tab==='inicio')}
+function render(){renderNav();try{ajustesUnicos()}catch(e){console.error(e)}renderLogo();const m=$('#main');const f={inicio:vInicio,caballos:vCaballos,madres:vMadres,camadas:vCamadas,sanidad:vSanidad,padrillos:vPadrillos,notas:vNotas}[UI.tab];m.innerHTML=f();if(UI.ficha)renderFicha();
+  if(document.querySelector('#modal [data-diafotos]'))pantallaFotos(true)} // Día de fotos: al subir una foto la lista se actualiza sola (fotos.js)
 
 function temporadaActual(){return UI.temporada??(+S.config.temporada||new Date().getFullYear())}
 function vInicio(){
@@ -427,12 +436,15 @@ function vInicio(){
   const pend=S.notas.filter(n=>n.estado!=='Listo').length;
   const ult=[...S.eventos].sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,8);
   const cnt=CATS.map(c=>[c,act.filter(x=>x.categoria===c).length]).filter(([,n])=>n>0);
-  return `<div class="tiles">
-    <div class="tile"><span>Caballos propios</span><b>${act.length}</b><div class="small muted">${cnt.map(([c,n])=>n+' '+c.toLowerCase()).join(' · ')}</div></div>
-    <div class="tile"><span>Preñadas</span><b>${pren.length}</b><div class="small muted">${prenOtra.length?prenT.length+' paren esta temporada · '+prenOtra.map(s=>esc(s.madre)+' en '+(s.fpp?s.fpp.slice(0,4):'la próxima')).join(' · '):''}</div></div>
-    <div class="tile" data-tab="madres" role="button" tabindex="0" style="cursor:pointer"><span>Próximo parto ›</span>${pasadas.length?`<b style="color:var(--bad)">Atrasado</b><div class="small">${(()=>{const g={};for(const s of pasadas)(g[-diff(s.fpp,hoy())]=g[-diff(s.fpp,hoy())]||[]).push(s);return Object.entries(g).sort((a,b)=>b[0]-a[0]).map(([d,l])=>`<span style="font-weight:700">${nombres(l)}</span>: ${l.length>1?'pasaron':'pasó'} ${d} día${d==1?'':'s'}${l.length>1?' cada una':''}`).join('<br>')})()}</div>`:proxima.length?`<b>${diff(proxima[0].fpp,hoy())} d</b><div class="small muted">${nombres(proxima.filter(s=>s.fpp===proxima[0].fpp))} · ${fmt(proxima[0].fpp)}</div>`:'<b>—</b>'}</div>
-    ${(()=>{const t=contarTareas();return `<div class="tile ${t.v?'alert':''}"><span>Para hacer · 7 días</span><b>${t.n}</b><div class="small muted">${t.v} vencidos · ${t.n-t.v} esta semana</div></div>`})()}
-    <div class="tile"><span>Para revisar</span><b>${pend}</b></div>
+  const sinSubir=typeof DC_PENDIENTES==='function'?DC_PENDIENTES():[],sinFoto=act.filter(c=>!c.fotos?.length).length;
+  // cada recuadro se toca (pedido de Tomás el 25/10): Ver caballos, Madres y partos, ficha de la próxima en parir, Para hacer, Notas
+  return `${sinSubir.length?`<details class="pbpend"><summary>⟳ ${sinSubir.length} cambio${sinSubir.length>1?'s':''} sin subir · se ${sinSubir.length>1?'suben solos':'sube solo'} cuando haya señal</summary><ul>${sinSubir.slice(0,10).map(t=>`<li>${esc(t)}</li>`).join('')}${sinSubir.length>10?`<li>y ${sinSubir.length-10} más</li>`:''}</ul></details>`:''}<button class="pbver" data-tab="caballos">Ver caballos <span>›</span></button>
+    <div class="pbacc">${[['camadas','Camadas'],['sanidad','Sanidad'],['notas','Notas']].map(([k,t])=>`<button class="chip" data-tab="${k}">${t}</button>`).join('')}${sinFoto?`<button class="chip" data-act="diaFotos">Día de fotos · faltan ${sinFoto}</button>`:''}</div><div class="tiles">
+    <div class="tile toca" data-act="iniVer" role="button" tabindex="0"><span>Caballos propios ›</span><b>${act.length}</b><div class="small muted">${cnt.map(([c,n])=>n+' '+c.toLowerCase()).join(' · ')}</div></div>
+    <div class="tile toca" data-tab="madres" role="button" tabindex="0"><span>Preñadas ›</span><b>${pren.length}</b><div class="small muted">${prenOtra.length?prenT.length+' paren esta temporada · '+prenOtra.map(s=>esc(s.madre)+' en '+(s.fpp?s.fpp.slice(0,4):'la próxima')).join(' · '):''}</div></div>
+    <div class="tile toca" data-act="iniParto" role="button" tabindex="0"><span>Próximo parto ›</span>${pasadas.length?`<b style="color:var(--bad)">Atrasado</b><div class="small">${(()=>{const g={};for(const s of pasadas)(g[-diff(s.fpp,hoy())]=g[-diff(s.fpp,hoy())]||[]).push(s);return Object.entries(g).sort((a,b)=>b[0]-a[0]).map(([d,l])=>`<span style="font-weight:700">${nombres(l)}</span>: ${l.length>1?'pasaron':'pasó'} ${d} día${d==1?'':'s'}${l.length>1?' cada una':''}`).join('<br>')})()}</div>`:proxima.length?`<b>${diff(proxima[0].fpp,hoy())} d</b><div class="small muted">${nombres(proxima.filter(s=>s.fpp===proxima[0].fpp))} · ${fmt(proxima[0].fpp)}</div>`:'<b>—</b>'}</div>
+    ${(()=>{const t=contarTareas();return `<div class="tile ${t.v?'alert ':''}toca" data-act="iniHacer" role="button" tabindex="0"><span>Para hacer · 7 días ›</span><b>${t.n}</b><div class="small muted">${t.v} vencidos · ${t.n-t.v} esta semana</div></div>`})()}
+    <div class="tile toca" data-tab="notas" role="button" tabindex="0"><span>Para revisar ›</span><b>${pend}</b></div>
   </div>
   ${panelTareas()}
   ${panelHerrero()}
@@ -463,15 +475,17 @@ function estadoRepro(s){
   if(!s)return{k:'sin',txt:'Sin servicio',pill:'p-none',orden:4};
   const e=s.estado||'';
   if(e==='Preñada'){const d=s.fpp?diff(s.fpp,hoy()):null;
-    return{k:'pre',txt:'Preñada',pill:'p-ok',orden:d!==null&&d<=30?0:1,d,gest:s.fecha?diff(hoy(),s.fecha):null,
-      cuenta:d===null?'Sin FPP':d<0?`Pasó ${-d} d`:d===0?'Pare HOY':`Faltan ${d} d`,cpill:d===null?'p-none':d<0?'p-bad':d<=15?'p-warn':'p-none'}}
+    const st={k:'pre',txt:'Preñada',pill:'p-ok',orden:d!==null&&d<=30?0:1,d,gest:s.fecha?diff(hoy(),s.fecha):null,
+      cuenta:d===null?'Sin FPP':d<0?`Pasó ${-d} d`:d===0?'Pare HOY':`Faltan ${d} d`,cpill:d===null?'p-none':d<0?'p-bad':d<=15?'p-warn':'p-none'};
+    // ventana de parto (tablero.js): avisa cuándo entra; si ya pasó la fecha probable, queda el "Pasó X d"
+    const v=ventanaParto(s);if(v){st.v=v;const a=diff(v.desde,hoy());
+      if(d===null||d>=0){if(a<=0){st.cuenta=diff(v.hasta,hoy())<0?'Pasó la ventana':'En ventana de parto';st.cpill='p-bad'}else if(a<=30){st.cuenta=`Entra en ventana en ${a} d`;st.cpill='p-warn'}}}
+    return st}
   if(e==='Servida (sin tacto)'){const g=s.fecha?diff(hoy(),s.fecha):null;return{k:'ser',txt:'Servida · falta eco',pill:'p-warn',orden:2,gest:g,cuenta:g!==null?`Hace ${g} d`:'',cpill:g!==null&&g>=14?'p-warn':'p-none'}}
   if(e==='Parida')return{k:'par',txt:'Parida',pill:'p-none',orden:5};
   if(e==='Abortó')return{k:'vac',txt:'Abortó',pill:'p-bad',orden:3};
   return{k:'vac',txt:'Vacía',pill:'p-bad',orden:3}}
 function ecosDe(s){return [...(s?.ecos||[])].sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''))}
-function barraGest(st){if(st.k!=='pre'||st.gest===null)return '';const p=Math.max(0,Math.min(100,Math.round(st.gest/GEST*100)));
-  return `<div class="gest" title="${st.gest} días de preñez"><i style="width:${p}%"></i></div><div class="sub">${st.gest} días de preñez${st.gest>GEST?' · ya cumplió el tiempo':''}</div>`}
 function botonesRepro(s,nombre,st){if(!canWrite)return '';
   if(!s||st.k==='vac'||st.k==='par')return `<button class="btn sm pri" data-act="servMadre" data-m="${esc(nombre)}">+ Servicio</button>`;
   return `<button class="btn sm ${st.k==='ser'?'pri':''}" data-act="eco" data-id="${s.id}">+ Ecografía</button>${st.k==='pre'?`<button class="btn sm pri" data-parto="${s.id}">Cargar nacimiento</button>`:''}<button class="btn sm" data-serv="${s.id}">Editar</button>`}
@@ -482,14 +496,15 @@ function vMadres(){
   const l=[...nombres.values()].map(n=>{const s=servActual(n,t);return{n,s,st:estadoRepro(s)}})
     .sort((a,b)=>a.st.orden-b.st.orden||(a.st.d??9999)-(b.st.d??9999)||a.n.localeCompare(b.n,'es'));
   const cu=k=>l.filter(x=>x.st.k===k).length;
-  return `<div class="head"><h2>Madres · temporada ${t}</h2><div class="row">${canWrite?'<button class="btn pri" data-act="servicio">+ Servicio</button>':''}</div></div>
-  <div class="row" style="margin-bottom:10px">${temps.map(y=>`<button class="chip ${y===t?'on':''}" data-temp="${y}">${y}</button>`).join('')}</div>
-  <div class="tiles" style="margin-bottom:14px"><div class="tile"><span>Preñadas</span><b>${cu('pre')}</b></div><div class="tile"><span>Falta eco</span><b>${cu('ser')}</b></div><div class="tile"><span>Vacías</span><b>${cu('vac')}</b></div><div class="tile"><span>Paridas</span><b>${cu('par')}</b></div></div>
-  <div class="mcards">${l.map(({n,s,st})=>{const ec=ecosDe(s),ue=ec[ec.length-1];
+  const cards=l.map(({n,s,st})=>{const ec=ecosDe(s),ue=ec[ec.length-1];
     return `<div class="mcard ${st.k}"><div class="mtop"><span class="a mnom" data-open-name="${esc(n)}">${esc(n)}</span><span class="pill ${st.pill}">${st.txt}${s&&+s.temporada!==t?' · para '+s.temporada:''}</span>${st.cuenta?`<span class="pill ${st.cpill} mcuenta">${st.cuenta}</span>`:''}</div>
      ${s?`<div class="sub">${s.padrillo?`<b>${esc(s.padrillo)}</b>`:'Sin padrillo'}${s.tipo?' · '+esc(s.tipo):''}${s.fecha?' · servida '+fmt(s.fecha):''}${s.fpp&&st.k==='pre'?' · FPP <b>'+fmt(s.fpp)+'</b>':''}</div>
        ${ue?`<div class="sub">Última eco ${fmt(ue.fecha)}: ${esc(ue.resultado)}${ue.obs?' · '+esc(ue.obs):''}</div>`:''}${barraGest(st)}${s.obs?`<div class="sub muted">${esc(s.obs)}</div>`:''}`:'<div class="sub">No tiene servicio cargado en esta temporada.</div>'}
-     <div class="row" style="margin-top:8px">${botonesRepro(s,n,st)}</div></div>`}).join('')||'<div class="empty">No hay madres cargadas.</div>'}</div>
+     <div class="row" style="margin-top:8px">${botonesRepro(s,n,st)}</div></div>`}).join('');
+  return `<div class="head"><h2>Madres · temporada ${t}</h2><div class="row">${canWrite?'<button class="btn pri" data-act="servicio">+ Servicio</button>':''}</div></div>
+  <div class="row" style="margin-bottom:10px">${temps.map(y=>`<button class="chip ${y===t?'on':''}" data-temp="${y}">${y}</button>`).join('')}</div>
+  <div class="tiles" style="margin-bottom:14px"><div class="tile"><span>Preñadas</span><b>${cu('pre')}</b></div><div class="tile"><span>Falta eco</span><b>${cu('ser')}</b></div><div class="tile"><span>Vacías</span><b>${cu('vac')}</b></div><div class="tile"><span>Paridas</span><b>${cu('par')}</b></div></div>
+  ${cards.includes('class="tg"')?leyendaVentana():''}<div class="mcards">${cards||'<div class="empty">No hay madres cargadas.</div>'}</div>
   <p class="note">Ordenadas por lo más urgente: primero las que paren en 30 días o menos. Servicio → Ecografía (confirma la preñez) → Parió (da de alta la cría). FPP = servicio + ${GEST} días.</p>`}
 function vCamadas(){
   const t=+S.config.temporada||2026;
@@ -520,14 +535,6 @@ function vSanidad(){
    ${panelDias()}
    <p class="note">Rojo = vencido · Amarillo = vence en 15 días o menos · Verde = al día · Gris = sin dato. Los de Doma no aparecen porque están en ${esc([...new Set(activos().filter(c=>c.categoria==='Doma').map(c=>c.lugar).filter(Boolean))].join(', ')||'otro lugar')}.</p></div>`}
 
-function vPadrillos(){
-  const l=[...S.padrillos].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
-  return `<div class="head"><h2>Padrillos usados</h2><div class="row">${canWrite?'<button class="btn" data-act="nombres">Revisar nombres</button><button class="btn pri" data-act="padrillo">+ Agregar padrillo</button>':''}</div></div>
-  <p class="note" style="margin:-6px 0 14px">No son caballos de Doña Cecilia: solo se usaron para servir. No entran en los totales.</p>
-  <div class="tablewrap"><table><thead><tr><th>Padrillo</th><th>Padre × Madre</th><th>Genealogía</th><th>Tipo</th><th>Crías vivas hoy</th><th>Cuáles</th><th></th></tr></thead><tbody>
-  ${l.map(p=>{const cr=activos().filter(c=>norm(c.padre)===norm(p.nombre));return `<tr><td><b>${esc(p.nombre)}</b></td><td class="small">${esc(p.padre||'—')} × ${esc(p.madre||'—')}</td><td class="small">${(()=>{const n=genCargada(p);return `<span class="pill ${n>=14?'p-ok':n?'p-warn':'p-none'}">${n} de 14</span>`})()}</td><td>${esc(p.tipo||'—')}</td><td>${cr.length}</td>
-   <td class="small">${cr.map(c=>`<span class="a" data-open="${c.id}">${esc(c.nombre)}</span>`).join(' · ')||'<span class="muted">—</span>'}</td><td>${canWrite?`<button class="btn sm" data-pad="${p.id}">Editar</button>`:''}</td></tr>`}).join('')}
-  </tbody></table></div>`}
 
 function vNotas(){
   const l=S.notas.filter(n=>UI.notaFiltro==='todas'||n.estado!=='Listo').sort((a,b)=>(a.estado==='Listo')-(b.estado==='Listo')||(b.fecha||'').localeCompare(a.fecha||''));
@@ -536,13 +543,6 @@ function vNotas(){
   <div class="list" style="gap:8px">${l.map(n=>`<div class="ncard ${n.estado==='Listo'?'done':''}"><div class="grow"><b>${esc(n.titulo)}</b><div class="small">${esc(n.texto)}</div><div class="small muted">${fmt(n.fecha)}</div></div>
    <div class="row">${canWrite?`<button class="btn sm ${n.estado==='Listo'?'':'pri'}" data-nota-toggle="${n.id}">${n.estado==='Listo'?'Reabrir':'Listo'}</button><button class="btn sm" data-nota="${n.id}">Editar</button>`:`<span class="pill ${n.estado==='Listo'?'p-ok':'p-warn'}">${esc(n.estado)}</span>`}</div></div>`).join('')||'<div class="empty">No hay notas pendientes.</div>'}</div>`}
 
-/* ---------- ficha ---------- */
-function arbol(c,padre,madre){
-  const box=(cls,rol,n,obj,sx)=>{const o=obj||findByName(n);return `<div class="n ${cls} ${sx} ${n?'':'unk'}"><span>${rol}</span>${n?(o?`<span class="a" style="display:inline;font-size:inherit;letter-spacing:0;text-transform:none;color:inherit" data-open="${o.id}">${esc(n)}</span>`:esc(n)):'Desconocido'}</div>`};
-  const aP=c.abueloP||padre?.padre,aP2=c.abuelaP||padre?.madre,aM=c.abueloM||madre?.padre,aM2=c.abuelaM||madre?.madre;
-  return `<div class="n me ${c.sexo==='Macho'?'M':c.sexo==='Hembra'?'H':''}"><span>Caballo</span>${esc(c.nombre)}</div>`
-   +box('p','Padre',c.padre,padre,'M')+box('m','Madre',c.madre,madre,'H')
-   +box('g1','Abuelo paterno',aP,null,'M')+box('g2','Abuela paterna',aP2,null,'H')+box('g3','Abuelo materno',aM,null,'M')+box('g4','Abuela materna',aM2,null,'H')}
 async function loadNames(ids){if(!user?.profiles)return;const need=ids.filter(i=>!(i in names));if(!need.length)return;try{const p=await user.profiles(need);let ch=false;for(const i of need){names[i]=p?.[i]?.name||'alguien';ch=true}if(ch&&UI.ficha)renderFicha()}catch(e){}}
 
 /* ---------- ficha de venta ---------- */
@@ -622,7 +622,6 @@ function escanerChip(){UI.ficha=null;
       const asig=$('#chip-asig');if(asig)asig.onclick=async()=>{const id=$('#chip-cab').value;if(!id){toast('Elegí el caballo');return}
         await db.collection('caballos').doc(id).update({chip:ch});toast('Chip guardado en '+byId(id).nombre);UI.ficha=id;renderFicha()}}};
   i.addEventListener('input',()=>probar(false));i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();probar(true)}})}
-function closeModal(){UI.ficha=null;$('#modal').innerHTML=''}
 function form(title,fields,onSave,extra=''){
   UI.ficha=null;
   $('#modal').innerHTML=`<div class="ov" data-close-ov><form class="sheet narrow" id="f"><div class="sheet-h"><h2>${esc(title)}</h2><button type="button" class="x" data-act="close" aria-label="Cerrar">×</button></div>
@@ -636,8 +635,12 @@ function fieldHtml(f){const id='f-'+f.k,v=f.v??'';const cls=f.full?'full':'';
   if(f.type==='check')return `<label class="chk ${cls}"><input id="${id}" type="checkbox" ${v?'checked':''}>${f.l}</label>`;
   if(f.type==='area')return `<label class="full">${f.l}<textarea id="${id}">${esc(v)}</textarea></label>`;
   return `<label class="${cls}">${f.l}<input id="${id}" type="${f.type||'text'}" value="${esc(v)}" ${f.list?`list="${f.list}"`:''} ${f.req?'required':''}></label>`}
-function datalists(){return `<datalist id="dl-pad">${S.padrillos.map(p=>`<option value="${esc(p.nombre)}">`).join('')}${[...new Set(S.caballos.map(c=>c.padre).filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
-  <datalist id="dl-hembras">${S.caballos.filter(c=>c.sexo==='Hembra').map(c=>`<option value="${esc(c.nombre)}">`).join('')}</datalist><datalist id="dl-lug">${lugares().map(l=>`<option value="${esc(l)}">`).join('')}</datalist>`}
+/* Sugerencias al escribir. Suma la biblioteca de genealogías (genealogias.js): machos para Padre y abuelos (dl-pad),
+   hembras para Madre y abuelas (dl-gen-h). La lista de madres de los servicios (dl-hembras) son solo las de la app. */
+function datalists(){const lib=[...PED_LIB.values()],opt=l=>l.map(v=>`<option value="${esc(v.nombre)}">`).join('');
+  return `<datalist id="dl-pad">${S.padrillos.map(p=>`<option value="${esc(p.nombre)}">`).join('')}${[...new Set(S.caballos.map(c=>c.padre).filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join('')}${opt(lib.filter(v=>v.sexo!=='Hembra'))}</datalist>
+  <datalist id="dl-hembras">${S.caballos.filter(c=>c.sexo==='Hembra').map(c=>`<option value="${esc(c.nombre)}">`).join('')}</datalist><datalist id="dl-lug">${lugares().map(l=>`<option value="${esc(l)}">`).join('')}</datalist>`
+    +`<datalist id="dl-gen-h">${opt([...S.caballos.filter(c=>c.sexo==='Hembra').map(c=>({nombre:c.nombre})),...lib.filter(v=>v.sexo==='Hembra')])}</datalist>`}
 function slugId(p){return p+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 
 function caballoForm(c,pre={},after){
@@ -664,32 +667,30 @@ function preguntarDoma(id){const c=byId(id)||{};const enDoma=S.caballos.filter(x
       await db.collection('eventos').doc(slugId('e')).set({fecha:d.ingresoDoma,caballoId:id,caballo:c.nombre||'',tipo:'Movimiento',detalle:'Entró a doma'+(d.domador?' con '+d.domador:''),obs:d.lugar?'Lugar: '+d.lugar:'',por:uid||''});
       toast((c.nombre||'')+' entró a doma');UI.ficha=id;renderFicha()},datalists())}
 
-/* Autocompletar abuelos: al escribir Padre o Madre, busca ese caballo en lo ya cargado
-   (fichas, padrillos, o hermanos que ya tengan los abuelos) y completa los casilleros vacíos. */
-function padresDe(nombre){const k=norm(nombre);if(!k)return null;
-  const c=S.caballos.find(x=>norm(x.nombre)===k&&(x.padre||x.madre));if(c)return{padre:c.padre||'',madre:c.madre||'',de:'la ficha de '+c.nombre};
+/* Autocompletar abuelos: al escribir Padre o Madre, busca ese caballo en lo ya cargado y completa los casilleros vacíos.
+   Orden: la ficha del caballo → la genealogía de los padrillos (extras.js) → padrillos o hermanos que ya tengan los abuelos
+   → la biblioteca de genealogías (genealogias.js). Lo cargado en la app manda. */
+function padresDe(nombre){const k=norm(nombre);if(!k)return null;let r;
+  const c=S.caballos.find(x=>norm(x.nombre)===k&&(x.padre||x.madre));
+  if(c)r={padre:c.padre||'',madre:c.madre||'',de:'la ficha de '+c.nombre};
+  else{const g=indiceGenealogia().get(k);r=g?{...g,de:'la genealogía de padrillos'}:padresEnFichas(k)}
+  if(r&&(r.padre||r.madre))return r;const v=pedigriConocido(nombre);return v?{padre:v.padre,madre:v.madre,de:'la biblioteca de genealogías ('+v.nombre+')'}:r}
+function padresEnFichas(k){
   const p=S.padrillos.find(x=>norm(x.nombre)===k&&(x.padre||x.madre));if(p)return{padre:p.padre||'',madre:p.madre||'',de:'Padrillos'};
   const h=S.caballos.find(x=>norm(x.padre)===k&&(x.abueloP||x.abuelaP));if(h)return{padre:h.abueloP||'',madre:h.abuelaP||'',de:'la ficha de '+h.nombre};
   const m=S.caballos.find(x=>norm(x.madre)===k&&(x.abueloM||x.abuelaM));if(m)return{padre:m.abueloM||'',madre:m.abuelaM||'',de:'la ficha de '+m.nombre};
   return null}
 function conectarGenealogia(){
+  for(const [id,l] of [['f-madre','dl-gen-h'],['f-abueloP','dl-pad'],['f-abuelaP','dl-gen-h'],['f-abueloM','dl-pad'],['f-abuelaM','dl-gen-h']]){
+    const el=document.getElementById(id);if(el&&document.getElementById(l))el.setAttribute('list',l)}
   const lado=(campo,ab,aba)=>{const el=document.getElementById('f-'+campo);if(!el)return;
     const llenar=()=>{const g=padresDe(el.value);if(!g)return;let n=0;
       for(const [k,v] of [[ab,g.padre],[aba,g.madre]]){const f=document.getElementById('f-'+k);if(f&&!f.value.trim()&&v){f.value=v;n++}}
       if(n)toast('Abuelos completados con '+g.de)};
     el.addEventListener('change',llenar);el.addEventListener('blur',llenar)};
-  lado('padre','abueloP','abuelaP');lado('madre','abueloM','abuelaM')}
-
-function eventoForm(ids,tipo){
-  const one=ids.length===1?byId(ids[0]):null;
-  form(one?'Nuevo evento · '+one.nombre:`Cargar a ${ids.length} caballos`,[{k:'tipo',l:'Qué se hizo',type:'select',opts:TIPOS,v:tipo||'Desparasitación'},{k:'fecha',l:'Fecha',type:'date',v:hoy(),req:1},{k:'detalle',l:'Detalle (producto, resultado, a dónde…)',full:1},{k:'precio',l:'Precio por caballo (herrero)',type:'number'},{k:'obs',l:'Observación',type:'area'}],
-   async d=>{for(const id of ids){const c=byId(id);await db.collection('eventos').doc(slugId('e')).set({...d,detalle:d.detalle||d.tipo,caballoId:id,caballo:c?.nombre||'',por:uid||''})}
-     toast(ids.length>1?`Cargado a ${ids.length} caballos`:'Evento cargado');if(ids.length>1){UI.sel=null;closeModal();render()}else{UI.ficha=ids[0];renderFicha()}});conectarPrecio()}
-
-function bajaForm(c){form('Dar de baja · '+c.nombre,[{k:'estado',l:'Motivo',type:'select',opts:['Vendido','Muerto','Jubilado','Otro']},{k:'bajaFecha',l:'Fecha',type:'date',v:hoy(),req:1},{k:'bajaPrecio',l:'Precio de venta (si se vendió)',v:c.precio||''},{k:'bajaComprador',l:'Comprador (si se vendió)'},{k:'bajaObs',l:'Detalle',type:'area'}],
-  async d=>{if(!confirm('¿Confirmás la baja de '+c.nombre+' ('+d.estado.toLowerCase()+')?'))return;await db.collection('caballos').doc(c.id).update({estado:d.estado==='Otro'?'Baja':d.estado,bajaFecha:d.bajaFecha,bajaObs:d.bajaObs,bajaPrecio:d.estado==='Vendido'?d.bajaPrecio:'',bajaComprador:d.estado==='Vendido'?d.bajaComprador:'',catPrevia:c.categoria});
-   await db.collection('eventos').doc(slugId('e')).set({fecha:d.bajaFecha||hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Otro',detalle:'Baja: '+d.estado+(d.estado==='Vendido'&&d.bajaComprador?' a '+d.bajaComprador:''),obs:[d.estado==='Vendido'&&d.bajaPrecio?'Precio: '+d.bajaPrecio:'',d.bajaObs].filter(Boolean).join(' · '),por:uid||''});toast(c.nombre+' dado de baja');UI.ficha=c.id;renderFicha()},
-  '<p class="note">No se borra: queda en “Ver bajas” y en su camada, pero deja de contarse.</p>')}
+  lado('padre','abueloP','abuelaP');lado('madre','abueloM','abuelaM');
+  // si el padre o la madre ya vienen puestos (por ejemplo al cargar un parto), completar los abuelos de una
+  for(const id of ['f-padre','f-madre']){const el=document.getElementById(id);if(el&&el.value.trim())el.dispatchEvent(new Event('change'))}}
 
 function servicioForm(s,pre={}){const t=temporadaActual();
   form(s?'Editar servicio':'Cargar servicio'+(pre.madre?' · '+pre.madre:''),[{k:'madre',l:'Madre',v:s?.madre??pre.madre,list:'dl-hembras',req:1},{k:'fecha',l:'Fecha del servicio',type:'date',v:s?.fecha??hoy()},
@@ -700,12 +701,6 @@ function servicioForm(s,pre={}){const t=temporadaActual();
        if(m)await db.collection('eventos').doc(slugId('e')).set({fecha:d.fecha||hoy(),caballoId:m.id,caballo:m.nombre,tipo:'Servicio',detalle:'Servicio'+(d.padrillo?' '+d.padrillo:'')+(d.tipo?' ('+d.tipo.toLowerCase()+')':''),obs:d.obs||'',por:uid||''})}
      toast('Servicio guardado');if(UI.fichaVolver){UI.ficha=UI.fichaVolver;UI.fichaVolver=null;renderFicha()}else closeModal()},
    datalists()+(s?`<div class="row"><button type="button" class="btn sm danger" data-delserv="${s.id}">Borrar este servicio</button></div>`:'')+'<p class="note">Lo normal: cargás el servicio como "Servida (sin tacto)" y después la ecografía confirma la preñez. Si la FPP queda vacía, se calcula sola: servicio + 335 días.</p>')}
-
-function partoForm(s){const m=findByName(s.madre);const y=+s.temporada;
-  caballoForm(null,{nombre:'DC S/N '+norm(s.madre)+' '+String(y).slice(2),categoria:'Potrillos',nac:hoy(),camada:y,padre:s.padrillo,madre:norm(s.madre),lugar:m?.lugar||'Doña Cecilia'},
-   async(id,d)=>{await db.collection('servicios').doc(s.id).update({estado:'Parida',obs:[s.obs,'Parió '+fmt(d.nac)].filter(Boolean).join(' · ')});
-    if(m)await db.collection('eventos').doc(slugId('e')).set({fecha:d.nac||hoy(),caballoId:m.id,caballo:m.nombre,tipo:'Parición',detalle:'Parición: '+(d.sexo||'cría')+(d.pelaje?' '+d.pelaje:''),obs:'',por:uid||''})});
-  const h=$('#f .sheet-h h2');if(h)h.textContent='Parió '+s.madre+' · alta de la cría'}
 
 function padForm(p){form(p?'Editar padrillo':'Agregar padrillo',[{k:'nombre',l:'Nombre',v:p?.nombre,req:1,full:1},{k:'padre',l:'Padre',v:p?.padre},{k:'madre',l:'Madre',v:p?.madre},...camposGenPadrillo(p),{k:'tipo',l:'Tipo',type:'select',opts:['Servicio','Inseminación','Embrión','Externo'],v:p?.tipo},{k:'obs',l:'Observación',type:'area',v:p?.obs}],
   async d=>{if(p){await db.collection('padrillos').doc(p.id).update(d);if(norm(d.nombre)!==norm(p.nombre)){const n=await renombrarEnTodos(p.nombre,d.nombre);toast(`Padrillo renombrado a ${d.nombre}${n?` (actualizado en ${n} registro${n>1?'s':''})`:''}`)}else toast('Padrillo guardado')}else{await db.collection('padrillos').doc(slugId('p')).set(d);toast('Padrillo guardado')}closeModal()},p?`<div class="full"><h3>Árbol de ${esc(p.nombre)}</h3><div class="treewrap">${arbolPadrillo(p)}</div></div>`:'')}
@@ -720,7 +715,7 @@ document.addEventListener('click',async ev=>{
   if(!t)return;const d=t.dataset;
   if('closeOv' in d&&ev.target!==t)return;
   if('closeOv' in d){navAtras();return}
-  if(d.tab){UI.tab=d.tab;UI.sel=null;try{localStorage.setItem('dc-tab',d.tab)}catch(e){}render();window.scrollTo(0,0);return}
+  if(d.tab){UI.tab=d.tab;UI.sel=null;render();window.scrollTo(0,0);return}
   if(d.cat!==undefined){UI.cat=d.cat;render();return}
   if(d.temp){UI.temporada=+d.temp;render();return}
   if(d.camada){UI.camada=+d.camada;render();return}
@@ -729,7 +724,7 @@ document.addEventListener('click',async ev=>{
   if(d.open){UI.ficha=d.open;renderFicha();return}
   if(d.openName){const c=findByName(d.openName);if(c){UI.ficha=c.id;renderFicha()}else toast('No encontré la ficha de '+d.openName);return}
   if(d.pick){UI.sel.has(d.pick)?UI.sel.delete(d.pick):UI.sel.add(d.pick);render();return}
-  if(d.parto){partoForm(S.servicios.find(s=>s.id===d.parto));return}
+  if(d.parto){formNacimiento(S.servicios.find(s=>s.id===d.parto));return}
   if(d.serv){servicioForm(S.servicios.find(s=>s.id===d.serv));return}
   if(d.pad){padForm(S.padrillos.find(s=>s.id===d.pad));return}
   if(d.nota){notaForm(S.notas.find(s=>s.id===d.nota));return}
@@ -755,10 +750,7 @@ document.addEventListener('click',async ev=>{
   if(d.act&&window.EXTRA_ACTS&&EXTRA_ACTS[d.act]){await EXTRA_ACTS[d.act](d,t);return}
   switch(d.act){
     case 'close':navAtras();break;
-    case 'alta':caballoForm(null);break;
     case 'chip':escanerChip();break;
-    case 'selmode':UI.sel=UI.sel?null:new Set();render();break;
-    case 'gosel':UI.tab='caballos';UI.sel=new Set();render();break;
     case 'selall':for(const b of document.querySelectorAll('[data-pick]'))UI.sel.add(b.dataset.pick);render();break;
     case 'bulk':eventoForm([...UI.sel],'Desparasitación');break;
     case 'bajas':UI.bajas=!UI.bajas;render();break;
