@@ -13,6 +13,30 @@
 const ASIS={msgs:[],ultimo:null,intencion:'',lista:null};
 const ICO_CHISPA='<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M10 2l1.8 5.6L17.5 9.5l-5.7 1.9L10 17l-1.8-5.6L2.5 9.5l5.7-1.9z"/><path d="M18 13l.9 2.6 2.6.9-2.6.9L18 20l-.9-2.6-2.6-.9 2.6-.9z"/></svg>';
 const SUGERENCIAS_INICIO=['¿Quiénes están preñadas?','¿Qué hay que hacer esta semana?','¿Cuántos caballos hay?','¿Cuántos hijos tiene el Pulpero?','¿Quién es el chip 40?','¿Quiénes están a la venta?'];
+/* Sugerencias del comienzo: una de cada tema, con caballos de verdad, y distintas cada vez que se abre el asistente
+   (no repite las de la vez anterior). */
+const titulo=n=>n.toLowerCase().replace(/(^|\s)\S/g,x=>x.toUpperCase());
+const llamar=c=>{const m=c.nombre.match(/^DC \(.*\) (\d+)$/);if(m)return 'el '+m[1];return(c.sexo==='Hembra'?'la ':'el ')+titulo(c.nombre)};
+const deLlamar=c=>('de '+llamar(c)).replace(/^de el /,'del ');
+// para sugerir: nombres que se entienden solos (sin "S/N", sin número repetido)
+const sugerible=c=>!/\/|^CRIA DE/i.test(c.nombre)&&!(m=>m&&S.caballos.filter(x=>new RegExp('\\b'+m[1]+'$').test(x.nombre)).length>1)(c.nombre.match(/(\d+)$/));
+function sugerenciasInicio(n=8){const A=activos().filter(x=>!fuera(x)&&sugerible(x)),al=l=>l.length?l[Math.floor(Math.random()*l.length)]:null;
+  const pre=al(A.filter(x=>S.servicios.some(s=>norm(s.madre)===norm(x.nombre)&&s.estado==='Preñada'))),jug=al(A.filter(x=>x.categoria==='Jugadores')),juega=al(A.filter(x=>S.eventos.some(e=>e.caballoId===x.id&&['Práctica','Torneo'].includes(e.tipo)))),herm=al(A.filter(x=>x.madre&&hijosDe(x.madre).filter(h=>h.id!==x.id).length)),pot=al(A.filter(x=>x.categoria==='Potrillos'&&x.padre)),
+    mad=al(A.filter(x=>hijosDe(x.nombre).length>1)),pad=al(listaPadrillos().filter(p=>p.vivos.length>1&&!p.manada)),chip=al(A.filter(x=>x.chip)),rojo=al(A.filter(enCampo).filter(x=>['Desparasitación','Desvasada','Herrada'].some(t=>estadoSan(x,t).st==='bad'))),
+    obs=al(A.filter(x=>x.obs)),mes=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][(+hoy().slice(5,7))%12];
+  const T=[
+    ['¿Quiénes están preñadas?',pre&&`¿Cuándo pare ${llamar(pre)}?`,'¿Quién pare primero?',`¿Qué partos hay en ${mes}?`,'Porcentaje de preñez','¿Quiénes están vacías?'],
+    ['¿Qué hay que hacer esta semana?','¿Qué está vencido?','¿A quién hay que herrar?','¿Qué toca la semana que viene?',jug&&`Sanidad ${deLlamar(jug)}`,rojo&&`¿Por qué ${llamar(rojo)} está en rojo?`,'¿Quiénes no están desparasitados?'],
+    ['¿Cuántos caballos hay?','Yeguas de 2 años','¿Qué potrillos hay?','Los 5 más viejos','¿Quiénes están en doma?','Lugares','Alazanes','Cara blanca','Machos de 1 año'],
+    [pad&&`¿Cuántos hijos tiene el ${titulo(pad.nombre)}?`,mad&&`Hijos ${deLlamar(mad)}`,pot&&`Abuelos ${deLlamar(pot)}`,'¿Qué caballos tienen sangre de Sportivo?',herm&&`Hermanos ${deLlamar(herm)}`,'¿Qué padrillo tiene más hijos?'],
+    ['¿Quién jugó más este mes?','¿Quiénes están agarrados?','¿Quiénes están sueltos?',juega&&`¿Cuándo jugó por última vez ${llamar(juega)}?`],
+    ['¿Quiénes están a la venta?','Gasto de herrero por mes','¿En qué caballo se gastó más herrero?','Precio promedio de venta','¿Qué se vendió este año?'],
+    ['¿Cómo cargo un parto?','¿Qué significa la ventana de parto?','¿Qué significan los colores?','¿Cómo agrego una foto?','¿Cómo doy de baja un caballo?'],
+    [chip&&`¿Cuál es el chip ${deLlamar(chip)}?`,'¿Quiénes no tienen chip?',obs&&`Observaciones ${deLlamar(obs)}`,'¿Qué pasó el mes pasado?','Novedades','¿Quiénes nacieron este año?']];
+  let antes=[];try{antes=JSON.parse(localStorage.getItem('dc-asis-sug')||'[]')}catch(e){}
+  const out=T.map(t=>{const op=t.filter(Boolean),nuevas=op.filter(q=>!antes.includes(q));return al(nuevas.length?nuevas:op)}).filter(Boolean).sort(()=>Math.random()-.5).slice(0,n);
+  try{localStorage.setItem('dc-asis-sug',JSON.stringify(out))}catch(e){}
+  return out}
 
 /* ---------- entender la pregunta ---------- */
 const limpio=s=>' '+norm(s).replace(/[^A-Z0-9Ñ]+/g,' ').trim()+' ';
@@ -385,7 +409,7 @@ function respuestasDeUso(q0,qc){const r={txt:'',cards:[],sug:[]},nq=norm(qc),tAc
     r.txt=top.length?`${/^(este|esta|el|entre|desde|de |en )/.test(rg.nombre)?rg.nombre.charAt(0).toUpperCase()+rg.nombre.slice(1):'En '+rg.nombre} jugó más ${top[0][0].nombre}: ${top[0][1]} (${plural(top[0][1]-top[0][2],'práctica','prácticas')} y ${plural(top[0][2],'torneo','torneos')}). ${plural(Object.keys(por).length,'caballo jugó','caballos jugaron')}${Object.keys(por).length>10?' (muestro 10)':''}.`.replace(/^En /,'En '):`No hay ${tip.length>1?'prácticas ni torneos':tip[0]==='Torneo'?'torneos':'prácticas'} cargados ${rg.nombre}.`;
     r.cards=top.map(x=>x[0]);r.meta=Object.fromEntries(top.map(x=>[x[0].id,`${x[1]-x[2]} prácticas · ${x[2]} torneos`]));return r}
   // rango de fechas (entre meses, desde, hasta, un año): eventos, bajas
-  {const rr=rangoFechas(qc);if(rr&&!c&&!tiene(nq,/PARE|PARIR|PRENAD|NACIERON|NACIDOS|CAMADA|POTRILL|SERVICIO|ESTE ANO NACI|CUANTOS TIENE|EDAD/)){
+  {const rr=rangoFechas(qc);if(rr&&!c&&!tiene(nq,/PARE|PARIR|PRENAD|NACI|CAMADA|POTRILL|SERVICIO|CUANTOS TIENE|EDAD/)){
     if(tiene(nq,/VENDI|MURI|MUERT|BAJA/)){const l=S.caballos.filter(x=>x.estado!=='Activo'&&x.bajaFecha>=rr.desde&&x.bajaFecha<=rr.hasta&&(!tiene(nq,/VENDI/)||x.estado==='Vendido')&&(!tiene(nq,/MURI|MUERT/)||x.estado==='Muerto'));
       r.txt=l.length?`${rr.nombre.charAt(0).toUpperCase()+rr.nombre.slice(1)}: ${plural(l.length,'baja','bajas')}.`:`${rr.nombre.charAt(0).toUpperCase()+rr.nombre.slice(1)} no hay bajas cargadas.`;r.cards=l;r.meta=Object.fromEntries(l.map(x=>[x.id,`${bajaTxt(x)}${x.bajaPrecio?' · '+x.bajaPrecio:''}`]));return r}
     if(tiene(nq,/HERR|DESVAS|GAST/)){const l=evHerrero().filter(e=>e.fecha>=rr.desde&&e.fecha<=rr.hasta);r.txt=`Herrero ${rr.nombre}: ${$ar(costoHerrero(l))} (${plural(l.filter(e=>e.tipo==='Desvasada').length,'desvase','desvases')} y ${plural(l.filter(e=>e.tipo==='Herrada').length,'herrada','herradas')}).`;return r}
@@ -413,7 +437,7 @@ function respuestasPorFiltro(q0,qc){const r={txt:'',cards:[],sug:[]};const tAct=
     if(!a.nac||!b.nac){r.txt=`No puedo comparar: ${[a,b].filter(x=>!x.nac).map(x=>x.nombre).join(' y ')} no ${[a,b].filter(x=>!x.nac).length>1?'tienen':'tiene'} fecha de nacimiento cargada.`;r.cards=[a,b];return r}
     const viejo=a.nac<b.nac?a:b,joven=viejo===a?b:a;r.txt=a.nac===b.nac?`Nacieron el mismo día (${fmt(a.nac)}).`:`${tiene(qc,/JOVEN|MENOR|CHIC/)?joven.nombre+' es más joven':viejo.nombre+' es más vieja'} : ${viejo.nombre} nació el ${fmt(viejo.nac)} y ${joven.nombre} el ${fmt(joven.nac)}.`.replace(' :',':').replace('es más vieja',viejo.sexo==='Macho'?'es más viejo':'es más vieja');r.cards=[a,b];return r}
   // sí / no de un dato de un caballo
-  if(c&&cs.length===1&&tiene(resto,/\b(ESTA|ES|TIENE|SIGUE|ANDA)\b/)&&!tiene(norm(qc).replace(/EN (MADRES|PADRILLOS)/,''),/PRENAD|HERRAD|SUELT|AGARRAD|CASTR|AL DIA|VACIA|DESPARAS|HIJ|PADRE|MADRE|HERMAN|PARE|PARIO/)){
+  if(c&&cs.length===1&&tiene(resto,/\b(ESTA|ES|TIENE|SIGUE|ANDA)\b/)&&!/^\W*(CUAL|QUIEN|QUE|CUANDO|DONDE|COMO|CUANT)/.test(norm(qc))&&!tiene(norm(qc).replace(/EN (MADRES|PADRILLOS)/,''),/PRENAD|HERRAD|SUELT|AGARRAD|CASTR|AL DIA|VACIA|DESPARAS|HIJ|PADRE|MADRE|HERMAN|PARE|PARIO/)){
     const n=c.nombre,lug=[...new Set(activos().map(x=>x.lugar).filter(Boolean))].find(l=>limpio(qc).includes(limpio(l))),cat=CATS.find(k=>tiene(resto,new RegExp('\\b'+norm(k).slice(0,6))))||(tiene(resto,/\bPOLO\b|JUGAND/)?'Jugadores':null);let t=null;
     if(tiene(resto,/VENTA/))t=c.venta?`Sí, ${n} está a la venta${c.precio?' ('+c.precio+')':''}.`:`No, ${n} no está a la venta.`;
     else if(tiene(resto,/CHIP/))t=c.chip?`Sí: chip ${c.chip}.`:`No, ${n} no tiene chip cargado.`;
@@ -818,18 +842,19 @@ function htmlRespuesta(r){
   return `<div class="amsg bot"><p>${esc(r.txt)}</p>${r.lista?.length?`<ul class="alist">${r.lista.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
     ${r.cards?.length||r.pads?.length?`<div class="acards">${(r.pads||[]).slice(0,12).map(pcard).join('')}${(r.cards||[]).slice(0,20).map(card).join('')}</div>${r.cards?.length>20?`<p class="small muted">y ${r.cards.length-20} más</p>`:''}`:''}</div>`}
 function pantallaAsistente(){
-  const ult=ASIS.msgs[ASIS.msgs.length-1],sug=(ult&&ult.r?ult.r.sug:SUGERENCIAS_INICIO).filter(Boolean);
+  if(!ASIS.msgs.length&&!ASIS.sugIni)ASIS.sugIni=sugerenciasInicio();
+  const ult=ASIS.msgs[ASIS.msgs.length-1],sug=(ult&&ult.r?ult.r.sug:ASIS.sugIni||SUGERENCIAS_INICIO).filter(Boolean),cuantas=ASIS.msgs.length?4:8;
   pantalla('Asistente',`<div class="achat" data-asistente>${ASIS.msgs.length?'':`<div class="amsg bot"><p>Preguntame lo que quieras de la manada: hijos, padres, abuelos, hermanos, chips, eventos, preñadas, qué hay que hacer… Anda sin señal.</p></div>`}
     ${ASIS.msgs.map(m=>m.q?`<div class="amsg yo">${esc(m.q)}</div>`:htmlRespuesta(m.r)).join('')}
-    <div class="asug">${sug.slice(0,4).map(s=>`<button type="button" class="chip" data-act="aPreg" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+    <div class="asug">${sug.slice(0,cuantas).map(s=>`<button type="button" class="chip" data-act="aPreg" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>
     ${ASIS.msgs.length?'<button type="button" class="a anueva" data-act="aNueva">Nueva conversación</button>':''}</div>
     <form class="aform" id="aform" autocomplete="off"><input id="a-q" placeholder="Escribí tu pregunta…" enterkeyhint="send"><button class="btn pri" type="submit">Enviar</button></form>`);
   const ov=$('#modal .ov');if(ov)ov.scrollTop=ov.scrollHeight}
 function preguntar(q){q=String(q||'').trim();if(!q)return;let r;try{r=responder(q)}catch(e){console.error(e);r={txt:'Uy, no pude responder eso. Probá preguntarlo de otra forma.',sug:SUGERENCIAS_INICIO}}
   ASIS.msgs.push({q},{r});pantallaAsistente()}
-EXTRA_ACTS.asistente=()=>pantallaAsistente();
+EXTRA_ACTS.asistente=()=>{if(!ASIS.msgs.length)ASIS.sugIni=null;pantallaAsistente()}; // al abrir de nuevo, sugerencias nuevas
 EXTRA_ACTS.aPreg=d=>preguntar(d.q);
-EXTRA_ACTS.aNueva=()=>{ASIS.msgs=[];ASIS.ultimo=null;ASIS.intencion='';ASIS.lista=null;pantallaAsistente()};
+EXTRA_ACTS.aNueva=()=>{ASIS.msgs=[];ASIS.ultimo=null;ASIS.intencion='';ASIS.lista=null;ASIS.sugIni=null;pantallaAsistente()};
 document.addEventListener('submit',e=>{if(e.target.id!=='aform')return;e.preventDefault();const i=$('#a-q');preguntar(i.value)},true);
 /* Al volver de una ficha que se abrió desde el asistente, vuelve el asistente (no se cierra todo) */
 NAV.rehacer['p:Asistente']=pantallaAsistente;

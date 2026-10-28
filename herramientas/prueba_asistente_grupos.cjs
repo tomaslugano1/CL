@@ -97,5 +97,10 @@ const para=await p.evaluate(()=>{const P=[],A=activos().filter(x=>!fuera(x)),tom
   return P});
 let malP=0;for(const [g,q,re] of para){const r=await p.evaluate(q=>{try{ASIS.lista=null;return responder(q).txt}catch(e){return 'ERROR '+e.message}},q);
   if(/No te entendí|De qué caballo|^ERROR|undefined|NaN/.test(r)||(re&&!new RegExp(re,'i').test(r))){malP++;mal++;console.log('MAL paráfrasis',g,'|',q,'::',r.slice(0,160))}}
+// sugerencias del comienzo: todas las que pueden salir se entienden, y no se repiten de una vez a la otra
+const sg=await p.evaluate(()=>{const set=new Set();let rep=0,prev=null;for(let i=0;i<300;i++){const l=sugerenciasInicio();if(prev&&l.some(q=>prev.includes(q)))rep++;prev=l;l.forEach(q=>set.add(q))}
+  const mal=[];for(const q of set){ASIS.lista=null;ASIS.ultimo=null;let t;try{t=responder(q).txt}catch(e){t='ERROR '+e.message}if(/No te entendí|De qué caballo|^ERROR|undefined|NaN|^Sí: chip/.test(t))mal.push(q+' :: '+t.slice(0,100))}return{n:set.size,rep,mal}});
+for(const m of sg.mal){mal++;console.log('MAL sugerencia |',m)}
+console.log('Sugerencias distintas:',sg.n,'| aperturas que repiten alguna:',sg.rep,'| que no se entienden:',sg.mal.length);
 console.log('Formas de preguntar:',para.length,'| sin entender o fuera de tema:',malP);
 console.log('Preguntas:',casos.length,JSON.stringify(por),'| MAL:',mal);console.log('Errores JS:',errs.length?errs.join(' / '):'ninguno');await b.close()})();
