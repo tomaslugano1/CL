@@ -64,13 +64,15 @@ const casos=await p.evaluate(()=>{const A=activos().filter(x=>!fuera(x)),m=A.fil
   for(const t of ['cara blanca','todos los cara blanca','quienes tienen la cara blanca','machos cara blanca','yeguas cara blanca','potrillos con cara blanca','carablanca','malacara',
     'estrella en la frente','los que tienen estrella','patas blancas','cuatro patas blancas','una pata blanca','que caballos tienen 3 patas blancas'])q('Señas',t,'^CON |^NO HAY');
   q('Señas','la '+n(j[0])+' tiene cara blanca?','^SI,|NO FIGURA');
+  q('Observaciones','observaciones de la '+n(pre),'OBSERVACIONES DE|NO TIENE OBSERVACIONES');q('Observaciones','que dice la ficha de la '+n(j[0]),'OBSERVACIONES DE|NO TIENE OBSERVACIONES');
+  q('Observaciones','quien tiene anotado vacunacion preñadas','EN LAS OBSERVACIONES|NO ENCONTRE');q('Observaciones','quien tiene anotado xyzw','NO ENCONTRE');
   return C});
 let mal=0;const por={};for(const [g,t,re] of casos){const r=await p.evaluate(q=>{try{return responder(q).txt}catch(e){return 'ERROR '+e.message}},t);
   const ok=new RegExp(re).test(r.normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase())&&!/NO TE ENTENDI|UNDEFINED|^ERROR /.test(r.toUpperCase());por[g]=(por[g]||0)+1;
   if(!ok){mal++;console.log('MAL',g,'|',t,'::',r.slice(0,200))}}
 // cada caballo: sí/no, seguimiento, movimientos, nietos, herrero
 const todos=await p.evaluate(()=>activos().filter(x=>!fuera(x)).map(x=>x.nombre.toLowerCase()));const [b1,b2]=await p.evaluate(()=>{const A=activos();return [A.find(x=>x.categoria==='Jugadores').nombre.toLowerCase(),A.find(x=>hijosDe(x.nombre).length).nombre.toLowerCase()]});let n2=0;
-for(const nom of todos){const qs=['la '+nom+' tiene cara blanca?','el '+nom+' tiene estrella en la frente?','xq la '+nom+' esta en rojo','q edad tiene la '+nom,'cuando jugo por ultima vez la '+nom,'notas de la '+nom,'cargale un evento a la '+nom,'la '+nom+' esta a la venta?','la '+nom+' tiene chip?','la '+nom+' es macho?','la '+nom+' esta en doma?','movimientos de '+nom,'nietos de '+nom,'cuanto se gasto en herrero de '+nom,'edad de la '+b1,'y la '+nom+'?','hijos de la '+b2,'y de '+nom];
+for(const nom of todos){const qs=['observaciones de la '+nom,'la '+nom+' tiene cara blanca?','el '+nom+' tiene estrella en la frente?','xq la '+nom+' esta en rojo','q edad tiene la '+nom,'cuando jugo por ultima vez la '+nom,'notas de la '+nom,'cargale un evento a la '+nom,'la '+nom+' esta a la venta?','la '+nom+' tiene chip?','la '+nom+' es macho?','la '+nom+' esta en doma?','movimientos de '+nom,'nietos de '+nom,'cuanto se gasto en herrero de '+nom,'edad de la '+b1,'y la '+nom+'?','hijos de la '+b2,'y de '+nom];
   for(const t of qs){n2++;const r=await p.evaluate(q=>{try{return responder(q).txt}catch(e){return 'ERROR '+e.message}},t);const R=r.normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();
     const debe=t.includes(b1)&&!t.includes(nom)||t.includes(b2)&&!t.includes(nom)?null:nom.normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();
     if(/NO TE ENTENDI|UNDEFINED|^ERROR |NULL/.test(R)||(debe&&!R.includes(debe)&&!/^(SI|NO)\b/.test(R))){mal++;console.log('MAL caballo |',t,'::',r.slice(0,200))}}}

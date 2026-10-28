@@ -239,35 +239,51 @@ function refinar(qc){const nq=norm(qc);
 
 /* ---------- Señas de las observaciones ----------
    "cara blanca", "estrella en la frente", "patas blancas", "cuatro patas blancas", "machos cara blanca", "¿la Pipa tiene pata blanca?".
-   Busca en las observaciones de cada ficha. Si la pregunta no se entendió por otro lado, también busca cualquier palabra
-   de las observaciones ("bozal azul"). */
+   Busca en todas las observaciones de cada caballo: la de la ficha, la de la baja, las de sus servicios y las de sus eventos.
+   Cualquier otra palabra ("bozal azul", "rengo") se busca si se nombran las observaciones ("¿quién tiene anotado rengo?",
+   "observaciones de la China") o si la pregunta no se entendió por otro lado. */
+const sinTildes=t=>norm(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+function obsPartes(x){const p=[];if(x.obs)p.push(['Ficha',x.obs]);if(x.bajaObs)p.push(['Baja',x.bajaObs]);
+  for(const s of S.servicios)if(norm(s.madre)===norm(x.nombre)&&s.obs)p.push(['Servicio'+(s.fecha?' '+fmt(s.fecha):''),s.obs]);
+  // de los eventos: lo anotado a mano (no las notas de dónde salió el dato) y el detalle de lesiones, enfermedades, veterinario…
+  const ev=S.eventos.filter(e=>e.caballoId===x.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  for(const e of ev){const o=/^Del (informe|chat)/.test(e.obs||'')?'':e.obs,d=e.detalle&&e.detalle!==e.tipo&&(e.detalle.includes(': ')||!RUTINA.has(e.tipo))?e.detalle:'';
+    const t=[d,o].filter(Boolean).join(' · ');if(t)p.push([fmt(e.fecha)+' · '+e.tipo,t])}
+  return p}
+const RUTINA=new Set(['Práctica','Torneo','Desvasada','Herrada','Desherrada','Desparasitación','Muelas','Servicio','Movimiento','Parición','Anemia','Castración']);
 const SENAS=[{re:/CARA ?BLANCA|CARABLANCA|MALACARA|BLANCO EN LA CARA/,n:'cara blanca'},{re:/ESTRELLA|LUCERO/,n:'estrella en la frente'},
   {re:/PATAS? BLANCAS?|MANOS? BLANCAS?|CALZAD|MEDIAS? BLANCAS?/,n:'patas blancas',patas:true}];
 const NUM_PATAS={UNA:1,UN:1,DOS:2,TRES:3,CUATRO:4,'1':1,'2':2,'3':3,'4':4};
 const patasBlancas=t=>{const m=t.match(/\b(UNA|UN|DOS|TRES|CUATRO|[1-4]) (PATAS?|MANOS?)/);return m?NUM_PATAS[m[1]]:/\b(PATA|MANO) BLANCA\b/.test(t)?1:null};
-const SIN_SENA=new Set('QUE QUIEN QUIENES CUAL CUALES TIENE TIENEN TENGAN CON LOS LAS DEL TODOS TODAS HAY CABALLO CABALLOS YEGUA YEGUAS MACHO MACHOS HEMBRA HEMBRAS POTRANCA POTRANCAS MOSTRAME DECIME PASAME DAME SON ESTAN LISTA ALGUN ALGUNO ALGUNA CUANTOS CUANTAS BUSCA BUSCAME BUSCAR SEÑA SEÑAS SENA SENAS OBSERVACION OBSERVACIONES DICE DICEN FICHA'.split(' '));
-function buscarSenas(q,generico){const nq=' '+norm(q).normalize('NFD').replace(/[\u0300-\u036f]/g,'')+' ',ob=x=>norm(x.obs||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const SIN_SENA=new Set('QUE QUIEN QUIENES CUAL CUALES TIENE TIENEN TENGAN CON LOS LAS DEL TODOS TODAS HAY CABALLO CABALLOS YEGUA YEGUAS MACHO MACHOS HEMBRA HEMBRAS POTRANCA POTRANCAS MOSTRAME DECIME PASAME DAME SON ESTAN LISTA ALGUN ALGUNO ALGUNA CUANTOS CUANTAS BUSCA BUSCAME BUSCAR SEÑA SEÑAS SENA SENAS OBSERVACION OBSERVACIONES DICE DICEN FICHA ANOTADO ANOTADA ANOTADOS ANOTACION ANOTACIONES ESCRITO FIGURA ALGO PALABRA'.split(' '));
+function buscarSenas(q,generico){const nq=' '+sinTildes(q)+' ',PART=new Map(),partes=x=>{if(!PART.has(x.id))PART.set(x.id,obsPartes(x));return PART.get(x.id)},ob=x=>partes(x).map(p=>sinTildes(p[1])).join(' · ');
+  const pide=/OBSERVACION|\bOBS\b|ANOTAD|ANOTACION|ESCRITO|QUE DICE|DICEN|FIGURA/.test(nq);generico=generico||pide;
   const sn=SENAS.filter(x=>x.re.test(nq)),ent=quienes(q),c=/\b\d (PATAS?|MANOS?)\b/.test(nq)?null:ent.find(e=>e.c)?.c,np=sn.some(x=>x.patas)?(/PATAS BLANCAS|MANOS BLANCAS/.test(nq)&&!/\b(UNA|UN|DOS|TRES|CUATRO|[1-4]) (PATAS|MANOS)/.test(nq)?null:patasBlancas(nq)):null;
   const raiz=w=>w.replace(/(ES|S)$/,'').replace(/[AO]$/,'').slice(0,6),pels=[...new Set(S.caballos.map(x=>x.pelaje).filter(Boolean))];
   let pal=[];
-  if(!sn.length){if(!generico||c)return null;
-    pal=nq.trim().split(/[^A-Z0-9Ñ]+/).filter(w=>w.length>=4&&!SIN_SENA.has(w)&&!CATS.some(k=>raiz(norm(k))===raiz(w))&&!pels.some(p=>raiz(norm(p.split(' ')[0]))===raiz(w)));
-    if(!pal.length||!S.caballos.some(x=>pal.every(w=>ob(x).split(/[^A-Z0-9Ñ]+/).some(o=>o.startsWith(raiz(w))))))return null}
-  const tiene0=x=>sn.length?sn.every(z=>z.re.test(' '+ob(x)+' ')&&(!z.patas||np===null||patasBlancas(' '+ob(x)+' ')===np)):pal.every(w=>ob(x).split(/[^A-Z0-9Ñ]+/).some(o=>o.startsWith(raiz(w))));
+  if(!sn.length){if(!generico||(c&&!pide))return null;
+    const enNombre=c?sinTildes(c.nombre+' '+(c.apodo||'')).split(/[^A-Z0-9Ñ]+/):[];
+    pal=nq.trim().split(/[^A-Z0-9Ñ]+/).filter(w=>w.length>=4&&!SIN_SENA.has(w)&&!enNombre.includes(w)&&!CATS.some(k=>raiz(norm(k))===raiz(w))&&!pels.some(p=>raiz(norm(p.split(' ')[0]))===raiz(w)));
+    // "observaciones de la China": todo lo anotado de ese caballo
+    if(c&&!pal.length){const ps=partes(c);return{txt:ps.length?`Observaciones de ${c.nombre}: ${plural(ps.length,'anotación','anotaciones')}.`:`${c.nombre} no tiene observaciones cargadas.`,lista:ps.map(([d,t])=>`${d}: ${t}`),cards:[c],sug:[]}}
+    if(!pal.length||(!c&&!S.caballos.some(x=>pal.every(w=>ob(x).split(/[^A-Z0-9Ñ]+/).some(o=>o.startsWith(raiz(w)))))))return pide&&pal.length?{txt:`No encontré "${pal.join(' ').toLowerCase()}" en las observaciones de ningún caballo.`,cards:[],sug:[]}:null}
+  const obF=x=>sinTildes([x.obs,x.bajaObs].filter(Boolean).join(' · ')); // las señas, de la ficha (en un parto la seña es de la cría, no de la madre)
+  const tiene0=x=>sn.length?sn.every(z=>z.re.test(' '+obF(x)+' ')&&(!z.patas||np===null||patasBlancas(' '+obF(x)+' ')===np)):pal.every(w=>ob(x).split(/[^A-Z0-9Ñ]+/).some(o=>o.startsWith(raiz(w))));
   const que=sn.length?sn.map(z=>z.patas&&np?(np===1?'una pata blanca':np===4?'cuatro patas blancas':np+' patas blancas'):z.n).join(' y '):pal.join(' ').toLowerCase();
   // un número que es de varios ("la 21"): contesta por cada uno
   const vs=/\b\d (PATAS?|MANOS?)\b/.test(nq)?[]:ent.find(e=>e.varios)?.varios||[];
   if(!c&&vs.length&&sn.length){return{txt:`Hay ${vs.length} con ese número. ¿Tienen ${que}? `+vs.map(x=>`${x.nombre}: ${tiene0(x)?'sí':'no'}`).join(' · ')+'.',lista:vs.filter(x=>x.obs).map(x=>`${x.nombre}: ${x.obs}`),cards:vs,sug:[]}}
   // un caballo: sí o no
-  if(c){const si=tiene0(c);return{txt:si?`Sí, ${c.nombre} tiene ${que}${c.obs?' ("'+c.obs+'")':''}.`:`En la ficha de ${c.nombre} no figura ${que}${c.obs?' (dice: "'+c.obs+'")':' (no tiene observaciones cargadas)'}.`,cards:[c],sug:[]}}
+  const donde=x=>{const ps=partes(x),h=ps.filter(([,t])=>sn.length?sn.some(z=>z.re.test(' '+sinTildes(t)+' ')):pal.some(w=>sinTildes(t).split(/[^A-Z0-9Ñ]+/).some(o=>o.startsWith(raiz(w)))));return(h.length?h:ps).map(([d,t])=>d==='Ficha'?t:`${d}: ${t}`).join(' · ')};
+  if(c){const si=tiene0(c),ps=partes(c);return{txt:si?(sn.length?`Sí, ${c.nombre} tiene ${que}`:`Sí, en las observaciones de ${c.nombre} figura "${que}"`)+` ("${donde(c)}").`:`En las observaciones de ${c.nombre} no figura ${que}${ps.length?` (dice: "${ps.map(p=>p[1]).join(' · ').slice(0,200)}")`:' (no tiene observaciones cargadas)'}.`,cards:[c],sug:[]}}
   // filtros que acompañan: sexo, categoría, pelaje
   const sx=/HEMBRA|YEGUA|POTRANCA/.test(nq)?'Hembra':/\bMACHO/.test(nq)?'Macho':null,cat=CATS.find(k=>new RegExp('\\b'+norm(k).slice(0,6)).test(nq));
   const pel=pels.find(p=>nq.split(/[^A-Z0-9Ñ]+/).some(w=>w.length>=4&&raiz(w)===raiz(norm(p.split(' ')[0]))&&!/^(BAYA|COLORADA)$/.test(w)));
   let l=S.caballos.filter(tiene0);if(sx)l=l.filter(x=>x.sexo===sx);if(cat)l=l.filter(x=>x.categoria===cat);if(pel)l=l.filter(x=>x.pelaje&&raiz(norm(x.pelaje.split(' ')[0]))===raiz(norm(pel.split(' ')[0])));
   const viv=l.filter(x=>x.estado==='Activo').sort(sortCab),otros=l.filter(x=>x.estado!=='Activo');
   const desc=[sx==='Hembra'?'hembras':sx==='Macho'?'machos':'',cat?'en '+cat:'',pel?pel.toLowerCase():''].filter(Boolean).join(', ');
-  const r={txt:viv.length||otros.length?`Con ${que}${desc?' ('+desc+')':''}: ${viv.length?viv.length+' en la manada':'ninguno en la manada'}${otros.length?`${viv.length?' y':';'} ${otros.length} que ya no ${otros.length>1?'están':'está'}`:''}.`:`No hay ${desc?desc+' ':''}con ${que} en las observaciones.`+(sn.length?' Las señas salen de lo que dice "Observaciones / señas" en cada ficha.':''),cards:[...viv,...otros],sug:[]};
-  r.meta=Object.fromEntries(r.cards.map(x=>[x.id,[x.obs,x.estado==='Activo'?x.categoria:bajaTxt(x)].filter(Boolean).join(' · ')]));return r}
+  const r={txt:viv.length||otros.length?`Con ${sn.length?que:'"'+que+'" en las observaciones'}${desc?' ('+desc+')':''}: ${viv.length?viv.length+' en la manada':'ninguno en la manada'}${otros.length?`${viv.length?' y':';'} ${otros.length} que ya no ${otros.length>1?'están':'está'}`:''}.`:`No hay ${desc?desc+' ':''}con ${que} en las observaciones.`+(sn.length?' Las señas salen de lo que dice "Observaciones / señas" en cada ficha.':''),cards:[...viv,...otros],sug:[]};
+  r.meta=Object.fromEntries(r.cards.map(x=>[x.id,[donde(x).slice(0,140),x.estado==='Activo'?x.categoria:bajaTxt(x)].filter(Boolean).join(' · ')]));return r}
 
 /* ---------- 1) Preguntas de uso: cargar, qué significa, afuera, notas, polo de un caballo, edad en meses,
    comparar años, porcentajes y promedios, rankings y rangos de fechas ---------- */
