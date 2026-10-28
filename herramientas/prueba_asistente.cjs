@@ -14,7 +14,7 @@ p.on('pageerror',e=>console.log('ERR',e.message));
 const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.goto('http://app.local/');await p.waitForTimeout(1500);await p.evaluate(()=>render());await p.waitForTimeout(2500);
 const res=await p.evaluate(()=>{const out={total:0,malos:[],tipeo:{ok:0,mal:[]}};
-  const T=['hijos de {n}','padres de {n}','hermanos de {n}','edad de {n}','donde esta {n}','eventos de {n}','que le toca a {n}','{n}','la {n}','abuelos de {n}','esta preñada {n}?','chip de {n}'];
+  const T=['hijos de {n}','padres de {n}','hermanos de {n}','edad de {n}','donde esta {n}','eventos de {n}','que le toca a {n}','{n}','la {n}','abuelos de {n}','esta preñada {n}?','chip de {n}','sanidad de {n}','que numero tiene {n}','todo de {n}'];
   const raro=/undefined|null|NaN|\[object|\$\{/;
   for(const c of S.caballos){const n=c.nombre.toLowerCase();
     for(const t of T){const q=t.replace('{n}',n);out.total++;ASIS.ultimo=null;let r;
