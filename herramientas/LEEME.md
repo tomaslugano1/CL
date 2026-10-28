@@ -12,3 +12,4 @@
   de temporada, partos atrasados, bajas y altas casi vacías, y muestra si la app queda entera. Correrla antes de cada `[publicar]`.
   `copia_local.js` hay que copiarlo como `.cjs` para correrlo (el repo tiene `"type": "module"`).
 - `prueba_asistente.cjs <carpeta>`: le hace al asistente ~900 preguntas (12 tipos por cada caballo, más errores de tipeo en los nombres) y lista las que contestó mal. Correrla después de tocar `app/asistente.js`.
+- `prueba_completa_asistente.cjs <carpeta>`: ~1.300 preguntas con control del dato (no solo que conteste): cada caballo, categoría, padrillo, lugar y preguntas generales. Guarda preguntas y respuestas en `<carpeta>/todo.json` (de ahí sale la planilla para Tomás).
