@@ -15,6 +15,10 @@ Si se instala antes, el Sheet copiaría la app vieja y "desharía" esas cosas en
 5. **Doña Cecilia → Actualizar ahora**. Tiene que decir cuántos caballos actualizó.
 6. **Doña Cecilia → Actualizar solo todos los días a las 7**.
 
+## Dónde está el botón
+- **En la compu:** en la barra de menús de arriba del Sheet, al final (después de "Ayuda"), aparece **Doña Cecilia → Actualizar ahora**.
+- **En el celular:** la app de Google Sheets no muestra ese menú. Por eso en la pestaña **RESUMEN**, arriba a la derecha (columna L), hay una casilla **"Actualizar ahora"**: se tilda, el Sheet se actualiza y la casilla se destilda sola. Abajo dice cuándo fue la última actualización.
+
 ## Qué hace en cada pestaña
 | Pestaña | Qué pasa |
 |---|---|

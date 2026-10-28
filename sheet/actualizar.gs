@@ -171,10 +171,29 @@ function configurarClave() {
 function activarDiario() {
   desactivarDiario();
   ScriptApp.newTrigger('actualizarTodo').timeBased().atHour(7).everyDays(1).inTimezone(ZONA).create();
-  SpreadsheetApp.getUi().alert('Listo: el Sheet se va a actualizar solo todos los días a las 7.');
+  ScriptApp.newTrigger('alEditar').forSpreadsheet(SpreadsheetApp.getActive()).onEdit().create();
+  ponerCasilla();
+  SpreadsheetApp.getUi().alert('Listo: el Sheet se va a actualizar solo todos los días a las 7.\n\nDesde el celular: en RESUMEN tildá la casilla "Actualizar ahora".');
 }
 function desactivarDiario() {
-  for (const tr of ScriptApp.getProjectTriggers()) if (tr.getHandlerFunction() === 'actualizarTodo') ScriptApp.deleteTrigger(tr);
+  for (const tr of ScriptApp.getProjectTriggers()) if (['actualizarTodo', 'alEditar'].indexOf(tr.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(tr);
+}
+
+/* Casilla "Actualizar ahora" en RESUMEN (L1:L3): la app de Sheets del celular no muestra el menú Doña Cecilia,
+   así que desde el teléfono se actualiza tildando la casilla. Abajo queda cuándo fue la última actualización. */
+const CASILLA = { fila: 1, col: 12 };
+function ponerCasilla() {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('RESUMEN'); if (!sh) return;
+  sh.getRange(CASILLA.fila, CASILLA.col).setValue('Actualizar ahora (tildá la casilla)').setFontWeight('bold');
+  sh.getRange(CASILLA.fila + 1, CASILLA.col).insertCheckboxes().setValue(false);
+}
+function alEditar(e) {
+  const r = e && e.range; if (!r) return;
+  if (r.getSheet().getName() !== 'RESUMEN' || r.getRow() !== CASILLA.fila + 1 || r.getColumn() !== CASILLA.col || r.getValue() !== true) return;
+  const sh = r.getSheet();
+  sh.getRange(CASILLA.fila + 2, CASILLA.col).setValue('Actualizando…');
+  try { actualizarTodo(); } catch (err) { sh.getRange(CASILLA.fila + 2, CASILLA.col).setValue('No se pudo: ' + err.message); }
+  r.setValue(false);
 }
 
 function actualizarAhora() {
@@ -215,6 +234,8 @@ function actualizarTodo() {
       if (c) c.setValue(String(c.getValue()).replace(/actualizad[oa][^·]*?(\d{2}\/\d{2}\/\d{4})( \d{2}:\d{2})?/i, m => m.replace(/\d{2}\/\d{2}\/\d{4}( \d{2}:\d{2})?/, cuando)));
     }
     r.push('Última actualización: ' + cuando);
+    const res = ss.getSheetByName('RESUMEN');
+    if (res) res.getRange(CASILLA.fila + 2, CASILLA.col).setValue('Actualizado: ' + Utilities.formatDate(new Date(), ZONA, 'dd/MM/yyyy HH:mm'));
     return r;
   } finally { lock.releaseLock(); }
 }
