@@ -47,7 +47,7 @@ vPadrillos=function(){const f=''; // sin filtros: en la ficha de cada padrillo y
 EXTRA_ACTS.padCat=d=>{UI.padCat=d.v;render()};
 
 /* Ficha del padrillo: pedigree, hijos por categoría, por nacer, vendidos y muertos */
-EXTRA_ACTS.padVer=d=>{const p=listaPadrillos().find(x=>x.k===d.k);if(!p)return;
+EXTRA_ACTS.padVer=d=>{const p=listaPadrillos().find(x=>x.k===d.k);if(!p)return;NAV.rehacer['p:'+(p.manada?'MANADA':p.nombre)]=()=>EXTRA_ACTS.padVer({k:d.k});
   const fila=c=>`<button type="button" class="hcard ${esc(c.sexo||'')} ${c.estado!=='Activo'?'baja':''}" data-open="${c.id}"><div class="grow"><div class="nm">${esc(c.nombre)}</div><div class="meta">${esc([c.madre?'de '+c.madre:'',c.camada?'Camada '+c.camada:'',c.estado!=='Activo'?c.estado+(c.bajaFecha?' '+fmt(c.bajaFecha):''):''].filter(Boolean).join(' · '))}</div></div><span class="go">›</span></button>`;
   const porCat=CATS.filter(k=>p.cats[k]).map(k=>sec(`${esc(k)} <span class="muted small">· ${p.cats[k]}</span>`,'',`<div class="hcards">${p.vivos.filter(c=>c.categoria===k).sort(sortCab).map(fila).join('')}</div>`)).join('');
   const lib=p.lib,kv=[['Sangre',p.sangre.padre||p.sangre.madre?`${p.sangre.padre||'?'} × ${p.sangre.madre||'?'}`:'—'],['Nacimiento',lib?.nac?(lib.nac.length>4?fmt(lib.nac):lib.nac):'—'],['Pelaje',lib?.pelaje||'—'],['Criador',lib?.criador||'—'],['Tipo',p.tipo||'—'],

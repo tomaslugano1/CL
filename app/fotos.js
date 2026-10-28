@@ -20,6 +20,7 @@ function pantallaFotos(redibujar){
   const ov2=$('#modal .ov');if(ov2&&scroll)ov2.scrollTop=scroll}
 const porCatOrden=c=>{const i=['Potrillos','Doma','Hechura','Descanso','Jugadores','Madres','Receptoras'].indexOf(c.categoria);return i<0?99:i};
 EXTRA_ACTS.diaFotos=()=>pantallaFotos();
+NAV.rehacer['p:Día de fotos']=()=>pantallaFotos();
 /* Cuando sube una foto, la lista se actualiza sola (sin perder dónde estabas) */
 {const r0=render;render=function(){const r=r0.apply(this,arguments);if(document.querySelector('#modal [data-diafotos]'))pantallaFotos(true);return r}}
 {const st=document.createElement('style');st.textContent=`

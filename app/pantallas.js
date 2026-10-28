@@ -5,7 +5,7 @@
    - Ficha en el orden de Polo Breeders: en las madres, Servicios y Preñez arriba de todo. */
 
 /* ================= Navegación entre pantallas ================= */
-const NAV={pila:[],silencio:0};
+const NAV={pila:[],silencio:0,rehacer:{}}; // rehacer: pantallas que se vuelven a armar al volver con "atrás" (asistente, padrillo, día de fotos)
 const navTop=()=>NAV.pila[NAV.pila.length-1];
 function navClave(){const ov=$('#modal .ov');if(!ov)return null;
   return ov.querySelector('[aria-label="Ficha"]')&&UI.ficha?'f:'+UI.ficha:'p:'+(ov.querySelector('h2')?.textContent||'')}
@@ -14,13 +14,14 @@ function navCambio(){const k=navClave();if(!k)return;const p=NAV.pila,top=navTop
   if(top&&top.k===k){if(ov)ov.scrollTop=top.scroll||0;return}               // misma pantalla redibujada: queda donde estaba
   const i=p.findIndex(e=>e.k===k);
   if(i>=0){const n=p.length-1-i;p.length=i+1;NAV.silencio++;history.go(-n);if(ov)ov.scrollTop=p[i].scroll||0;return} // volver a una pantalla anterior
-  if(top&&top.k.startsWith('p:')&&k.startsWith('f:')){p[p.length-1]={k,scroll:0};history.replaceState({dc:p.length},'');return} // guardar un formulario y ver la ficha
-  p.push({k,scroll:0});history.pushState({dc:p.length},'');if(ov)ov.scrollTop=0}
+  if(top&&top.form&&k.startsWith('f:')){p[p.length-1]={k,scroll:0};history.replaceState({dc:p.length},'');return} // guardar un formulario y ver la ficha
+  p.push({k,scroll:0,form:!!(ov&&ov.querySelector('form#f'))});history.pushState({dc:p.length},'');if(ov)ov.scrollTop=0} // las pantallas que no son formulario (asistente, padrillo, fotos) quedan para volver
 new MutationObserver(navCambio).observe($('#modal'),{childList:true});
 $('#modal').addEventListener('scroll',e=>{const t=navTop();if(t&&e.target.classList&&e.target.classList.contains('ov'))t.scroll=e.target.scrollTop},true);
 addEventListener('popstate',()=>{if(NAV.silencio){NAV.silencio--;return}
   const p=NAV.pila;p.pop();const top=navTop();
   if(top&&top.k.startsWith('f:')&&byId(top.k.slice(2))){UI.ficha=top.k.slice(2);renderFicha();return}
+  if(top&&NAV.rehacer[top.k]){UI.ficha=null;NAV.rehacer[top.k]();return}
   p.length=0;UI.ficha=null;$('#modal').innerHTML=''});
 /* "‹", Cancelar y Escape: una pantalla para atrás */
 function navAtras(){if(NAV.pila.length)history.back();else{UI.ficha=null;$('#modal').innerHTML=''}}
