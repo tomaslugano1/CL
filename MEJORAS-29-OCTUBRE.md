@@ -239,3 +239,16 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Asistente, sanidad y numeración (29/10): resumen de sanidad (desparasitación, controles cargados, desvase y herrada: vencidos, por vencer, al día), qué significan los puntitos, quiénes están al día o vencidos (también por categoría o por tipo), sanidad de un caballo, cada cuántos días se desparasita/desvasa/hierra/muelas/vacunas, muelas, quién no tiene desparasitación cargada, veterinario/lesiones/enfermedad/análisis/revisiones/tactos, vacunas por nombre de un caballo. **Numeración:** el número del nombre del potrillo es su RP (coincide con el final del chip); no es el orden en la camada y se repite entre camadas. Prueba automática: 1.140 preguntas (15 por caballo), 0 fallas.
 - Asistente, prueba completa (29/10): 1.303 preguntas con control del dato (76 caballos × ~15, 7 categorías × 7, 13 padrillos, 2 lugares, 51 generales): 1.303 bien. Arreglado en esta vuelta: "Machitos" se corregía a "machos", sanidad de doma vacía (ahora explica que no se siguen), qué es MANADA, edades en meses/días para los potrillos chicos, bajas con género ("Vendida", "Murió el…").
 
+- Asistente, quinta ronda (29/10, "hacé todos"): 14 tipos de pregunta nuevos, todos probados (57 preguntas de los grupos + 583 por caballo, 0 fallas; las 1.303 y 1.140 de antes siguen en 0):
+  - **Seguimiento:** "¿y la Guacha?" repite la pregunta anterior con otro caballo.
+  - **Dictado por voz:** "valla" = Baya, "huacha" = Guacha (palabras que suenan igual), y números en letras ("el cuarenta", "el veintidós", "el cuarenta y uno"). Si el número no es de nadie, lo dice.
+  - **Cómo se hace en la app:** parto, aborto, foto, baja, alta, servicio, ecografía, sanidad, herrero, categoría/lugar, editar datos, prácticas, notas, lector de chips (con los nombres reales de los botones).
+  - **Sí o no:** ¿está a la venta?, ¿tiene chip / foto?, ¿es macho?, ¿está viva?, ¿está en Madres / en polo / en tal lugar?, ¿es embrión?
+  - **Filtros:** por pelaje ("alazanes", "yeguas zainas"), por edad ("de 6 años", "mayores de 5", "los 5 más viejos", "ordenados por edad") y combinados ("hijos del Pulpero en potrillos").
+  - **Comparar dos:** quién es más vieja, quién jugó más, quién tiene más crías.
+  - **Períodos:** "qué se hizo en septiembre", "este mes", "el mes pasado", "qué toca la semana que viene", "qué hay para noviembre", "bajas de octubre".
+  - **Movimientos** de un caballo y "quién se movió este mes"; **nietos**, descendientes y "qué caballos tienen sangre de X".
+  - **Plata:** herrero de un caballo (este año y total), precio promedio de venta, "qué le vendí a X".
+  - **Embriones y receptoras**; **negaciones** (no preñadas, sin castrar, sin desparasitar, sin herrar, no están a la venta).
+  - **Dos preguntas en un mensaje:** "los hijos de la Guacha y cuándo pare la Martina" (si la segunda no nombra caballo, usa el de la primera).
+  - Falta: repetir todas las pruebas con los datos reales el 29, después de publicar.

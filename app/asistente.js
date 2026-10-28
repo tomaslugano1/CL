@@ -47,7 +47,7 @@ function quienes(q){const out=[];let t=limpio(q);
   out.sort((a,b)=>pos(a)-pos(b));out.resto=t;return out}
 /* Errores de tipeo: "hijso", "hermnos", "prenadas", "sicodelica"… Se corrige cada palabra a la más parecida
    (una letra de diferencia; dos si la palabra es larga). Primero contra los nombres de los caballos, después contra las palabras que entiende. */
-const VOCAB=('HIJOS HIJAS HIJO HIJA HERMANOS HERMANAS HERMANO HERMANA PADRE MADRE PADRES ABUELO ABUELA ABUELOS PATERNO PATERNA MATERNO MATERNA '+
+const VOCAB=('HERRADO HERRADOS HERRADA HERRADAS DESHERRADO DESHERRADA CASTRADO CASTRADOS DESPARASITADO DESPARASITADOS DESPARASITADAS ALAZANES ALAZANAS ZAINOS ZAINAS TORDILLOS TORDILLAS TOBIANOS TOBIANAS OSCUROS OSCURAS COLORADOS MOROS MORAS RUANOS RUANAS VIEJOS JOVENES EMBRION EMBRIONES RECEPTORA RECEPTORAS NIETOS NIETAS NIETO NIETA DESCENDIENTES SANGRE PROMEDIO MOVIMIENTOS MOVIO HIJOS HIJAS HIJO HIJA HERMANOS HERMANAS HERMANO HERMANA PADRE MADRE PADRES ABUELO ABUELA ABUELOS PATERNO PATERNA MATERNO MATERNA '+
   'PREÑADA PREÑADAS PARTO PARTOS NACIMIENTO NACIMIENTOS NACIO NACIERON NACIDOS PARIERON PARIDAS PARIO EVENTOS HISTORIAL DESPARASITACION DESPARASITAR '+
   'DESVASE DESVASAR DESVASADA HERRADA HERRAR HERRERO VACUNA VACUNAS AGARRADOS AGARRADAS AGARRADO AGARRADA SUELTOS SUELTAS SUELTO SUELTA VENTA VENDIDOS '+
   'VENDIDAS MUERTOS MUERTAS FOTOS PADRILLO PADRILLOS CUANTOS CUANTAS JUGADORES POTRILLOS MADRES DOMA DESCANSO HECHURA EDAD CHIP PELAJE CAMADA ULTIMO '+
@@ -93,7 +93,7 @@ function padresTxt(c){const p=c.padre&&norm(c.padre)!=='—'?c.padre:'',m=c.madr
   return p&&m?`${c.nombre} es ${h} de ${p} y ${m}.`:p?`${c.nombre} es ${h} de ${p}; la madre no se sabe.`:m?`${c.nombre} es ${h} de ${m}; el padre no se sabe.`:`De ${c.nombre} no se saben los padres.`}
 const conLink=n=>{const c=n&&findByName(n);return c?{c}:null};
 
-function responder(q0){
+function responder0(q0){
   q0=String(q0).replace(/\b\d{3}(?:[ .-]\d{3}){4}\b/g,m=>m.replace(/\D/g,'')); // chip escrito en grupos
   const qc=corregir(q0),r={txt:'',cards:[],sug:[]};
   let q=qc;const tAct=+S.config.temporada||new Date().getFullYear();
@@ -396,6 +396,163 @@ function responder(q0){
   const baja=c.estado!=='Activo'?` ${bajaTxt(c)}${c.bajaPrecio?' en '+c.bajaPrecio:''}${c.bajaObs?' · '+c.bajaObs.replace(/\.\s*$/,''):''}.`:'';
   r.txt=`${nom}: ${datos}.${baja} ${padresTxt(c).replace(nom+' es','Es')}${c.chip?' Chip '+c.chip+'.':''}${c.obs?' '+c.obs.replace(/\.\s*$/,'')+'.':''}`;r.cards=[c];
   r.sug=[`¿Quién es el abuelo paterno de ${nom}?`,'¿Quiénes son sus hermanos?','¿Qué eventos tiene registrados?'];return r}
+
+/* ===================== Capa de arriba (29/10/2026) =====================
+   Antes de contestar: números dichos en letras ("el cuarenta"), palabras que el dictado por voz escribe distinto
+   ("valla", "huacha"), dos preguntas en un mensaje y "¿y la Guacha?" (repite la pregunta anterior con otro caballo).
+   Además: cómo se hace algo en la app, sí/no de un dato, comparar dos caballos, filtros (pelaje, edad, categoría, sexo,
+   lugar, padre), períodos (un mes, la semana que viene), movimientos, nietos y sangre, plata, embriones y negaciones. */
+const NUM_U={UNO:1,UNA:1,DOS:2,TRES:3,CUATRO:4,CINCO:5,SEIS:6,SIETE:7,OCHO:8,NUEVE:9},NUM_D={DIEZ:10,ONCE:11,DOCE:12,TRECE:13,CATORCE:14,QUINCE:15,DIECISEIS:16,DIECISIETE:17,DIECIOCHO:18,DIECINUEVE:19,VEINTE:20,
+  VEINTIUNO:21,VEINTIDOS:22,VEINTITRES:23,VEINTICUATRO:24,VEINTICINCO:25,VEINTISEIS:26,VEINTISIETE:27,VEINTIOCHO:28,VEINTINUEVE:29},NUM_T={TREINTA:30,CUARENTA:40,CINCUENTA:50,SESENTA:60,SETENTA:70,OCHENTA:80,NOVENTA:90};
+function numerosEnLetras(q){let t=' '+norm(q).normalize('NFD').replace(/[\u0300-\u036f]/g,'')+' ';
+  const T=Object.keys(NUM_T).join('|'),U=Object.keys(NUM_U).join('|'),D=Object.keys(NUM_D).join('|'),antes='(EL|LA|DEL|AL|NUMERO|N|CHIP|RP|DE LA)';
+  t=t.replace(new RegExp(' '+antes+' ('+T+') Y ('+U+') ','g'),(m,a,d,u)=>` ${a} ${NUM_T[d]+NUM_U[u]} `)
+     .replace(new RegExp(' '+antes+' ('+T+'|'+D+') ','g'),(m,a,d)=>` ${a} ${NUM_T[d]||NUM_D[d]} `)
+     .replace(new RegExp(' '+antes+' ('+U+') ','g'),(m,a,u)=>` ${a} ${NUM_U[u]} `);
+  return t.trim()}
+/* cómo suena: para el dictado por voz (VALLA = BAYA, HUACHA = GUACHA) */
+const fon=w=>w.replace(/^HU(?=[AEIO])/,'GU').replace(/W/g,'GU').replace(/LL/g,'Y').replace(/V/g,'B').replace(/(^|[^C])H/g,'$1').replace(/Z/g,'S').replace(/C([EI])/g,'S$1').replace(/QU/g,'K').replace(/C([AOU])/g,'K$1').replace(/G([EI])/g,'J$1').replace(/Y$/,'I');
+function porSonido(q){const nombres=palabrasNombres(),mapa={};for(const n of nombres)if(n.length>=4)mapa[fon(n)]=n;
+  return norm(q).split(/\s+/).map(w=>{const k=w.replace(/[^A-ZÑ]/g,'');if(k.length<4||nombres.includes(k)||VOCAB.includes(k)||COMUNES.has(k))return w;const n=mapa[fon(k)];return n||w}).join(' ')}
+const INTENCION=/HIJO|HIJA|CRIA|PADRE|MADRE|ABUEL|HERMAN|EDAD|ANOS|NACIO|CHIP|PELAJE|DONDE|PRENAD|PARE\b|PARTO|DESPARAS|DESVAS|HERR|VACUN|EVENTO|SANIDAD|TOCA|CUANT|QUIEN|CUAL|VENT|MUERT|VENDI/;
+const AYUDA_APP=[
+  [/PARTO|NACIMIENTO|PARIO|NACIO UN|POTRILLO NUEVO/,'Para cargar un parto: entrá a la ficha de la madre (o Inicio → Próximo parto) y en Servicios tocá "Cargar nacimiento". Completás sexo, pelaje, fecha y si nació vivo; la madre y el padre se completan solos y el servicio queda como parido. También desde "+ Alta" → Nacimiento.'],
+  [/ABORT/,'Para cargar un aborto: en la ficha de la yegua, en Servicios, tocá "Registrar aborto" y poné la fecha.'],
+  [/FOTO/,'Para agregar una foto: entrá a la ficha del caballo, bajá hasta Fotos y tocá "+ Agregar foto" (cámara o galería). Para varios de una, Inicio → "Día de fotos". Necesita señal.'],
+  [/BAJA|VENDI|MURIO|MUERTE/,'Para dar de baja (venta o muerte): entrá a la ficha y abajo de todo tocá "Dar de baja". Elegís el motivo, la fecha y, si se vendió, el precio y el comprador.'],
+  [/ALTA|CABALLO NUEVO|AGREGAR UN CABALLO|COMPRA/,'Para dar de alta un caballo: en Ver caballos tocá "+ Alta" y elegí Nacimiento, Compra, Receptora o Padrillo.'],
+  [/SERVICIO|INSEMIN|SERVIR/,'Para cargar un servicio: en la ficha de la yegua (o en Madres y partos) tocá "+ Servicio": padrillo, fecha y cómo se sirvió. La fecha probable de parto se calcula sola.'],
+  [/ECO|TACTO/,'Para cargar una ecografía o tacto: en la ficha de la yegua, en Preñez, tocá "+ Ecografía" (o los botones Vacía / Preñada).'],
+  [/DESPARAS|VACUN|SANIDAD|ANEMIA|MUELA/,'Para cargar sanidad: en la ficha tocá "+ Evento" y elegí qué se hizo. Para varios caballos a la vez: en Ver caballos tocá "+ Sanidad", elegí los caballos y cargás una sola vez.'],
+  [/HERR|DESVAS|HERRERO/,'Para cargar el herrero: en la ficha tocá "+ Evento" → Herrada o Desvasada (con el precio). Para varios de una: Ver caballos → "+ Sanidad", elegís los caballos y cargás Desvasada o Herrada.'],
+  [/CATEGORIA|MOVER|PASAR A|DESCANSO|AGARRAR|SOLTAR|LUGAR/,'Para cambiar de categoría o de lugar: en la ficha, en Categoría, están "Pasar a…", "Mandar a descanso" y "Otra categoría" (y "Agarrar" si está en descanso). Para varios: Ver caballos → "Seleccionar", elegís y tocás "Cambiar categoría" o "Cambiar lugar".'],
+  [/NOMBRE|DATOS|PELAJE|CHIP|EDITAR|CORREGIR/,'Para cambiar el nombre u otro dato: en la ficha tocá "Editar datos" (abajo de todo). Si cambiás el nombre de una madre, se cambia solo en sus servicios y en sus hijos. El chip también se carga pasando el lector.'],
+  [/PRACTICA|TORNEO/,'Para sumar una práctica o un torneo: en la ficha del jugador, en Polo, tocá "+1".'],
+  [/NOTA|ANOTO|ANOTAR|PENDIENTE|RECORDATORIO/,'Para anotar algo pendiente: en Inicio → Notas → "+ Nueva nota".'],
+  [/LECTOR|ESCANE/,'Para el lector de chips: con la app abierta pasás el lector Bluetooth por el caballo y se abre su ficha sola. Si el chip no es de nadie, te pregunta de qué caballo es.']];
+function capa(q0,qc){const r={txt:'',cards:[],sug:[]};const tAct=+S.config.temporada||new Date().getFullYear();
+  // cómo se hace algo en la app
+  if(tiene(qc,/^(COMO|DONDE) (SE |HAGO |PUEDO |CARGO|AGREGO|DOY|PONGO|SUBO|MARCO|CAMBIO|BORRO|ANOTO|MUEVO|PASO|USO|SUMO|REGISTRO|INGRESO)|COMO (CARGO|AGREGO|DOY|PONGO|SUBO|MARCO|CAMBIO|ANOTO|MUEVO|PASO|USO|SUMO|REGISTRO|SE CARGA|SE HACE|HAGO PARA)/)){
+    const h=AYUDA_APP.find(([re])=>tiene(qc,re));if(h){r.txt=h[1];return r}}
+  const ent=quienes(qc),cs=ent.filter(e=>e.c).map(e=>e.c),c=cs[0],pad=ent.find(e=>e.p)?.p,resto=ent.resto||limpio(qc);
+  // "el 41" que no es de nadie
+  {const m=norm(qc).match(/\b(EL|LA|DEL|AL) (\d{1,3})\b(?! (ANOS|DIAS|MESES|SEMANAS|DE ))/);
+    if(m&&!c&&!pad&&!ent.some(e=>e.varios)&&!S.caballos.some(x=>new RegExp('\\b'+m[2]+'\\b').test(x.nombre)||String(x.rp||'')===m[2])){r.txt=`No hay ningún caballo con el número ${m[2]}.`;return r}}
+  // comparar dos caballos
+  if(cs.length>=2&&tiene(qc,/MAS VIEJ|MAYOR|MAS GRANDE|MAS JOVEN|MENOR|MAS CHIC|JUGO MAS|MAS PRACTICAS|MAS TORNEOS|MAS HIJOS|MAS CRIAS/)){const [a,b]=cs;
+    if(tiene(qc,/HIJOS|CRIAS/)){const ha=hijosDe(a.nombre).length,hb=hijosDe(b.nombre).length;r.txt=ha===hb?`Tienen las mismas crías cargadas: ${ha}.`:`${ha>hb?a.nombre:b.nombre} tiene más crías cargadas (${Math.max(ha,hb)} contra ${Math.min(ha,hb)}).`;r.cards=[a,b];return r}
+    if(tiene(qc,/JUGO|PRACTICA|TORNEO/)){const pa=practicas(a)+torneos(a),pb=practicas(b)+torneos(b);r.txt=`${a.nombre}: ${plural(practicas(a),'práctica','prácticas')} y ${plural(torneos(a),'torneo','torneos')}. ${b.nombre}: ${plural(practicas(b),'práctica','prácticas')} y ${plural(torneos(b),'torneo','torneos')}. ${pa===pb?'Igual.':`Jugó más ${pa>pb?a.nombre:b.nombre}.`}`;r.cards=[a,b];return r}
+    if(!a.nac||!b.nac){r.txt=`No puedo comparar: ${[a,b].filter(x=>!x.nac).map(x=>x.nombre).join(' y ')} no ${[a,b].filter(x=>!x.nac).length>1?'tienen':'tiene'} fecha de nacimiento cargada.`;r.cards=[a,b];return r}
+    const viejo=a.nac<b.nac?a:b,joven=viejo===a?b:a;r.txt=a.nac===b.nac?`Nacieron el mismo día (${fmt(a.nac)}).`:`${tiene(qc,/JOVEN|MENOR|CHIC/)?joven.nombre+' es más joven':viejo.nombre+' es más vieja'} : ${viejo.nombre} nació el ${fmt(viejo.nac)} y ${joven.nombre} el ${fmt(joven.nac)}.`.replace(' :',':').replace('es más vieja',viejo.sexo==='Macho'?'es más viejo':'es más vieja');r.cards=[a,b];return r}
+  // sí / no de un dato de un caballo
+  if(c&&cs.length===1&&tiene(resto,/\b(ESTA|ES|TIENE|SIGUE|ANDA)\b/)&&!tiene(norm(qc).replace(/EN (MADRES|PADRILLOS)/,''),/PRENAD|HERRAD|SUELT|AGARRAD|CASTR|AL DIA|VACIA|DESPARAS|HIJ|PADRE|MADRE|HERMAN|PARE|PARIO/)){
+    const n=c.nombre,lug=[...new Set(activos().map(x=>x.lugar).filter(Boolean))].find(l=>limpio(qc).includes(limpio(l))),cat=CATS.find(k=>tiene(resto,new RegExp('\\b'+norm(k).slice(0,6))))||(tiene(resto,/\bPOLO\b|JUGAND/)?'Jugadores':null);let t=null;
+    if(tiene(resto,/VENTA/))t=c.venta?`Sí, ${n} está a la venta${c.precio?' ('+c.precio+')':''}.`:`No, ${n} no está a la venta.`;
+    else if(tiene(resto,/CHIP/))t=c.chip?`Sí: chip ${c.chip}.`:`No, ${n} no tiene chip cargado.`;
+    else if(tiene(resto,/FOTO/))t=c.fotos?.length?`Sí, ${n} tiene ${plural(c.fotos.length,'foto','fotos')}.`:`No, ${n} no tiene foto todavía.`;
+    else if(lug)t=c.lugar===lug?`Sí, ${n} está en ${lug}.`:`No, ${n} está en ${c.lugar||'(sin lugar)'}.`;
+    else if(tiene(resto,/MACHO|HEMBRA|YEGUA|POTRANCA|CABALLO\b/))t=c.sexo?`${n} es ${c.sexo==='Hembra'?'hembra':'macho'}.`:`De ${n} no está cargado el sexo.`;
+    else if(tiene(resto,/VIV|MUERT/))t=c.estado==='Activo'?`Sí, ${n} está viva/o y en la manada.`:`${n}: ${bajaTxt(c)}.`;
+    else if(cat)t=c.categoria===cat?`Sí, ${n} está en ${cat}.`:`No, ${n} está en ${c.categoria}.`;
+    else if(tiene(resto,/EMBRION/))t=/EMBRI/.test(norm(c.obs||''))?`Sí: ${c.obs}.`:`No figura como embrión.`;
+    if(t){r.txt=t;r.cards=[c];return r}}
+  // embriones y receptoras
+  if(tiene(qc,/EMBRION|QUIEN LO PARIO|QUIEN LA PARIO/)||(c&&tiene(qc,/RECEPTORA/))){
+    if(c){const sv=S.servicios.filter(s=>/EMBRI/.test(norm(s.tipo||''))&&norm(s.madre)===norm(c.nombre));r.txt=/EMBRI/.test(norm(c.obs||''))?`${c.nombre}: ${c.obs}.`:sv.length?`${c.nombre} tiene ${plural(sv.length,'servicio','servicios')} por embrión.`:`${c.nombre} no figura como embrión ni como receptora.`;r.cards=[c];return r}
+    const l=S.caballos.filter(x=>/EMBRI|LO PARIO|LA PARIO|RECEPTORA/.test(norm(x.obs||''))||x.categoria==='Receptoras'),sv=S.servicios.filter(s=>/EMBRI/.test(norm(s.tipo||'')));
+    r.txt=l.length||sv.length?`Embriones y receptoras cargados: ${plural(l.length,'caballo','caballos')}${sv.length?` y ${plural(sv.length,'servicio','servicios')} por embrión`:''}.`:'No hay embriones ni receptoras cargados.';r.cards=l;r.meta=Object.fromEntries(l.map(x=>[x.id,(x.obs||x.categoria).slice(0,80)]));return r}
+  // movimientos de un caballo
+  if(c&&tiene(qc,/CUANDO PASO|PASO A|SE MOVIO|MOVIMIENTO|HISTORIAL DE (LUGAR|CATEGORIA)|DONDE ESTUVO|DESDE CUANDO ESTA EN|CUANDO LO AGARRARON|CUANDO LA AGARRARON|CUANDO LO SOLTARON|CUANDO LA SOLTARON/)){
+    const ev=S.eventos.filter(e=>e.caballoId===c.id&&e.tipo==='Movimiento').sort((a,b)=>b.fecha.localeCompare(a.fecha));
+    r.txt=ev.length?`Movimientos de ${c.nombre}: ${plural(ev.length,'cargado','cargados')}. Hoy está en ${c.categoria}${c.lugar?', '+c.lugar:''}.`:`${c.nombre} no tiene movimientos cargados. Hoy está en ${c.categoria}${c.lugar?', '+c.lugar:''}.`;r.lista=ev.slice(0,10).map(e=>`${fmt(e.fecha)} · ${e.detalle}${e.obs?' · '+e.obs:''}`);r.cards=[c];return r}
+  // nietos y descendientes
+  if((c||pad)&&tiene(qc,/NIETO|DESCENDIENT|TODA SU (FAMILIA|DESCENDENCIA)/)){const nom=c?c.nombre:pad.nombre,h1=hijosDe(nom),h2=h1.flatMap(h=>hijosDe(h.nombre));
+    if(tiene(qc,/NIETO/)){r.txt=h2.length?`${nom} tiene ${plural(h2.length,'nieto cargado','nietos cargados')} (${h2.filter(x=>x.estado==='Activo').length} en la manada).`:`${nom} no tiene nietos cargados.`;r.cards=h2.sort(ordenHijos);r.meta=Object.fromEntries(h2.map(x=>[x.id,lineaCab(x)+' · de '+(norm(x.madre)&&h1.some(h=>norm(h.nombre)===norm(x.madre))?x.madre:x.padre)]));return r}
+    const todos=[],ver=new Set(),ir=n=>{for(const h of hijosDe(n))if(!ver.has(h.id)){ver.add(h.id);todos.push(h);ir(h.nombre)}};ir(nom);
+    r.txt=`Descendientes de ${nom} cargados: ${todos.length} (${todos.filter(x=>x.estado==='Activo').length} en la manada).`;r.cards=todos.sort(ordenHijos);return r}
+  // sangre de alguien: "¿qué caballos tienen sangre de Sportivo?"
+  {const m=norm(qc).match(/(SANGRE DE|DESCIENDEN DE|TIENEN DE (PADRE|ABUELO|ABUELA|MADRE) A|LINEA DE) (.+)$/);if(m){const x=m[3].replace(/^(EL|LA|LOS) /,'').trim();
+    const anc=(n,d,acc)=>{if(!n||d>4)return acc;const p=padresDeNombre(n);for(const y of [p.padre,p.madre].filter(Boolean)){acc.push(norm(y));anc(y,d+1,acc)}return acc};
+    const l=activos().filter(h=>{const a=[...anc(h.nombre,1,[]),norm(h.padre||''),norm(h.madre||''),norm(h.abueloP||''),norm(h.abuelaP||''),norm(h.abueloM||''),norm(h.abuelaM||'')];return a.some(y=>y&&(y===x||y.includes(x)))});
+    r.txt=l.length?`${plural(l.length,'caballo tiene','caballos tienen')} sangre de ${x} (padre, madre, abuelos o bisabuelos, de lo que está cargado).`:`No encontré caballos con ${x} en la genealogía cargada.`;r.cards=l.sort(sortCab);return r}}
+  // plata: herrero de un caballo, precio promedio, ventas a alguien
+  if(c&&tiene(qc,/HERRER|HERRA|DESVAS/)&&tiene(qc,/CUANTO|GAST|PLATA|COSTO|SALIO/)){const p0=precios(),ev=S.eventos.filter(e=>e.caballoId===c.id&&['Desvasada','Herrada'].includes(e.tipo)),anio=hoy().slice(0,4);
+    const sum=l=>l.reduce((a,e)=>a+(+e.precio||p0[e.tipo]||0),0),$f=n=>'$'+n.toLocaleString('es-AR');const la=ev.filter(e=>e.fecha.startsWith(anio));
+    r.txt=`Herrero de ${c.nombre}: en ${anio} ${$f(sum(la))} (${plural(la.filter(e=>e.tipo==='Desvasada').length,'desvase','desvases')} y ${plural(la.filter(e=>e.tipo==='Herrada').length,'herrada','herradas')}); en total cargado ${$f(sum(ev))}.`;r.cards=[c];return r}
+  if(tiene(qc,/PROMEDIO/)&&tiene(qc,/VENT|VENDI|PRECIO/)){const l=S.caballos.filter(x=>x.estado==='Vendido'&&/USD|U\$S/i.test(x.bajaPrecio||'')),num=v=>+(String(v).replace(/[^\d]/g,''))||0;
+    r.txt=l.length?`Precio promedio de venta: USD ${Math.round(l.reduce((a,x)=>a+num(x.bajaPrecio),0)/l.length).toLocaleString('es-AR')} (de ${plural(l.length,'venta','ventas')} en dólares).`:'No hay ventas con precio en dólares.';r.cards=l;return r}
+  {const m=norm(qc).match(/(VENDIO|VENDI A|VENDIDOS? A|LE VENDI A|COMPRO|COMPRADOR) (.+)$/);if(m&&!c){const x=m[2].replace(/^(EL|LA|A) /,'').replace(/[^A-ZÑ ]/g,'').trim().split(' ').filter(w=>w.length>=4);
+    const l=S.caballos.filter(h=>h.estado==='Vendido'&&x.some(w=>norm((h.bajaComprador||'')+' '+(h.bajaObs||'')).includes(w)));
+    if(x.length){r.txt=l.length?`Ventas donde figura ${x.join(' ').toLowerCase()}: ${plural(l.length,'caballo','caballos')}.`:`No encontré ventas con ${x.join(' ').toLowerCase()}.`;r.cards=l;r.meta=Object.fromEntries(l.map(h=>[h.id,`${h.bajaPrecio||''}${h.bajaFecha?' · '+fmt(h.bajaFecha):''}${h.bajaComprador?' · '+h.bajaComprador:''}`]));return r}}}
+  // negaciones
+  if(!c&&tiene(qc,/\bNO (ESTA|ESTAN) PRENAD|NO PRENAD|SIN PRENAR/)){const l=activos().filter(x=>x.categoria==='Madres'&&!S.servicios.some(s=>norm(s.madre)===norm(x.nombre)&&s.estado==='Preñada'));r.txt=`Madres que no están preñadas: ${l.length}.`;r.cards=l.sort(sortCab);r.meta=Object.fromEntries(l.map(x=>[x.id,estadoRepro(servUltimo(x.nombre)).txt]));return r}
+  if(!c&&tiene(qc,/NO (ESTA|ESTAN) CASTRAD|SIN CASTRAR|NO CASTRAD/)){let l=activos().filter(x=>x.sexo==='Macho'&&!/castrad/i.test(x.obs||'')&&!S.eventos.some(e=>e.caballoId===x.id&&/^CASTR/.test(norm(e.tipo))));const cat=CATS.find(k=>tiene(qc,new RegExp(norm(k).slice(0,6))));if(cat)l=l.filter(x=>x.categoria===cat);
+    r.txt=`Machos sin castración cargada${cat?' en '+cat:''}: ${l.length}.`;r.cards=l.sort(sortCab);return r}
+  if(!c&&tiene(qc,/NO (ESTA|ESTAN) DESPARASITAD|SIN DESPARASITAR|NO DESPARASITAD/)){const l=activos().filter(enCampo).filter(x=>{const s2=estadoSan(x,'Desparasitación');return s2.st==='bad'||s2.st==='none'});r.txt=l.length?`Sin desparasitar (vencida o sin dato): ${l.length}.`:'Todos están desparasitados al día.';r.cards=l;r.meta=Object.fromEntries(l.map(x=>[x.id,estadoSan(x,'Desparasitación').txt]));return r}
+  if(!c&&tiene(qc,/NO (ESTA|ESTAN) HERRAD|SIN HERRAR|NO HERRAD/)){const l=activos().filter(enCampo).filter(x=>seHierra(x)).filter(x=>{const s2=estadoSan(x,'Herrada');return s2.no||s2.st==='bad'||s2.st==='none'});r.txt=`De los que se hierran, ${plural(l.length,'tiene','tienen')} la herrada vencida, sin dato o está desherrado.`;r.cards=l;r.meta=Object.fromEntries(l.map(x=>[x.id,estadoSan(x,'Herrada').txt]));return r}
+  if(!c&&tiene(qc,/NO (ESTA|ESTAN) A LA VENTA/)){const l=activos().filter(x=>!x.venta&&!fuera(x));r.txt=`No están a la venta: ${l.length}.`;r.cards=l.sort(sortCab);return r}
+  // períodos
+  {const MES=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'],nq=norm(qc).replace('SETIEMBRE','SEPTIEMBRE');
+    let desde=null,hasta=null,nombre='';const mi=MES.findIndex(m=>new RegExp('\\b'+m+'\\b').test(nq)&&!/9 DE JULIO/.test(nq));
+    if(mi>=0){let y=+((nq.match(/\b(20\d\d)\b/)||[])[1]||hoy().slice(0,4));const futuro=tiene(qc,/TOCA|HACER|HAY PARA|PENDIENT|PASA\b|VIENE|PARA (ENERO|FEBRERO|MARZO|ABRIL|MAYO|JUNIO|JULIO|AGOSTO|SEPTIEMBRE|OCTUBRE|NOVIEMBRE|DICIEMBRE)/);
+      if(futuro&&mi+1<+hoy().slice(5,7)&&!/20\d\d/.test(nq))y++;desde=`${y}-${String(mi+1).padStart(2,'0')}-01`;hasta=addDays(addDays(desde,32).slice(0,8)+'01',-1);nombre=MES[mi].toLowerCase()+' '+y}
+    else if(tiene(qc,/SEMANA QUE VIENE|PROXIMA SEMANA/)){desde=addDays(hoy(),1);hasta=addDays(hoy(),7);nombre='la semana que viene'}
+    else if(tiene(qc,/ESTE MES/)){desde=hoy().slice(0,8)+'01';hasta=addDays(addDays(desde,32).slice(0,8)+'01',-1);nombre='este mes'}
+    else if(tiene(qc,/MES PASADO/)){const d=addDays(hoy().slice(0,8)+'01',-1);desde=d.slice(0,8)+'01';hasta=d;nombre='el mes pasado'}
+    else if(tiene(qc,/SEMANA PASADA/)){desde=addDays(hoy(),-7);hasta=hoy();nombre='la semana pasada'}
+    if(desde&&!tiene(qc,/PARE|PARTO|PARIR|PRENAD|NACIERON|CAMADA/)){
+      if(tiene(qc,/VENDI|MURI|MUERT|BAJA/)){const l=S.caballos.filter(x=>x.estado!=='Activo'&&x.bajaFecha>=desde&&x.bajaFecha<=hasta&&(!tiene(qc,/VENDI/)||x.estado==='Vendido')&&(!tiene(qc,/MURI|MUERT/)||x.estado==='Muerto'));
+        r.txt=l.length?`En ${nombre}: ${plural(l.length,'baja','bajas')}.`:`En ${nombre} no hay bajas cargadas.`;r.cards=l;r.meta=Object.fromEntries(l.map(x=>[x.id,`${bajaTxt(x)}${x.bajaPrecio?' · '+x.bajaPrecio:''}`]));return r}
+      if((tiene(qc,/TOCA|HACER|HAY PARA|PENDIENT|VENCE|SEMANA QUE VIENE|PROXIMA SEMANA/)&&desde>=hoy())||desde>hoy()){const out=[];for(const x of activos().filter(enCampo))for(const t of ['Desparasitación','Desvasada','Herrada','Muelas']){const s2=estadoSan(x,t);if(s2.p&&s2.p>=desde&&s2.p<=hasta)out.push({c:x,t,p:s2.p})}
+        const pp=S.servicios.filter(s=>s.estado==='Preñada'&&s.fpp>=desde&&s.fpp<=hasta);const vis=[...new Map(out.map(o=>[o.c.id,o.c])).values()];
+        const ver={'Desparasitación':'desparasitar','Desvasada':'desvasar','Herrada':'herrar','Muelas':'muelas'};const por={};for(const o of out)por[o.t]=(por[o.t]||0)+1;
+        r.txt=out.length||pp.length?`Para ${nombre}: `+[...Object.entries(por).map(([t,n])=>`${ver[t]} ${n}`),pp.length?`${plural(pp.length,'parto probable','partos probables')} (${pp.map(s=>s.madre).join(', ')})`:''].filter(Boolean).join(' · ')+'.':`Para ${nombre} no hay nada con fecha.`;
+        r.cards=vis;r.meta=Object.fromEntries(vis.map(x=>[x.id,out.filter(o=>o.c===x).map(o=>`${ver[o.t]} ${fmt(o.p).slice(0,5)}`).join(' · ')]));return r}
+      if(tiene(qc,/SE HIZO|PASO|EVENTO|CARGO|HICIMOS|HICIERON|MOVIO|MOVIMIENTO/)||tiene(qc,/^(QUE|EN) /)){let ev=S.eventos.filter(e=>e.fecha>=desde&&e.fecha<=hasta);if(tiene(qc,/MOVI/))ev=ev.filter(e=>e.tipo==='Movimiento');if(c)ev=ev.filter(e=>e.caballoId===c.id);ev.sort((a,b)=>b.fecha.localeCompare(a.fecha));
+        const por={};for(const e of ev)por[e.tipo]=(por[e.tipo]||0)+1;r.txt=ev.length?`En ${nombre}${c?' ('+c.nombre+')':''}: ${plural(ev.length,'evento','eventos')} — `+Object.entries(por).map(([t,n])=>`${t} ${n}`).join(', ')+'.':`En ${nombre} no hay eventos cargados${c?' de '+c.nombre:''}.`;
+        r.lista=ev.slice(0,15).map(e=>`${fmt(e.fecha)} · ${byId(e.caballoId)?.nombre||e.caballo||''} · ${e.detalle||e.tipo}`);return r}}}
+  // filtros: pelaje, edad, sexo, categoría, lugar, padre ("yeguas alazanas de doma", "los de 6 años", "los 5 más viejos")
+  {const pel0=[...new Set(S.caballos.map(x=>x.pelaje).filter(Boolean))],rz=w=>norm(w).replace(/(ES|S)$/,'').replace(/[AO]$/,'').slice(0,6),ws=norm(qc).split(' ');
+    const plu=ws.filter(w=>!(pad&&norm(pad.nombre).split(' ').includes(w))&&/S$/.test(w)&&w.length>=5&&pel0.some(p=>rz(p.split(' ')[0])===rz(w)));
+    const soloPel=c&&plu.length&&norm(c.nombre).split(' ').filter(w=>ws.includes(w)).every(w=>plu.some(u=>rz(u)===rz(w)));
+    const top=/\bLOS \d{1,2} MAS (VIEJ|JOVEN|GRANDE|CHIC)|POR EDAD|(MAYORES|MENORES|MAS|MENOS) DE \d{1,2} ANOS/.test(norm(qc));
+  if(!c||soloPel||top){const c=null,pel=[...new Set(S.caballos.map(x=>x.pelaje).filter(Boolean))],raiz=w=>norm(w).replace(/(ES|S)$/,'').replace(/[AO]$/,'').slice(0,6);
+    const sinPad=norm(qc).split(' ').filter(w=>!(pad&&norm(pad.nombre).split(' ').includes(w))).join(' ');const pelQ=pel.filter(p=>sinPad.split(' ').some(w=>w.length>=4&&raiz(w)===raiz(p.split(' ')[0])&&!/^BAYA$|^COLORADA$/.test(norm(w)))),pelR=pelQ.length?raiz(pelQ[0].split(' ')[0]):null;
+    const mA=norm(qc).match(/(?<!(MAYORES|MENORES|MAS|MENOS) )\bDE (\d{1,2}) ANOS\b/),mMay=norm(qc).match(/(MAYORES DE|MAS DE) (\d{1,2})/),mMen=norm(qc).match(/(MENORES DE|MENOS DE) (\d{1,2})/),mTop=norm(qc).match(/\bLOS (\d{1,2}) MAS (VIEJ|JOVEN|GRANDE|CHIC)/),orden=tiene(qc,/ORDENAD\w* POR EDAD|POR EDAD/);
+    const cat=CATS.find(k=>tiene(qc,new RegExp('\\b'+norm(k).slice(0,6))))||(tiene(qc,/POTRANC/)?'Potrillos':null),sx=tiene(qc,/YEGUA|HEMBRA|POTRANC|ALAZANAS|ZAINAS|BAYAS\b|TOBIANAS|RUANAS/)?'Hembra':tiene(qc,/MACHO/)?'Macho':null;
+    const lug=[...new Set(activos().map(x=>x.lugar).filter(Boolean))].find(l=>limpio(qc).includes(limpio(l)));
+    const filtros=[pelR,mA,mMay,mMen,mTop,orden,cat,sx,lug,pad].filter(Boolean).length;
+    const PEL_FIJOS=/\b(ALAZAN|ZAIN|TORDILL|BAY[OA]S|OSCUR|COLORAD[OA]S|MOR[OA]S|TOBIAN|RUAN|OVER[OA]|PANGARE|ROSILL|LOBUN|GATEAD|PICAZ)\w*/;
+    if(!pelR&&PEL_FIJOS.test(sinPad)&&!soloPel&&!tiene(qc,/HIJ|CRIA|PADRE|MADRE/)){const w=sinPad.match(PEL_FIJOS)[0].toLowerCase();r.txt=`No hay caballos ${w} cargados en la manada.`;return r}
+    if(pelR||mA||mMay||mMen||mTop||orden||filtros>=3||(pad&&cat)){let l=activos().filter(x=>!fuera(x));
+      if(pelR)l=l.filter(x=>x.pelaje&&raiz(x.pelaje.split(' ')[0])===pelR);if(cat)l=l.filter(x=>x.categoria===cat);if(sx)l=l.filter(x=>x.sexo===sx);if(lug)l=l.filter(x=>x.lugar===lug);
+      if(pad)l=l.filter(x=>x.padre&&(clavePad(x.padre)===pad.k||norm(x.madre)===norm(pad.nombre)));
+      const e=x=>x.nac?diff(hoy(),x.nac)/365.25:null;
+      if(mA)l=l.filter(x=>e(x)!==null&&Math.floor(e(x))===+mA[2]);if(mMay)l=l.filter(x=>e(x)!==null&&e(x)>+mMay[2]);if(mMen)l=l.filter(x=>e(x)!==null&&e(x)<+mMen[2]);
+      if(mTop||orden){l=l.filter(x=>x.nac).sort((a,b)=>/JOVEN|CHIC/.test(mTop?.[2]||'')?b.nac.localeCompare(a.nac):a.nac.localeCompare(b.nac));if(mTop)l=l.slice(0,+mTop[1])}else l.sort(sortCab);
+      const desc=[sx==='Hembra'?'hembras':sx==='Macho'?'machos':'',pelQ.length?pelQ[0].toLowerCase():'',cat?'en '+cat:'',lug?'en '+lug:'',pad?'hijos de '+pad.nombre:'',mA?`de ${mA[2]} años`:'',mMay?`de más de ${mMay[2]} años`:'',mMen?`de menos de ${mMen[2]} años`:''].filter(Boolean).join(', ');
+      r.txt=l.length?`${mTop?`Los ${l.length} más ${/JOVEN|CHIC/.test(mTop[2])?'jóvenes':'viejos'}`:orden?'Por edad, del más viejo al más joven':'Encontré '+plural(l.length,'caballo','caballos')}${desc?' ('+desc+')':''}.`+((mA||mMay||mMen||mTop||orden)&&activos().some(x=>!x.nac)?' Solo cuento los que tienen fecha de nacimiento.':''):`No hay caballos${desc?' '+desc:''}.`;
+      r.cards=l;r.meta=Object.fromEntries(l.map(x=>[x.id,[sexoTxt(x),x.pelaje,x.nac?edadTxt(x):'',x.categoria,x.lugar].filter(Boolean).join(' · ')]));return r}}}
+  return null}
+
+function responder(q0){
+  q0=String(q0||'');
+  // números en letras y palabras del dictado
+  let q1=numerosEnLetras(q0);q1=porSonido(q1);
+  // dos preguntas en un mensaje: "los hijos de la Baya y cuándo pare la Martina"
+  const partes=q1.split(/\?|\bY TAMBIEN\b|\bY ADEMAS\b|\bY (?=(QUE|CUANDO|CUANTO|CUANTOS|CUANTAS|QUIEN|QUIENES|DONDE|COMO|DECIME|DAME|PASAME)\b)/).filter(x=>x&&!/^(QUE|CUANDO|CUANTO|CUANTOS|CUANTAS|QUIEN|QUIENES|DONDE|COMO|DECIME|DAME|PASAME)$/.test(x.trim())&&x.trim().length>3);
+  if(partes.length>=2&&partes.every(p=>INTENCION.test(p))){
+    const rs=[];let txt=[],ant=null;for(let p of partes.slice(0,3)){const e=quienes(corregir(p));const n=e.find(x=>x.c)?.c.nombre||e.find(x=>x.p)?.p.nombre;if(n)ant=n;else if(ant)p=p+' '+ant;const r=responderUna(p);rs.push(r);txt.push(r.txt)}
+    return {txt:txt.join('\n\n'),cards:[...new Map(rs.flatMap(r=>r.cards||[]).map(x=>[x.id,x])).values()].slice(0,20),pads:rs.flatMap(r=>r.pads||[]),lista:rs.flatMap(r=>r.lista||[]),meta:Object.assign({},...rs.map(r=>r.meta||{})),sug:rs[rs.length-1].sug||[]}}
+  return responderUna(q1)}
+function responderUna(q){
+  const qc=corregir(q);
+  // "¿y la Guacha?": repite la pregunta anterior con otro caballo
+  if(/^\s*Y\b/.test(norm(qc))&&ASIS.intencion){const ent=quienes(qc);const resto=(ent.resto||'').replace(/\b(Y|EL|LA|LOS|LAS|DEL|DE|AL|CON|QUE|ONDA)\b/g,' ').trim();
+    if(ent.some(e=>e.c||e.p||e.varios)&&!resto){const nombre=ent.find(e=>e.c)?.c.nombre||ent.find(e=>e.p)?.p.nombre||ent.find(e=>e.varios)?.n;return responderUna(ASIS.intencion+' '+nombre)}}
+  const r=capa(q,qc)||responder0(q);
+  const ent=quienes(qc);if(ent.some(e=>e.c||e.p)){const it=(ent.resto||'').trim();if(it&&INTENCION.test(it))ASIS.intencion=it}
+  return r}
 
 /* ---------- pantalla ---------- */
 function htmlRespuesta(r){
