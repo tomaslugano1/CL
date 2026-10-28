@@ -147,7 +147,7 @@ function renderFicha(){
   const herm=S.caballos.filter(x=>x.id!==c.id&&c.madre&&norm(x.madre)===norm(c.madre));
   const hijos=S.caballos.filter(x=>norm(x.madre)===norm(c.nombre)||norm(x.padre)===norm(c.nombre));
   loadNames([...new Set(evs.map(x=>x.por).filter(Boolean))]);
-  const datos=[...(c.apodo?[['Apodo',c.apodo]]:[]),['Sexo',c.sexo],['Nacimiento',fmt(c.nac)+(e!==null?` (${e} ${e===1?'año':'años'})`:'')],['Camada',c.camada],...(c.pelaje?[['Pelaje',c.pelaje]]:[]),['N° chip',c.chip],['RP',c.rp],
+  const datos=[...(c.apodo?[['Apodo',c.apodo]]:[]),['Sexo',c.sexo],['Nacimiento',fmt(c.nac)+(e!==null?` (${e} ${e===1?'año':'años'})`:'')],['Camada',c.camada?c.camada+(c.estado==='Activo'?' · '+camadaTxt(c):''):c.camada],...(c.pelaje?[['Pelaje',c.pelaje]]:[]),['N° chip',c.chip],['RP',c.rp],
     ...(c.alzada?[['Alzada',c.alzada]]:[]),...(c.domador?[['Domador',c.domador]]:[]),...(c.ingresoDoma?[['Entró a doma',fmt(c.ingresoDoma)]]:[]),...(c.salidaDoma?[['Entregado de doma',fmt(c.salidaDoma)]]:[])];
   const polo=['Hechura','Jugadores','Descanso'].includes(c.categoria)&&activo;
   const ultimoDe=t=>S.eventos.filter(x=>x.caballoId===c.id&&x.tipo===t).sort((a,b)=>b.fecha.localeCompare(a.fecha))[0];

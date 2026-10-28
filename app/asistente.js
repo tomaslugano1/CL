@@ -228,7 +228,7 @@ function refinar(qc){const nq=norm(qc);
   if(/PRENAD/.test(nq))cond(x=>S.servicios.some(s=>norm(s.madre)===norm(x.nombre)&&s.estado==='Preñada'),'preñadas');
   if(/\bVIV|ACTIV|EN LA MANADA/.test(nq))cond(x=>x.estado==='Activo','vivos');else if(/MUERT/.test(nq))cond(x=>x.estado==='Muerto','muertos');else if(/VENDID/.test(nq))cond(x=>x.estado==='Vendido','vendidos');
   const e=x=>x.nac?diff(hoy(),x.nac)/365.25:null,mA=nq.match(/(MAYORES DE|MAS DE|MENORES DE|MENOS DE|DE) (\d{1,2}) ANOS/);
-  if(mA){const n=+mA[2];if(/MAYOR|MAS/.test(mA[1]))cond(x=>e(x)!==null&&e(x)>n,`de más de ${plural(n,'año','años')}`);else if(/MENOR|MENOS/.test(mA[1]))cond(x=>e(x)!==null&&e(x)<n,`de menos de ${plural(n,'año','años')}`);else cond(x=>e(x)!==null&&Math.floor(e(x))===n,`de ${plural(n,'año','años')}`)}
+  if(mA){const n=+mA[2],e=edadCamada;if(/MAYOR|MAS/.test(mA[1]))cond(x=>e(x)!==null&&e(x)>n,`de más de ${plural(n,'año','años')}`);else if(/MENOR|MENOS/.test(mA[1]))cond(x=>e(x)!==null&&e(x)<n,`de menos de ${plural(n,'año','años')}`);else cond(x=>e(x)===n,`de ${plural(n,'año','años')}`)}
   const orden=/POR EDAD|MAS VIEJ|MAS JOVEN|MAS CHIC|DEL MAS/.test(nq)?'edad':/POR NOMBRE|ALFABETIC|POR LETRA/.test(nq)?'nombre':/POR CATEGORIA/.test(nq)?'cat':null;
   if(!conds.length&&!orden)return null;
   let l=L.filter(x=>conds.every(f=>f(x))!==fuera0||!conds.length);
@@ -321,12 +321,12 @@ function respuestasDeUso(q0,qc){const r={txt:'',cards:[],sug:[]},nq=norm(qc),tAc
     r.lista=l.slice(0,15).map(e=>`${fmt(e.fecha)} · ${e.detalle||e.tipo}${e.obs?' · '+e.obs:''}`);r.cards=[c];return r}
   // "¿la Blusera tiene 3 años?"
   {const m=nq.match(/\b(TIENE|TENDRA|ES DE) (\d{1,2}) A[NÑ]OS?\b/);if(c&&cs.length===1&&m){const n=+m[2];
-    if(!c.nac){r.txt=`De ${c.nombre} no se sabe la edad (no tiene fecha de nacimiento cargada).`;r.cards=[c];return r}
-    const a=edad(c.nac);r.txt=`${a===n?'Sí':'No'}, ${c.nombre} tiene ${edadTxt(c)} (nació el ${fmt(c.nac)}).`;r.cards=[c];return r}}
+    const ec=edadCamada(c);if(ec===null){r.txt=`De ${c.nombre} no se sabe la edad (no tiene camada ni fecha de nacimiento cargada).`;r.cards=[c];return r}
+    r.txt=`${ec===n?'Sí':'No'}, ${c.nombre} es de la camada ${camadaDe(c)}: ${camadaTxt(c)}${c.nac?` (nació el ${fmt(c.nac)}, hoy tiene ${edadTxt(c)})`:''}.`;r.cards=[c];return r}}
   // edad en meses de los chicos
   if(c&&cs.length===1&&tiene(nq,/EDAD|ANOS TIENE|MESES TIENE|CUANTOS MESES|QUE TAN (CHICO|CHICA|GRANDE)/)&&c.nac&&diff(hoy(),c.nac)<3*365.25){const d=diff(hoy(),c.nac),m=Math.floor(d/30.44),a=Math.floor(m/12),mm=m%12;
     const t=m<1?plural(d,'día','días'):a?`${plural(a,'año','años')}${mm?' y '+plural(mm,'mes','meses'):''} (${m} meses)`:plural(m,'mes','meses');
-    r.txt=`${c.nombre} nació el ${fmt(c.nac)}: tiene ${t}.`;r.cards=[c];return r}
+    r.txt=`${c.nombre} nació el ${fmt(c.nac)}: tiene ${t}. Camada ${camadaDe(c)}: ${camadaTxt(c)}.`;r.cards=[c];return r}
   // comparar años: "¿cuántos nacieron en 2025 contra 2026?", "¿se gastó más en herrero este año o el pasado?"
   {let ys=[...new Set((nq.match(/\b20\d\d\b/g)||[]).map(Number))];const y0=+hoy().slice(0,4);
     if(ys.length<2&&tiene(nq,/ESTE ANO/)&&tiene(nq,/(ANO )?PASADO|ANTERIOR/))ys=[y0-1,y0];
@@ -482,12 +482,12 @@ function respuestasPorFiltro(q0,qc){const r={txt:'',cards:[],sug:[]};const tAct=
       if(pelR)l=l.filter(x=>x.pelaje&&raiz(x.pelaje.split(' ')[0])===pelR);if(cat)l=l.filter(x=>x.categoria===cat);if(sx)l=l.filter(x=>x.sexo===sx);if(lug)l=l.filter(x=>x.lugar===lug);if(vta)l=l.filter(x=>x.venta);
       if(pad)l=l.filter(x=>x.padre&&(clavePad(x.padre)===pad.k||norm(x.madre)===norm(pad.nombre)));
       const e=x=>x.nac?diff(hoy(),x.nac)/365.25:null;
-      const base=l.length;if(mA)l=l.filter(x=>e(x)!==null&&Math.floor(e(x))===+mA[3]);if(mMes)l=l.filter(x=>x.nac&&Math.floor(diff(hoy(),x.nac)/30.44)===+mMes[1]);if(mMay)l=l.filter(x=>e(x)!==null&&e(x)>+mMay[2]);if(mMen)l=l.filter(x=>e(x)!==null&&e(x)<+mMen[2]);
-      if(mTop||orden){l=l.filter(x=>x.nac).sort((a,b)=>/JOVEN|CHIC/.test(mTop?.[2]||'')?b.nac.localeCompare(a.nac):a.nac.localeCompare(b.nac));if(mTop)l=l.slice(0,+mTop[1])}else l.sort(sortCab);
+      const ec=edadCamada;if(mA)l=l.filter(x=>ec(x)===+mA[3]);if(mMes)l=l.filter(x=>x.nac&&Math.floor(diff(hoy(),x.nac)/30.44)===+mMes[1]);if(mMay)l=l.filter(x=>ec(x)!==null&&ec(x)>+mMay[2]);if(mMen)l=l.filter(x=>ec(x)!==null&&ec(x)<+mMen[2]);
+      const kNac=x=>x.nac||(camadaDe(x)?camadaDe(x)+'-10-01':'');if(mTop||orden){l=l.filter(kNac).sort((a,b)=>/JOVEN|CHIC/.test(mTop?.[2]||'')?kNac(b).localeCompare(kNac(a)):kNac(a).localeCompare(kNac(b)));if(mTop)l=l.slice(0,+mTop[1])}else l.sort(sortCab);
       const desc=[sx==='Hembra'?'hembras':sx==='Macho'?'machos':'',pelQ.length?pelQ[0].toLowerCase():'',cat?'en '+cat:'',lug?'en '+lug:'',vta?'a la venta':'',pad?'hijos de '+pad.nombre:'',mA?`de ${plural(+mA[3],'año','años')}`:'',mMes?`de ${plural(+mMes[1],'mes','meses')}`:'',mMay?`de más de ${mMay[2]} años`:'',mMen?`de menos de ${mMen[2]} años`:''].filter(Boolean).join(', ');
-      const sinFecha=(mA||mMes||mMay||mMen||mTop||orden)?activos().filter(x=>(vta||!fuera(x))&&!x.nac&&(!cat||x.categoria===cat)&&(!sx||x.sexo===sx)).length:0;
-      r.txt=l.length?`${mTop?`Los ${l.length} más ${/JOVEN|CHIC/.test(mTop[2])?'jóvenes':'viejos'}`:orden?'Por edad, del más viejo al más joven':(tiene(qc,/CUANT/)?'Hay ':'Encontré ')+(sx==='Hembra'?plural(l.length,'yegua','yeguas'):sx==='Macho'?plural(l.length,'macho','machos'):plural(l.length,'caballo','caballos'))}${desc.replace(/^(hembras|machos)(, )?/,'')?' ('+desc.replace(/^(hembras|machos)(, )?/,'')+')':''}${!mTop&&!orden&&l.length<=8?': '+l.map(x=>x.nombre).join(', '):''}.`+((mA||mMes||mMay||mMen||mTop||orden)&&sinFecha?` Ojo: ${plural(sinFecha,'caballo no tiene','caballos no tienen')} fecha de nacimiento cargada y no ${sinFecha>1?'entran':'entra'} en la cuenta.`:''):`No hay caballos${desc?' '+desc:''}.`+((mA||mMes||mMay||mMen)&&sinFecha?` (${plural(sinFecha,'caballo no tiene','caballos no tienen')} fecha de nacimiento cargada.)`:'');
-      r.cards=l;r.meta=Object.fromEntries(l.map(x=>[x.id,[sexoTxt(x),x.pelaje,x.nac?edadTxt(x):'',x.categoria,x.lugar].filter(Boolean).join(' · ')]));return r}}}
+      const sinFecha=(mA||mMes||mMay||mMen||mTop||orden)?activos().filter(x=>(vta||!fuera(x))&&(mMes?!x.nac:!camadaDe(x))&&(!cat||x.categoria===cat)&&(!sx||x.sexo===sx)).length:0;
+      r.txt=l.length?`${mTop?`Los ${l.length} más ${/JOVEN|CHIC/.test(mTop[2])?'jóvenes':'viejos'}`:orden?'Por edad, del más viejo al más joven':(tiene(qc,/CUANT/)?'Hay ':'Encontré ')+(sx==='Hembra'?plural(l.length,'yegua','yeguas'):sx==='Macho'?plural(l.length,'macho','machos'):plural(l.length,'caballo','caballos'))}${desc.replace(/^(hembras|machos)(, )?/,'')?' ('+desc.replace(/^(hembras|machos)(, )?/,'')+')':''}${!mTop&&!orden&&l.length<=8?': '+l.map(x=>x.nombre).join(', '):''}.`+(mA&&l.length?` Cuento por camada: los de ${+hoy().slice(0,4)-mA[3]} cumplen ${plural(+mA[3],'año','años')} esta temporada.`:(mMay||mMen)&&l.length?' Cuento por camada (la edad que cumplen esta temporada).':'')+((mA||mMes||mMay||mMen||mTop||orden)&&sinFecha?` Ojo: ${plural(sinFecha,'caballo no tiene','caballos no tienen')} ${mMes?'fecha de nacimiento':'camada ni fecha de nacimiento'} cargada y no ${sinFecha>1?'entran':'entra'} en la cuenta.`:''):`No hay caballos${desc?' '+desc:''}.`+((mA||mMes||mMay||mMen)&&sinFecha?` (${plural(sinFecha,'caballo no tiene','caballos no tienen')} camada ni fecha de nacimiento cargada.)`:'');
+      r.cards=l;r.meta=Object.fromEntries(l.map(x=>[x.id,[sexoTxt(x),x.pelaje,x.nac?edadTxt(x):'',camadaDe(x)?'camada '+camadaDe(x):'',x.categoria,x.lugar].filter(Boolean).join(' · ')]));return r}}}
   return null}
 
 /* ---------- 3) Lo de siempre: preguntas generales (preñadas, tareas, bajas, ventas, camadas, sanidad…),
@@ -783,7 +783,7 @@ function respuestasBase(q0){
     r.lista=ev.slice(0,8).map(e=>`${fmt(e.fecha)} · ${e.detalle||e.tipo}${e.obs?' · '+e.obs:''}`);r.cards=[c];r.sug=['¿Quiénes son sus hermanos?',`¿Quiénes son los padres de ${nom}?`];return r}
   if(c.estado!=='Activo'&&tiene(q,/VENDI|PRECIO|COMPRADOR|CUANTO|MURIO|MUERT|BAJA/)){r.txt=`${nom}: ${bajaTxt(c).toLowerCase()}${c.bajaPrecio?', en '+c.bajaPrecio:''}${c.bajaComprador?', a '+c.bajaComprador:''}.${c.bajaObs?' '+c.bajaObs:''}`;r.cards=[c];return r}
   if(tiene(q,/EMBOCADURA|ENSILLA|RIENDA/)){r.txt=c.embocadura?`${nom} usa: ${c.embocadura}.`:`De ${nom} no está cargada la embocadura.`;r.cards=[c];return r}
-  if(tiene(q,/EDAD|ANOS|CUANDO NACIO|NACIMIENTO|NACIO/)){r.txt=c.nac?(c.estado==='Activo'?`${nom} nació el ${fmt(c.nac)}: tiene ${edadTxt(c)}.`:`${nom} nació el ${fmt(c.nac)}. ${bajaTxt(c)}.`):c.camada?`De ${nom} no está la fecha de nacimiento; es de la camada ${c.camada}.`:`De ${nom} no se sabe la edad.`;r.cards=[c];return r}
+  if(tiene(q,/EDAD|ANOS|CUANDO NACIO|NACIMIENTO|NACIO/)){r.txt=c.nac?(c.estado==='Activo'?`${nom} nació el ${fmt(c.nac)}: tiene ${edadTxt(c)}.`:`${nom} nació el ${fmt(c.nac)}. ${bajaTxt(c)}.`):c.camada?`De ${nom} no está la fecha de nacimiento; es de la camada ${c.camada}: ${camadaTxt(c)}.`:`De ${nom} no se sabe la edad.${/\d+ A[ÑN]OS/i.test(c.obs||'')?` En las observaciones dice: "${c.obs}"`:''}`;r.cards=[c];return r}
   if(tiene(q,/DONDE|LUGAR|POTRERO/)){r.txt=`${nom} está en ${c.lugar||'(sin lugar cargado)'}, en ${c.categoria}.${trabajoLinea(c)?' '+trabajoLinea(c)+'.':''}`;r.cards=[c];return r}
   // datos generales (con "todo", "ficha completa", "info": más datos)
   if(tiene(q,/TODO|COMPLETA|INFO|DATOS|CONTAME|SABES/)){const e2=edad(c.nac),t2=trabajoLinea(c),st=c.sexo==='Hembra'?estadoRepro(servUltimo(c.nombre)):null,h=hijosDe(nom);

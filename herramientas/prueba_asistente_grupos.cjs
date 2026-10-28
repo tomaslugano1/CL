@@ -63,6 +63,7 @@ const casos=await p.evaluate(()=>{const A=activos().filter(x=>!fuera(x)),m=A.fil
   // edades (sin que el número se confunda con un caballo)
   for(const t of ['Cuántos yeguas de 3 años hay ? Y cuales ?','3 años','2 años','Edad de dos años','caballos de dos años','cuantos tienen 1 año','machos de 2 años','caballos de 15 años','potrillos de 10 meses'])q('Edades',t,'^(HAY|ENCONTRE|NO HAY) ');
   q('Edades','la '+n(j[0])+' tiene 3 años?','^(SI|NO),|NO SE SABE');
+  q('Edades','caballos con dos años','CUENTO POR CAMADA');q('Edades','1 año','CUENTO POR CAMADA');
   // señas de las observaciones
   for(const t of ['cara blanca','todos los cara blanca','quienes tienen la cara blanca','machos cara blanca','yeguas cara blanca','potrillos con cara blanca','carablanca','malacara',
     'estrella en la frente','los que tienen estrella','patas blancas','cuatro patas blancas','una pata blanca','que caballos tienen 3 patas blancas'])q('Señas',t,'^CON |^NO HAY');

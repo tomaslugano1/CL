@@ -376,6 +376,11 @@ function fmt(s){if(!s)return '—';const [y,m,d]=s.split('-');return d+'/'+m+'/'
 function addDays(s,n){const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
 function diff(a,b){return Math.round((new Date(a+'T12:00:00')-new Date(b+'T12:00:00'))/864e5)}
 function edad(nac){if(!nac)return null;const n=new Date(nac+'T12:00:00'),t=new Date();let a=t.getFullYear()-n.getFullYear();if(t.getMonth()<n.getMonth()||(t.getMonth()===n.getMonth()&&t.getDate()<n.getDate()))a--;return a}
+/* Edad por camada, como se cuenta en el campo: los de la camada 2024 cumplen 2 años esta temporada.
+   Si no tiene camada cargada, sale del año de nacimiento. */
+function camadaDe(c){return +c.camada||(c.nac?+c.nac.slice(0,4):null)}
+function edadCamada(c){const y=camadaDe(c);return y?+hoy().slice(0,4)-y:null}
+function camadaTxt(c){const n=edadCamada(c);return n===null?'':n<=0?'nació esta temporada':`cumple ${n} ${n===1?'año':'años'} esta temporada`}
 function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)}
 const byId=id=>S.caballos.find(c=>c.id===id);
 const activos=()=>S.caballos.filter(c=>c.estado==='Activo');
