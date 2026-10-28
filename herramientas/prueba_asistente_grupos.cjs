@@ -81,4 +81,21 @@ for(const nom of todos){const qs=['observaciones de la '+nom,'la '+nom+' tiene c
     const debe=t.includes(b1)&&!t.includes(nom)||t.includes(b2)&&!t.includes(nom)?null:nom.normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();
     if(/NO TE ENTENDI|UNDEFINED|^ERROR |NULL/.test(R)||(debe&&!R.includes(debe)&&!/^(SI|NO)\b/.test(R))){mal++;console.log('MAL caballo |',t,'::',r.slice(0,200))}}}
 console.log('Por caballo:',n2,'preguntas');
+// muchas formas de preguntar lo mismo (como lo diría alguien en el campo): no tiene que quedar ninguna sin entender, y la respuesta tiene que ser del tema
+const para=await p.evaluate(()=>{const P=[],A=activos().filter(x=>!fuera(x)),toma=(l,n)=>l.filter((_,i)=>i%Math.ceil(l.length/n)===0).slice(0,n);
+  const suj=['yeguas','machos','potrillos','potrancas','madres','jugadores','caballos en doma','caballos en descanso','caballos a la venta','preñadas','alazanes','yeguas alazanas'];
+  const formas=['{s}','{s}?','cuantos {s} hay','cuantas {s} hay','que {s} hay','qué {s} tenemos','cuales son los {s}','mostrame los {s}','pasame las {s}','lista de {s}','quienes son los {s}','hay {s}?','todos los {s}','las {s}','dame las {s}'];
+  for(const x of suj)for(const f of formas)P.push(['grupo',f.replace('{s}',x),null]);
+  const ed=['un año','1 año','dos años','2 años','tres años','4 años'],fe=['{g} de {e}','{g} de {e} de edad','{g} con {e}','que {g} tienen {e}','cuantas {g} de {e} hay','hay {g} de {e}?','{g} de {e}?'];
+  for(const g of ['yeguas','machos','caballos','potrillos','potrancas'])for(const e of ed)for(const f of fe)P.push(['edad',f.replace('{g}',g).replace('{e}',e),null]);
+  const T={edad:[['que edad tiene {n}','cuantos años tiene {n}','de que camada es {n}','cuando nacio {n}'],'NACI|AÑO|MES|EDAD|CAMADA|DÍAS'],padres:[['madre de {n}','de quien es hijo {n}','padre de {n}'],'HIJ|PADRE|MADRE|NO SE SABE'],
+    hijos:[['hijos de {n}','crias de {n}','{n} tiene hijos?'],'HIJ|CRÍA'],donde:[['donde esta {n}','en que categoria esta {n}','donde anda {n}'],'ESTÁ EN|ESTÁ EN'],
+    sanidad:[['sanidad de {n}','que le falta a {n}','{n} esta al dia?','cuando toca desparasitar {n}'],'DESPARAS|HERR|DESVAS|SANIDAD|VACUN|MUELA|TOCA|AL DÍA|VENC|DOMA'],
+    'preñez':[['{n} esta preñada?','{n} esta llena?','con que padrillo esta {n}','cuando pare {n}'],'PREÑ|PARE|SERVIC|VAC[IÍ]A|PARTO|PARI|NO TIENE|ABORT']};
+  for(const [t,[fs,re]] of Object.entries(T))for(const x of toma(t==='preñez'?A.filter(y=>y.sexo==='Hembra'):A,8))for(const f of fs)P.push([t,f.replace('{n}',x.nombre.toLowerCase()),re]);
+  for(const g of ['que hay que hacer esta semana','tareas','pendientes','que esta vencido','preñadas','proximos partos','quienes nacieron','cuantos caballos tenemos','resumen','a la venta','ventas','muertes','bajas','herrero','padrillos','sueltos','agarrados','notas','que anote','novedades','sin chip','sin foto','vacias','camadas','lugares','donde estan los caballos','hola','gracias','ayuda'])P.push(['general',g,null]);
+  return P});
+let malP=0;for(const [g,q,re] of para){const r=await p.evaluate(q=>{try{ASIS.lista=null;return responder(q).txt}catch(e){return 'ERROR '+e.message}},q);
+  if(/No te entendí|De qué caballo|^ERROR|undefined|NaN/.test(r)||(re&&!new RegExp(re,'i').test(r))){malP++;mal++;console.log('MAL paráfrasis',g,'|',q,'::',r.slice(0,160))}}
+console.log('Formas de preguntar:',para.length,'| sin entender o fuera de tema:',malP);
 console.log('Preguntas:',casos.length,JSON.stringify(por),'| MAL:',mal);console.log('Errores JS:',errs.length?errs.join(' / '):'ninguno');await b.close()})();
