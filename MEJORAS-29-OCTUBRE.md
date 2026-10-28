@@ -265,6 +265,8 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
   - **Los de afuera:** "¿quiénes están afuera?", "¿cuántos hay a la venta afuera?".
   - **Mensajes largos:** hasta 4 preguntas juntas, separadas con punto, "y", "también" o "después".
 - Asistente, séptima ronda (28/10): **refinar la respuesta anterior** ("de esas, ¿cuáles son alazanas?", "solo las hembras", "sacá las de jugadores", "ordenalas por edad / por nombre") y **"no, la otra"** (otro caballo con un nombre parecido). Además, "a la venta" se combina con los otros filtros ("yeguas alazanas a la venta"). 120 preguntas de los grupos + 848 por caballo, 0 fallas.
+
+- Asistente, señas (28/10, pedido de Tomás): busca en las **observaciones** de las fichas. "cara blanca" (también "carablanca", "malacara"), "estrella en la frente" ("lucero"), "patas blancas", "cuatro patas blancas", "una pata blanca", y combinado con sexo, categoría o pelaje ("machos cara blanca", "potrillos con cara blanca"). Dice cuántos hay en la manada y cuántos que ya no están. "¿La 34 tiene pata blanca?" contesta sí o no (si el número es de dos caballos, contesta por los dos). Cualquier otra palabra de las observaciones también se encuentra ("bozal azul"). 135 preguntas de los grupos + 954 por caballo, 0 fallas.
   - Falta: repetir todas las pruebas con los datos reales el 29, después de publicar.
 
 ## U. Código ordenado, sin parches (28/10)

@@ -7,6 +7,7 @@
    - Si hay varias preguntas en un mensaje, contesta cada una.
    - "¿y la Guacha?" repite la pregunta anterior con otro caballo; "de esas, ¿cuáles son alazanas?" o "ordenalas por edad"
      trabajan sobre la lista anterior; "no, la otra" cambia al otro caballo con un nombre parecido.
+   - Las señas ("cara blanca", "estrella en la frente", "patas blancas") se buscan en las observaciones de las fichas.
    - Después prueba, en este orden: 1) preguntas de uso, 2) cómo se hace, sí o no, filtros y períodos, 3) lo de siempre
      (generales, padrillos y caballos). La primera que entiende la pregunta, contesta. */
 const ASIS={msgs:[],ultimo:null,intencion:'',lista:null};
@@ -194,7 +195,9 @@ function responderUna0(q){
   if(/^\s*Y\b/.test(norm(qc))&&ASIS.intencion){const ent=quienes(qc);const resto=(ent.resto||'').replace(/\b(Y|EL|LA|LOS|LAS|DEL|DE|AL|CON|QUE|ONDA)\b/g,' ').trim();
     if(ent.some(e=>e.c||e.p||e.varios)&&!resto){const nombre=ent.find(e=>e.c)?.c.nombre||ent.find(e=>e.p)?.p.nombre||ent.find(e=>e.varios)?.n;return responderUna(ASIS.intencion+' '+nombre)}}
   const rf=refinar(qc);if(rf)return rf;
-  const r=respuestasDeUso(q,qc)||respuestasPorFiltro(q,qc)||respuestasBase(q);
+  const se=buscarSenas(q,false);if(se)return se;
+  let r=respuestasDeUso(q,qc)||respuestasPorFiltro(q,qc)||respuestasBase(q);
+  if(/^No te entendí/.test(r.txt))r=buscarSenas(q,true)||r;
   const ent=quienes(qc);if(ent.some(e=>e.c||e.p)){const it=(ent.resto||'').trim();if(it&&INTENCION.test(it))ASIS.intencion=it}
   return r}
 
@@ -233,6 +236,38 @@ function refinar(qc){const nq=norm(qc);
   const r={txt:txt+(conds.length&&ord?' '+ord.charAt(0).toUpperCase()+ord.slice(1)+'.':''),cards:l,sug:[]};
   r.meta=Object.fromEntries(l.map(x=>[x.id,[sexoTxt(x),x.pelaje,x.nac?edadTxt(x):'',x.estado==='Activo'?x.categoria:bajaTxt(x),x.lugar].filter(Boolean).join(' · ')]));
   return r}
+
+/* ---------- Señas de las observaciones ----------
+   "cara blanca", "estrella en la frente", "patas blancas", "cuatro patas blancas", "machos cara blanca", "¿la Pipa tiene pata blanca?".
+   Busca en las observaciones de cada ficha. Si la pregunta no se entendió por otro lado, también busca cualquier palabra
+   de las observaciones ("bozal azul"). */
+const SENAS=[{re:/CARA ?BLANCA|CARABLANCA|MALACARA|BLANCO EN LA CARA/,n:'cara blanca'},{re:/ESTRELLA|LUCERO/,n:'estrella en la frente'},
+  {re:/PATAS? BLANCAS?|MANOS? BLANCAS?|CALZAD|MEDIAS? BLANCAS?/,n:'patas blancas',patas:true}];
+const NUM_PATAS={UNA:1,UN:1,DOS:2,TRES:3,CUATRO:4,'1':1,'2':2,'3':3,'4':4};
+const patasBlancas=t=>{const m=t.match(/\b(UNA|UN|DOS|TRES|CUATRO|[1-4]) (PATAS?|MANOS?)/);return m?NUM_PATAS[m[1]]:/\b(PATA|MANO) BLANCA\b/.test(t)?1:null};
+const SIN_SENA=new Set('QUE QUIEN QUIENES CUAL CUALES TIENE TIENEN TENGAN CON LOS LAS DEL TODOS TODAS HAY CABALLO CABALLOS YEGUA YEGUAS MACHO MACHOS HEMBRA HEMBRAS POTRANCA POTRANCAS MOSTRAME DECIME PASAME DAME SON ESTAN LISTA ALGUN ALGUNO ALGUNA CUANTOS CUANTAS BUSCA BUSCAME BUSCAR SEÑA SEÑAS SENA SENAS OBSERVACION OBSERVACIONES DICE DICEN FICHA'.split(' '));
+function buscarSenas(q,generico){const nq=' '+norm(q).normalize('NFD').replace(/[\u0300-\u036f]/g,'')+' ',ob=x=>norm(x.obs||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const sn=SENAS.filter(x=>x.re.test(nq)),ent=quienes(q),c=/\b\d (PATAS?|MANOS?)\b/.test(nq)?null:ent.find(e=>e.c)?.c,np=sn.some(x=>x.patas)?(/PATAS BLANCAS|MANOS BLANCAS/.test(nq)&&!/\b(UNA|UN|DOS|TRES|CUATRO|[1-4]) (PATAS|MANOS)/.test(nq)?null:patasBlancas(nq)):null;
+  const raiz=w=>w.replace(/(ES|S)$/,'').replace(/[AO]$/,'').slice(0,6),pels=[...new Set(S.caballos.map(x=>x.pelaje).filter(Boolean))];
+  let pal=[];
+  if(!sn.length){if(!generico||c)return null;
+    pal=nq.trim().split(/[^A-Z0-9Ñ]+/).filter(w=>w.length>=4&&!SIN_SENA.has(w)&&!CATS.some(k=>raiz(norm(k))===raiz(w))&&!pels.some(p=>raiz(norm(p.split(' ')[0]))===raiz(w)));
+    if(!pal.length||!S.caballos.some(x=>pal.every(w=>ob(x).split(/[^A-Z0-9Ñ]+/).some(o=>o.startsWith(raiz(w))))))return null}
+  const tiene0=x=>sn.length?sn.every(z=>z.re.test(' '+ob(x)+' ')&&(!z.patas||np===null||patasBlancas(' '+ob(x)+' ')===np)):pal.every(w=>ob(x).split(/[^A-Z0-9Ñ]+/).some(o=>o.startsWith(raiz(w))));
+  const que=sn.length?sn.map(z=>z.patas&&np?(np===1?'una pata blanca':np===4?'cuatro patas blancas':np+' patas blancas'):z.n).join(' y '):pal.join(' ').toLowerCase();
+  // un número que es de varios ("la 21"): contesta por cada uno
+  const vs=/\b\d (PATAS?|MANOS?)\b/.test(nq)?[]:ent.find(e=>e.varios)?.varios||[];
+  if(!c&&vs.length&&sn.length){return{txt:`Hay ${vs.length} con ese número. ¿Tienen ${que}? `+vs.map(x=>`${x.nombre}: ${tiene0(x)?'sí':'no'}`).join(' · ')+'.',lista:vs.filter(x=>x.obs).map(x=>`${x.nombre}: ${x.obs}`),cards:vs,sug:[]}}
+  // un caballo: sí o no
+  if(c){const si=tiene0(c);return{txt:si?`Sí, ${c.nombre} tiene ${que}${c.obs?' ("'+c.obs+'")':''}.`:`En la ficha de ${c.nombre} no figura ${que}${c.obs?' (dice: "'+c.obs+'")':' (no tiene observaciones cargadas)'}.`,cards:[c],sug:[]}}
+  // filtros que acompañan: sexo, categoría, pelaje
+  const sx=/HEMBRA|YEGUA|POTRANCA/.test(nq)?'Hembra':/\bMACHO/.test(nq)?'Macho':null,cat=CATS.find(k=>new RegExp('\\b'+norm(k).slice(0,6)).test(nq));
+  const pel=pels.find(p=>nq.split(/[^A-Z0-9Ñ]+/).some(w=>w.length>=4&&raiz(w)===raiz(norm(p.split(' ')[0]))&&!/^(BAYA|COLORADA)$/.test(w)));
+  let l=S.caballos.filter(tiene0);if(sx)l=l.filter(x=>x.sexo===sx);if(cat)l=l.filter(x=>x.categoria===cat);if(pel)l=l.filter(x=>x.pelaje&&raiz(norm(x.pelaje.split(' ')[0]))===raiz(norm(pel.split(' ')[0])));
+  const viv=l.filter(x=>x.estado==='Activo').sort(sortCab),otros=l.filter(x=>x.estado!=='Activo');
+  const desc=[sx==='Hembra'?'hembras':sx==='Macho'?'machos':'',cat?'en '+cat:'',pel?pel.toLowerCase():''].filter(Boolean).join(', ');
+  const r={txt:viv.length||otros.length?`Con ${que}${desc?' ('+desc+')':''}: ${viv.length?viv.length+' en la manada':'ninguno en la manada'}${otros.length?`${viv.length?' y':';'} ${otros.length} que ya no ${otros.length>1?'están':'está'}`:''}.`:`No hay ${desc?desc+' ':''}con ${que} en las observaciones.`+(sn.length?' Las señas salen de lo que dice "Observaciones / señas" en cada ficha.':''),cards:[...viv,...otros],sug:[]};
+  r.meta=Object.fromEntries(r.cards.map(x=>[x.id,[x.obs,x.estado==='Activo'?x.categoria:bajaTxt(x)].filter(Boolean).join(' · ')]));return r}
 
 /* ---------- 1) Preguntas de uso: cargar, qué significa, afuera, notas, polo de un caballo, edad en meses,
    comparar años, porcentajes y promedios, rankings y rangos de fechas ---------- */
