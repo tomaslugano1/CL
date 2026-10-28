@@ -24,7 +24,14 @@ function sugerenciasInicio(n=8){const A=activos().filter(x=>!fuera(x)&&sugerible
   const pre=al(A.filter(x=>S.servicios.some(s=>norm(s.madre)===norm(x.nombre)&&s.estado==='Preñada'))),jug=al(A.filter(x=>x.categoria==='Jugadores')),juega=al(A.filter(x=>S.eventos.some(e=>e.caballoId===x.id&&['Práctica','Torneo'].includes(e.tipo)))),herm=al(A.filter(x=>x.madre&&hijosDe(x.madre).filter(h=>h.id!==x.id).length)),pot=al(A.filter(x=>x.categoria==='Potrillos'&&x.padre)),
     mad=al(A.filter(x=>hijosDe(x.nombre).length>1)),pad=al(listaPadrillos().filter(p=>p.vivos.length>1&&!p.manada)),chip=al(A.filter(x=>x.chip)),rojo=al(A.filter(enCampo).filter(x=>['Desparasitación','Desvasada','Herrada'].some(t=>estadoSan(x,t).st==='bad'))),
     obs=al(A.filter(x=>x.obs)),mes=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][(+hoy().slice(5,7))%12];
-  const T=[
+  const T=temasSugerencias({pre,jug,juega,herm,pot,mad,pad,chip,rojo,obs,mes});
+  let antes=[];try{antes=JSON.parse(localStorage.getItem('dc-asis-sug')||'[]')}catch(e){}
+  const out=T.map(t=>{const op=t.filter(Boolean),nuevas=op.filter(q=>!antes.includes(q));return al(nuevas.length?nuevas:op)}).filter(Boolean).sort(()=>Math.random()-.5).slice(0,n);
+  try{localStorage.setItem('dc-asis-sug',JSON.stringify(out))}catch(e){}
+  return out}
+/* Los 8 temas de las sugerencias: preñez, trabajo y sanidad, manada, genealogía, polo, plata, cómo se usa, datos */
+function temasSugerencias({pre,jug,juega,herm,pot,mad,pad,chip,rojo,obs,mes}){
+  return [
     ['¿Quiénes están preñadas?',pre&&`¿Cuándo pare ${llamar(pre)}?`,'¿Quién pare primero?',`¿Qué partos hay en ${mes}?`,'Porcentaje de preñez','¿Quiénes están vacías?'],
     ['¿Qué hay que hacer esta semana?','¿Qué está vencido?','¿A quién hay que herrar?','¿Qué toca la semana que viene?',jug&&`Sanidad ${deLlamar(jug)}`,rojo&&`¿Por qué ${llamar(rojo)} está en rojo?`,'¿Quiénes no están desparasitados?'],
     ['¿Cuántos caballos hay?','Yeguas de 2 años','¿Qué potrillos hay?','Los 5 más viejos','¿Quiénes están en doma?','Lugares','Alazanes','Cara blanca','Machos de 1 año'],
@@ -32,11 +39,34 @@ function sugerenciasInicio(n=8){const A=activos().filter(x=>!fuera(x)&&sugerible
     ['¿Quién jugó más este mes?','¿Quiénes están agarrados?','¿Quiénes están sueltos?',juega&&`¿Cuándo jugó por última vez ${llamar(juega)}?`],
     ['¿Quiénes están a la venta?','Gasto de herrero por mes','¿En qué caballo se gastó más herrero?','Precio promedio de venta','¿Qué se vendió este año?'],
     ['¿Cómo cargo un parto?','¿Qué significa la ventana de parto?','¿Qué significan los colores?','¿Cómo agrego una foto?','¿Cómo doy de baja un caballo?'],
-    [chip&&`¿Cuál es el chip ${deLlamar(chip)}?`,'¿Quiénes no tienen chip?',obs&&`Observaciones ${deLlamar(obs)}`,'¿Qué pasó el mes pasado?','Novedades','¿Quiénes nacieron este año?']];
-  let antes=[];try{antes=JSON.parse(localStorage.getItem('dc-asis-sug')||'[]')}catch(e){}
-  const out=T.map(t=>{const op=t.filter(Boolean),nuevas=op.filter(q=>!antes.includes(q));return al(nuevas.length?nuevas:op)}).filter(Boolean).sort(()=>Math.random()-.5).slice(0,n);
-  try{localStorage.setItem('dc-asis-sug',JSON.stringify(out))}catch(e){}
-  return out}
+    [chip&&`¿Cuál es el chip ${deLlamar(chip)}?`,'¿Quiénes no tienen chip?',obs&&`Observaciones ${deLlamar(obs)}`,'¿Qué pasó el mes pasado?','Novedades','¿Quiénes nacieron este año?']]}
+/* Después de cada respuesta: 2 preguntas relacionadas con lo que se habló y 2 de otro tema */
+const TEMA_DE=[/PRENAD|PARE\b|PARTO|PARIR|PARIO|SERVICIO|VACIA|NACI|LLENA/,/DESPARAS|HERRA|DESVAS|VENCID|TOCA|SANIDAD|VACUN|HACER|ROJO|ATRASAD/,/CABALLOS HAY|A[NÑ]OS|EDAD|POTRILL|DOMA|LUGAR|ALAZAN|ZAIN|PELAJE|YEGUAS|MACHOS|CARA BLANCA|VIEJOS/,
+  /HIJ|PADRE|MADRE|ABUEL|HERMAN|PADRILLO|SANGRE|NIETO/,/JUG|PRACTICA|TORNEO|AGARRAD|SUELT|DESCANSO/,/VENT|VENDI|PRECIO|GAST|PLATA|HERRERO/,/^COMO |SIGNIFICA|QUE ES /,/CHIP|OBSERV|NOVEDAD|NOTA|PASO/];
+function sugerenciasDespues(q,r){const nq=sinTildes(q),al=l=>l.length?l[Math.floor(Math.random()*l.length)]:null,mezcla=l=>l.sort(()=>Math.random()-.5),ya=new Set([sinTildes(q)]);
+  const sirve=x=>x&&!ya.has(sinTildes(x))&&(ya.add(sinTildes(x)),true);
+  const A=activos().filter(x=>!fuera(x)&&sugerible(x)),pick=f=>al(A.filter(f));
+  const ctx={pre:pick(x=>S.servicios.some(s=>norm(s.madre)===norm(x.nombre)&&s.estado==='Preñada')),jug:pick(x=>x.categoria==='Jugadores'),juega:pick(x=>S.eventos.some(e=>e.caballoId===x.id&&['Práctica','Torneo'].includes(e.tipo))),
+    herm:pick(x=>x.madre&&hijosDe(x.madre).filter(h=>h.id!==x.id).length),pot:pick(x=>x.categoria==='Potrillos'&&x.padre),mad:pick(x=>hijosDe(x.nombre).length>1),pad:al(listaPadrillos().filter(p=>p.vivos.length>1&&!p.manada)),
+    chip:pick(x=>x.chip),rojo:pick(x=>enCampo(x)&&['Desparasitación','Desvasada','Herrada'].some(t=>estadoSan(x,t).st==='bad')),obs:pick(x=>x.obs),mes:['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][(+hoy().slice(5,7))%12]};
+  const T=temasSugerencias(ctx).map(t=>t.filter(Boolean)),tema=TEMA_DE.findIndex(re=>re.test(nq));
+  // relacionadas: del caballo del que se habló, de la lista que se mostró, o del mismo tema
+  let rel=[];const cards=r.cards||[],c=cards.length===1?cards[0]:null;
+  if(c&&c.estado==='Activo'){const n=sugerible(c)?llamar(c):(c.sexo==='Hembra'?'la ':'el ')+c.nombre,de=('de '+n).replace(/^de el /,'del ');
+    // solo las que tienen algo para contestar
+    const op=[[/SANIDAD|TOCA|DESPARAS|HERRA|DESVAS/,enCampo(c)&&`Sanidad ${de}`],[/PADRE|MADRE|PADRES/,(c.padre||c.madre)&&`Padres ${de}`],[/HERMAN/,c.madre&&hijosDe(c.madre).length>1&&`Hermanos ${de}`],
+      [/EDAD|A[NÑ]OS|NACI/,camadaDe(c)&&`Edad ${de}`],[/OBSERV/,obsPartes(c).length&&`Observaciones ${de}`],[/DONDE|LUGAR|CATEGORIA/,`¿Dónde está ${n}?`],[/ABUEL/,(c.padre||c.madre)&&`Abuelos ${de}`]].filter(x=>x[1]);
+    if(hijosDe(c.nombre).length)op.push([/HIJ|CRIA/,`Hijos ${de}`]);
+    if(c.sexo==='Hembra'&&(c.categoria==='Madres'||S.servicios.some(s=>norm(s.madre)===norm(c.nombre))))op.push([/PRENAD|PARE|PARTO|SERVICIO/,`¿Cuándo pare ${n}?`]);
+    if(S.eventos.some(e=>e.caballoId===c.id&&['Práctica','Torneo'].includes(e.tipo)))op.push([/JUG|PRACTICA|TORNEO/,`¿Cuándo jugó por última vez ${n}?`]);
+    rel=mezcla(op.filter(([re])=>!re.test(nq)).map(x=>x[1]))}
+  else if(cards.length>=3){const sx=new Set(cards.map(x=>x.sexo));rel=mezcla(['Ordenalos por edad','Ordenalos por nombre',...(sx.has('Hembra')&&sx.has('Macho')?['De esos, ¿cuáles son hembras?','De esos, ¿cuáles son machos?']:[]),...(cards.some(x=>x.venta)&&cards.some(x=>!x.venta)?['De esos, ¿cuáles están a la venta?']:[])])}
+  // con una lista: una para refinarla y una del mismo tema; con un caballo: dos de ese caballo
+  const delTema=tema>=0?mezcla([...T[tema]]):[],viejas=(r.sug||[]).filter(x=>!SUGERENCIAS_INICIO.includes(x));
+  rel=(cards.length>=3?[rel[0],...delTema,...rel.slice(1)]:[...rel,...viejas,...delTema]).filter(sirve).slice(0,2);
+  // de otro tema: temas distintos entre sí y del de la pregunta (y si faltan relacionadas, completa con más de otros temas)
+  const otros=mezcla(T.map((t,i)=>i).filter(i=>i!==tema)).map(i=>al(T[i].filter(x=>!ya.has(sinTildes(x))))).filter(sirve);
+  return [...rel,...otros].slice(0,4)}
 
 /* ---------- entender la pregunta ---------- */
 const limpio=s=>' '+norm(s).replace(/[^A-Z0-9Ñ]+/g,' ').trim()+' ';
@@ -851,6 +881,7 @@ function pantallaAsistente(){
     <form class="aform" id="aform" autocomplete="off"><input id="a-q" placeholder="Escribí tu pregunta…" enterkeyhint="send"><button class="btn pri" type="submit">Enviar</button></form>`);
   const ov=$('#modal .ov');if(ov)ov.scrollTop=ov.scrollHeight}
 function preguntar(q){q=String(q||'').trim();if(!q)return;let r;try{r=responder(q)}catch(e){console.error(e);r={txt:'Uy, no pude responder eso. Probá preguntarlo de otra forma.',sug:SUGERENCIAS_INICIO}}
+  try{r.sug=sugerenciasDespues(q,r)}catch(e){console.error(e)}
   ASIS.msgs.push({q},{r});pantallaAsistente()}
 EXTRA_ACTS.asistente=()=>{if(!ASIS.msgs.length)ASIS.sugIni=null;pantallaAsistente()}; // al abrir de nuevo, sugerencias nuevas
 EXTRA_ACTS.aPreg=d=>preguntar(d.q);

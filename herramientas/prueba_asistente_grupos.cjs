@@ -101,6 +101,12 @@ let malP=0;for(const [g,q,re] of para){const r=await p.evaluate(q=>{try{ASIS.lis
 const sg=await p.evaluate(()=>{const set=new Set();let rep=0,prev=null;for(let i=0;i<300;i++){const l=sugerenciasInicio();if(prev&&l.some(q=>prev.includes(q)))rep++;prev=l;l.forEach(q=>set.add(q))}
   const mal=[];for(const q of set){ASIS.lista=null;ASIS.ultimo=null;let t;try{t=responder(q).txt}catch(e){t='ERROR '+e.message}if(/No te entendí|De qué caballo|^ERROR|undefined|NaN|^Sí: chip/.test(t))mal.push(q+' :: '+t.slice(0,100))}return{n:set.size,rep,mal}});
 for(const m of sg.mal){mal++;console.log('MAL sugerencia |',m)}
+// después de cada respuesta: 4 sugerencias (2 del tema, 2 de otro) y todas se entienden
+const sd=await p.evaluate(qs=>{let tot=0,mal=[],cortas=0;for(const q of qs){ASIS.msgs=[];ASIS.lista=null;ASIS.ultimo=null;let r;try{r=responder(q)}catch(e){continue}const sg=sugerenciasDespues(q,r);if(sg.length<4)cortas++;
+    const g={lista:ASIS.lista,ultimo:ASIS.ultimo,intencion:ASIS.intencion};for(const s2 of sg){tot++;Object.assign(ASIS,g);let t;try{t=responder(s2).txt}catch(e){t='ERROR '+e.message}if(/No te entendí|De qué caballo|^ERROR|undefined|NaN|^Sí: chip/.test(t))mal.push(q+' → '+s2+' :: '+t.slice(0,90))}}
+  return{tot,mal,cortas}},casos.map(c=>c[1]).concat(para.map(x=>x[1])).slice(0,400));
+for(const m of sd.mal){mal++;console.log('MAL sugerencia después |',m)}if(sd.cortas){mal+=sd.cortas;console.log('MAL: respuestas con menos de 4 sugerencias:',sd.cortas)}
+console.log('Sugerencias después de responder:',sd.tot,'| que no se entienden:',sd.mal.length);
 console.log('Sugerencias distintas:',sg.n,'| aperturas que repiten alguna:',sg.rep,'| que no se entienden:',sg.mal.length);
 console.log('Formas de preguntar:',para.length,'| sin entender o fuera de tema:',malP);
 console.log('Preguntas:',casos.length,JSON.stringify(por),'| MAL:',mal);console.log('Errores JS:',errs.length?errs.join(' / '):'ninguno');await b.close()})();
