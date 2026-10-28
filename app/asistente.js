@@ -35,7 +35,7 @@ function quienes(q){const out=[];let t=limpio(q);
     const m=S.caballos.filter(x=>limpio(x.nombre).includes(' '+w+' ')||(x.apodo&&limpio(x.apodo).includes(' '+w+' ')));const act=m.filter(x=>x.estado==='Activo');
     const u=act.length?act:m;if(u.length===1){out.push({c:u[0]});t=t.replace(' '+w+' ',' ')}}
   // números: "chip 40", "el 21" → RP, número del nombre o final del chip
-  for(const m of t.matchAll(/ (\d{1,3}|\d{15}) /g)){const n=m[1];
+  for(const m of t.matchAll(/ (\d{1,3}|\d{15}) (?!(A[NÑ]OS?|MESES|MES|DIAS?|SEMANAS?|PATAS?|MANOS?|PRACTICAS|TORNEOS|VECES|HIJOS|CRIAS|CABALLOS|YEGUAS|POTRILLOS)\b)/g)){const n=m[1]; // "de 3 años" no es el caballo 3
     let c;if(n.length===15)c=S.caballos.filter(x=>String(x.chip||'').replace(/\D/g,'')===n);
     else{const porNombre=S.caballos.filter(x=>norm(x.nombre)===n||limpio(x.nombre).endsWith(' '+n+' ')),porRP=S.caballos.filter(x=>String(x.rp||'')===n);
       c=t.includes(' RP '+n+' ')&&porRP.length?porRP:porNombre.length?porNombre:porRP;                       // primero el número del nombre ("DC (GUACHA) 40"), si no el RP
@@ -85,7 +85,9 @@ function numerosEnLetras(q){let t=' '+norm(q).normalize('NFD').replace(/[\u0300-
   const T=Object.keys(NUM_T).join('|'),U=Object.keys(NUM_U).join('|'),D=Object.keys(NUM_D).join('|'),antes='(EL|LA|DEL|AL|NUMERO|N|CHIP|RP|DE LA)';
   t=t.replace(new RegExp(' '+antes+' ('+T+') Y ('+U+') ','g'),(m,a,d,u)=>` ${a} ${NUM_T[d]+NUM_U[u]} `)
      .replace(new RegExp(' '+antes+' ('+T+'|'+D+') ','g'),(m,a,d)=>` ${a} ${NUM_T[d]||NUM_D[d]} `)
-     .replace(new RegExp(' '+antes+' ('+U+') ','g'),(m,a,u)=>` ${a} ${NUM_U[u]} `);
+     .replace(new RegExp(' '+antes+' ('+U+') ','g'),(m,a,u)=>` ${a} ${NUM_U[u]} `)
+     .replace(new RegExp(' ('+T+') Y ('+U+') (?=(ANOS?|MESES|MES|DIAS?|SEMANAS?) )','g'),(m,d,u)=>` ${NUM_T[d]+NUM_U[u]} `)
+     .replace(new RegExp(' ('+T+'|'+D+'|'+U+') (?=(ANOS?|MESES|MES|DIAS?|SEMANAS?) )','g'),(m,w)=>` ${NUM_T[w]||NUM_D[w]||NUM_U[w]} `);
   return t.trim()}
 /* cómo suena: para el dictado por voz (VALLA = BAYA, HUACHA = GUACHA) */
 const fon=w=>w.replace(/^HU(?=[AEIO])/,'GU').replace(/W/g,'GU').replace(/LL/g,'Y').replace(/V/g,'B').replace(/(^|[^C])H/g,'$1').replace(/Z/g,'S').replace(/C([EI])/g,'S$1').replace(/QU/g,'K').replace(/C([AOU])/g,'K$1').replace(/G([EI])/g,'J$1').replace(/Y$/,'I');
@@ -183,7 +185,8 @@ function responder(q0){
   // números en letras y palabras del dictado
   let q1=numerosEnLetras(abreviaturas(q0));q1=porSonido(q1);
   // dos preguntas en un mensaje: "los hijos de la Baya y cuándo pare la Martina"
-  const partes=q1.split(/\?|[.;]\s|\bY TAMBIEN\b|\bTAMBIEN\b|\bY DESPUES\b|\bDESPUES\b|\bY ADEMAS\b|\bY (?=(QUE|CUANDO|CUANTO|CUANTOS|CUANTAS|QUIEN|QUIENES|DONDE|COMO|DECIME|DAME|PASAME)\b)/).filter(x=>x&&!/^(QUE|CUANDO|CUANTO|CUANTOS|CUANTAS|QUIEN|QUIENES|DONDE|COMO|DECIME|DAME|PASAME)$/.test(x.trim())&&x.trim().length>3);
+  const partes=q1.split(/\?|[.;]\s|\bY TAMBIEN\b|\bTAMBIEN\b|\bY DESPUES\b|\bDESPUES\b|\bY ADEMAS\b|\bY (?=(QUE|CUANDO|CUANTO|CUANTOS|CUANTAS|QUIEN|QUIENES|DONDE|COMO|DECIME|DAME|PASAME)\b)/).filter(x=>x&&!/^(QUE|CUANDO|CUANTO|CUANTOS|CUANTAS|QUIEN|QUIENES|DONDE|COMO|DECIME|DAME|PASAME)$/.test(x.trim())&&x.trim().length>3)
+    .filter(x=>!/^\s*(Y )?(CUALES|CUAL|QUIENES|QUIEN)( SON| ES)?( ESOS| ESAS| ELLOS| ELLAS)?\s*$/.test(x)); // "¿Y cuáles?" va con la anterior (las tarjetas ya los muestran)
   if(partes.length>=2&&partes.every(p=>INTENCION.test(p))){
     const rs=[];let txt=[],ant=null;for(let p of partes.slice(0,4)){const e=quienes(corregir(p));const n=e.find(x=>x.c)?.c.nombre||e.find(x=>x.p)?.p.nombre;if(n)ant=n;else if(ant)p=p+' '+ant;const r=responderUna(p);rs.push(r);txt.push(r.txt)}
     return {txt:txt.join('\n\n'),cards:[...new Map(rs.flatMap(r=>r.cards||[]).map(x=>[x.id,x])).values()].slice(0,20),pads:rs.flatMap(r=>r.pads||[]),lista:rs.flatMap(r=>r.lista||[]),meta:Object.assign({},...rs.map(r=>r.meta||{})),sug:rs[rs.length-1].sug||[]}}
@@ -316,6 +319,10 @@ function respuestasDeUso(q0,qc){const r={txt:'',cards:[],sug:[]},nq=norm(qc),tAc
     const l=tiene(nq,/PRACTICA/)&&!tiene(nq,/TORNEO/)?pra:tor;const prev=tiene(nq,/PRACTICA/)&&!tiene(nq,/TORNEO/)?+c.practicasPrevias||0:+c.torneosPrevios||0;
     r.txt=l.length?`${c.nombre}: ${plural(l.length,l===pra?'práctica cargada':'torneo cargado',l===pra?'prácticas cargadas':'torneos cargados')} con fecha${prev?` (y ${prev} de antes, sin fecha)`:''}.`:`${c.nombre} no tiene ${l===pra?'prácticas':'torneos'} cargados con fecha${prev?` (tiene ${prev} de antes, sin fecha)`:''}.`;
     r.lista=l.slice(0,15).map(e=>`${fmt(e.fecha)} · ${e.detalle||e.tipo}${e.obs?' · '+e.obs:''}`);r.cards=[c];return r}
+  // "¿la Blusera tiene 3 años?"
+  {const m=nq.match(/\b(TIENE|TENDRA|ES DE) (\d{1,2}) A[NÑ]OS?\b/);if(c&&cs.length===1&&m){const n=+m[2];
+    if(!c.nac){r.txt=`De ${c.nombre} no se sabe la edad (no tiene fecha de nacimiento cargada).`;r.cards=[c];return r}
+    const a=edad(c.nac);r.txt=`${a===n?'Sí':'No'}, ${c.nombre} tiene ${edadTxt(c)} (nació el ${fmt(c.nac)}).`;r.cards=[c];return r}}
   // edad en meses de los chicos
   if(c&&cs.length===1&&tiene(nq,/EDAD|ANOS TIENE|MESES TIENE|CUANTOS MESES|QUE TAN (CHICO|CHICA|GRANDE)/)&&c.nac&&diff(hoy(),c.nac)<3*365.25){const d=diff(hoy(),c.nac),m=Math.floor(d/30.44),a=Math.floor(m/12),mm=m%12;
     const t=m<1?plural(d,'día','días'):a?`${plural(a,'año','años')}${mm?' y '+plural(mm,'mes','meses'):''} (${m} meses)`:plural(m,'mes','meses');
@@ -465,20 +472,21 @@ function respuestasPorFiltro(q0,qc){const r={txt:'',cards:[],sug:[]};const tAct=
     const top=/\bLOS \d{1,2} MAS (VIEJ|JOVEN|GRANDE|CHIC)|POR EDAD|(MAYORES|MENORES|MAS|MENOS) DE \d{1,2} ANOS/.test(norm(qc));
   if(!c||soloPel||top){const c=null,pel=[...new Set(S.caballos.map(x=>x.pelaje).filter(Boolean))],raiz=w=>norm(w).replace(/(ES|S)$/,'').replace(/[AO]$/,'').slice(0,6);
     const sinPad=norm(qc).split(' ').filter(w=>!(pad&&norm(pad.nombre).split(' ').includes(w))).join(' ');const pelQ=pel.filter(p=>sinPad.split(' ').some(w=>w.length>=4&&raiz(w)===raiz(p.split(' ')[0])&&!/^BAYA$|^COLORADA$/.test(norm(w)))),pelR=pelQ.length?raiz(pelQ[0].split(' ')[0]):null;
-    const mA=norm(qc).match(/(?<!(MAYORES|MENORES|MAS|MENOS) )\bDE (\d{1,2}) ANOS\b/),mMay=norm(qc).match(/(MAYORES DE|MAS DE) (\d{1,2})/),mMen=norm(qc).match(/(MENORES DE|MENOS DE) (\d{1,2})/),mTop=norm(qc).match(/\bLOS (\d{1,2}) MAS (VIEJ|JOVEN|GRANDE|CHIC)/),orden=tiene(qc,/ORDENAD\w* POR EDAD|POR EDAD/);
-    const cat=CATS.find(k=>tiene(qc,new RegExp('\\b'+norm(k).slice(0,6))))||(tiene(qc,/POTRANC/)?'Potrillos':null),sx=tiene(qc,/YEGUA|HEMBRA|POTRANC|ALAZANAS|ZAINAS|BAYAS\b|TOBIANAS|RUANAS/)?'Hembra':tiene(qc,/MACHO/)?'Macho':null;
+    const mA=norm(qc).match(/(?<!(MAYORES|MENORES|MAS|MENOS) DE |(MAYORES|MENORES|MAS|MENOS) )\b(?:DE |CON |TIENEN |TENGAN )?(\d{1,2}) A[NÑ]OS?\b/),mMes=norm(qc).match(/\b(\d{1,2}) MES(ES)?\b/),mMay=norm(qc).match(/(MAYORES DE|MAS DE) (\d{1,2})/),mMen=norm(qc).match(/(MENORES DE|MENOS DE) (\d{1,2})/),mTop=norm(qc).match(/\bLOS (\d{1,2}) MAS (VIEJ|JOVEN|GRANDE|CHIC)/),orden=tiene(qc,/ORDENAD\w* POR EDAD|POR EDAD/);
+    const cat=CATS.find(k=>tiene(qc,new RegExp('\\b'+norm(k).slice(0,6))))||(tiene(qc,/\bDE POLO\b|\bJUEGAN\b/)?'Jugadores':tiene(qc,/POTRANC/)?'Potrillos':null),sx=tiene(qc,/YEGUA|HEMBRA|POTRANC|ALAZANAS|ZAINAS|BAYAS\b|TOBIANAS|RUANAS/)?'Hembra':tiene(qc,/MACHO/)?'Macho':null;
     const lug=[...new Set(activos().map(x=>x.lugar).filter(Boolean))].find(l=>limpio(qc).includes(limpio(l)));
-    const vta=tiene(qc,/A LA VENTA|EN VENTA/),filtros=[pelR,mA,mMay,mMen,mTop,orden,cat,sx,lug,pad,vta].filter(Boolean).length;
+    const vta=tiene(qc,/A LA VENTA|EN VENTA/),filtros=[pelR,mA,mMes,mMay,mMen,mTop,orden,cat,sx,lug,pad,vta].filter(Boolean).length;
     const PEL_FIJOS=/\b(ALAZAN|ZAIN|TORDILL|BAY[OA]S|OSCUR|COLORAD[OA]S|MOR[OA]S|TOBIAN|RUAN|OVER[OA]|PANGARE|ROSILL|LOBUN|GATEAD|PICAZ)\w*/;
     if(!pelR&&PEL_FIJOS.test(sinPad)&&!soloPel&&!tiene(qc,/HIJ|CRIA|PADRE|MADRE/)){const w=sinPad.match(PEL_FIJOS)[0].toLowerCase();r.txt=`No hay caballos ${w} cargados en la manada.`;return r}
-    if(pelR||mA||mMay||mMen||mTop||orden||filtros>=3||(pad&&cat)||(vta&&(cat||sx||lug||pad))){let l=activos().filter(x=>vta||!fuera(x));
+    if(pelR||mA||mMes||mMay||mMen||mTop||orden||filtros>=3||(pad&&cat)||(vta&&(cat||sx||lug||pad))){let l=activos().filter(x=>vta||!fuera(x));
       if(pelR)l=l.filter(x=>x.pelaje&&raiz(x.pelaje.split(' ')[0])===pelR);if(cat)l=l.filter(x=>x.categoria===cat);if(sx)l=l.filter(x=>x.sexo===sx);if(lug)l=l.filter(x=>x.lugar===lug);if(vta)l=l.filter(x=>x.venta);
       if(pad)l=l.filter(x=>x.padre&&(clavePad(x.padre)===pad.k||norm(x.madre)===norm(pad.nombre)));
       const e=x=>x.nac?diff(hoy(),x.nac)/365.25:null;
-      if(mA)l=l.filter(x=>e(x)!==null&&Math.floor(e(x))===+mA[2]);if(mMay)l=l.filter(x=>e(x)!==null&&e(x)>+mMay[2]);if(mMen)l=l.filter(x=>e(x)!==null&&e(x)<+mMen[2]);
+      const base=l.length;if(mA)l=l.filter(x=>e(x)!==null&&Math.floor(e(x))===+mA[3]);if(mMes)l=l.filter(x=>x.nac&&Math.floor(diff(hoy(),x.nac)/30.44)===+mMes[1]);if(mMay)l=l.filter(x=>e(x)!==null&&e(x)>+mMay[2]);if(mMen)l=l.filter(x=>e(x)!==null&&e(x)<+mMen[2]);
       if(mTop||orden){l=l.filter(x=>x.nac).sort((a,b)=>/JOVEN|CHIC/.test(mTop?.[2]||'')?b.nac.localeCompare(a.nac):a.nac.localeCompare(b.nac));if(mTop)l=l.slice(0,+mTop[1])}else l.sort(sortCab);
-      const desc=[sx==='Hembra'?'hembras':sx==='Macho'?'machos':'',pelQ.length?pelQ[0].toLowerCase():'',cat?'en '+cat:'',lug?'en '+lug:'',vta?'a la venta':'',pad?'hijos de '+pad.nombre:'',mA?`de ${mA[2]} años`:'',mMay?`de más de ${mMay[2]} años`:'',mMen?`de menos de ${mMen[2]} años`:''].filter(Boolean).join(', ');
-      r.txt=l.length?`${mTop?`Los ${l.length} más ${/JOVEN|CHIC/.test(mTop[2])?'jóvenes':'viejos'}`:orden?'Por edad, del más viejo al más joven':'Encontré '+plural(l.length,'caballo','caballos')}${desc?' ('+desc+')':''}.`+((mA||mMay||mMen||mTop||orden)&&activos().some(x=>!x.nac)?' Solo cuento los que tienen fecha de nacimiento.':''):`No hay caballos${desc?' '+desc:''}.`;
+      const desc=[sx==='Hembra'?'hembras':sx==='Macho'?'machos':'',pelQ.length?pelQ[0].toLowerCase():'',cat?'en '+cat:'',lug?'en '+lug:'',vta?'a la venta':'',pad?'hijos de '+pad.nombre:'',mA?`de ${plural(+mA[3],'año','años')}`:'',mMes?`de ${plural(+mMes[1],'mes','meses')}`:'',mMay?`de más de ${mMay[2]} años`:'',mMen?`de menos de ${mMen[2]} años`:''].filter(Boolean).join(', ');
+      const sinFecha=(mA||mMes||mMay||mMen||mTop||orden)?activos().filter(x=>(vta||!fuera(x))&&!x.nac&&(!cat||x.categoria===cat)&&(!sx||x.sexo===sx)).length:0;
+      r.txt=l.length?`${mTop?`Los ${l.length} más ${/JOVEN|CHIC/.test(mTop[2])?'jóvenes':'viejos'}`:orden?'Por edad, del más viejo al más joven':(tiene(qc,/CUANT/)?'Hay ':'Encontré ')+(sx==='Hembra'?plural(l.length,'yegua','yeguas'):sx==='Macho'?plural(l.length,'macho','machos'):plural(l.length,'caballo','caballos'))}${desc.replace(/^(hembras|machos)(, )?/,'')?' ('+desc.replace(/^(hembras|machos)(, )?/,'')+')':''}${!mTop&&!orden&&l.length<=8?': '+l.map(x=>x.nombre).join(', '):''}.`+((mA||mMes||mMay||mMen||mTop||orden)&&sinFecha?` Ojo: ${plural(sinFecha,'caballo no tiene','caballos no tienen')} fecha de nacimiento cargada y no ${sinFecha>1?'entran':'entra'} en la cuenta.`:''):`No hay caballos${desc?' '+desc:''}.`+((mA||mMes||mMay||mMen)&&sinFecha?` (${plural(sinFecha,'caballo no tiene','caballos no tienen')} fecha de nacimiento cargada.)`:'');
       r.cards=l;r.meta=Object.fromEntries(l.map(x=>[x.id,[sexoTxt(x),x.pelaje,x.nac?edadTxt(x):'',x.categoria,x.lugar].filter(Boolean).join(' · ')]));return r}}}
   return null}
 
