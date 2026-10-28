@@ -11,3 +11,4 @@
 - `prueba_cambios.cjs <carpeta>`: con los datos de `<carpeta>/app.json` (mejor el `app29.json` de `copia_local`), prueba cambios de nombre, de categoría,
   de temporada, partos atrasados, bajas y altas casi vacías, y muestra si la app queda entera. Correrla antes de cada `[publicar]`.
   `copia_local.js` hay que copiarlo como `.cjs` para correrlo (el repo tiene `"type": "module"`).
+- `prueba_asistente.cjs <carpeta>`: le hace al asistente ~900 preguntas (12 tipos por cada caballo, más errores de tipeo en los nombres) y lista las que contestó mal. Correrla después de tocar `app/asistente.js`.
