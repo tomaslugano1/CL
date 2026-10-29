@@ -287,3 +287,6 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Netlify revisado por Tomás con Claude en Chrome: 300 de 300 créditos (renovados el 28/10, hasta el 28/11), publicaciones activas, rama de producción claude/happy-davinci-ekp0k5, carpeta app. En línea estaba la versión del 1/10 (8ee830f).
 - El pull request #1 sale de la rama de producción y armaba una vista previa por cada cambio: ahora el netlify.toml las saltea siempre (solo publica producción y solo con [publicar]).
 - Publicado todo junto en un solo cambio con [publicar].
+
+## W. Después de publicar (29/10)
+- Inicio, cuadro Herrero: solo el precio de la desvasada y de la herrada (sin "próximos 30 días" ni "gastado en el año"), porque lo van a ver los empleados. Entra en la próxima publicación.

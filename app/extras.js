@@ -367,15 +367,12 @@ function conectarPrecio(){const t=document.getElementById('f-tipo'),p=document.g
   const lab=p.closest('label');const poner=()=>{const v=precios()[t.value];if(p.dataset.tocado)return;p.value=v??'';lab.hidden=v===undefined&&!p.value};
   p.addEventListener('input',()=>{p.dataset.tocado=1});t.addEventListener('change',poner);poner()}
 const $$=n=>'$'+Math.round(n||0).toLocaleString('es-AR');
-function panelHerrero(){const lim=addDays(hoy(),30),p=precios();let nd=0,nh=0;
-  for(const c of activos().filter(enCampo))for(const t of ['Desvasada','Herrada']){if(!ultimo(c.id,t))continue;const s=estadoSan(c,t);if(s.p&&s.p<=lim)t==='Desvasada'?nd++:nh++}
-  const anio=hoy().slice(0,4),ev=S.eventos.filter(e=>e.fecha>=anio+'-01-01'&&['Desvasada','Herrada'].includes(e.tipo));
-  const gast=ev.reduce((a,e)=>a+(+e.precio||0),0),sinP=ev.filter(e=>!(+e.precio)).length;
-  const mes=ev.filter(e=>e.fecha.slice(0,7)===hoy().slice(0,7)).reduce((a,e)=>a+(+e.precio||0),0);
+/* Herrero en el Inicio: solo los precios (pedido de Tomás el 29/10: lo van a ver los empleados, sin cuentas de gasto) */
+function panelHerrero(){const p=precios();
   return `<div class="panel" style="margin-bottom:18px"><h3>Herrero</h3><div class="list">
-   <div class="li"><div><b>Próximos 30 días</b><div class="sub">${nd} desvase${nd===1?'':'s'} × ${$$(p['Desvasada'])} + ${nh} herraje${nh===1?'':'s'} × ${$$(p['Herrada'])} (incluye lo atrasado)</div></div><b style="font-size:17px">≈ ${$$(nd*p['Desvasada']+nh*p['Herrada'])}</b></div>
-   <div class="li"><div><b>Gastado en ${anio}</b><div class="sub">${ev.length} trabajos cargados${sinP?` · ${sinP} sin precio`:''} · este mes ${$$(mes)}</div></div><b style="font-size:17px">${$$(gast)}</b></div>
-  </div><p class="note" style="margin:6px 0 0">Precios actuales: desvase ${$$(p['Desvasada'])}, herrada ${$$(p['Herrada'])}. Se cambian en Sanidad → Cada cuántos días.</p></div>`}
+   <div class="li"><div><b>Desvasada</b></div><b style="font-size:17px">${$$(p['Desvasada'])}</b></div>
+   <div class="li"><div><b>Herrada</b></div><b style="font-size:17px">${$$(p['Herrada'])}</b></div>
+  </div></div>`}
 
 /* ================= Panel de herramientas en Inicio ================= */
 function panelHerramientas(){const sc=diasSinCopia();
