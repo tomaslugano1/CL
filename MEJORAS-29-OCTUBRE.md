@@ -282,3 +282,8 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - El asistente quedó en una sola pieza ordenada: entender la pregunta → armar respuestas → responder (1 preguntas de uso, 2 cómo se hace / sí o no / filtros, 3 lo de siempre).
 - Prueba: "foto" de todo lo que muestra la app antes y después (2.323 controles: 7 pantallas, 9 categorías, 76 fichas, formularios, sanidad de cada caballo, preñeces, tareas, genealogías y 1.429 respuestas del asistente): **0 diferencias**. La recorrida completa, el lector de chip, el atrás, los cambios de nombre y categoría dan exactamente lo mismo que antes.
 - Los AJUSTES de datos (19) se sacan después del 29, cuando la app publicada los aplique a los datos reales y se confirme que quedaron.
+
+## V. Publicación del 29/10
+- Netlify revisado por Tomás con Claude en Chrome: 300 de 300 créditos (renovados el 28/10, hasta el 28/11), publicaciones activas, rama de producción claude/happy-davinci-ekp0k5, carpeta app. En línea estaba la versión del 1/10 (8ee830f).
+- El pull request #1 sale de la rama de producción y armaba una vista previa por cada cambio: ahora el netlify.toml las saltea siempre (solo publica producción y solo con [publicar]).
+- Publicado todo junto en un solo cambio con [publicar].

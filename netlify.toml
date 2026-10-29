@@ -1,8 +1,9 @@
 [build]
   publish = "app"
-  # Para no gastar créditos: Netlify solo publica cuando el mensaje del cambio dice [publicar].
+  # Para no gastar créditos: Netlify solo publica cuando el mensaje del cambio dice [publicar],
+  # y nunca arma vistas previas de pull requests (cada una gastaría créditos aparte).
   # (Salida 0 = no publicar; 1 = publicar.)
-  ignore = "git log -1 --pretty=%B | grep -q '\\[publicar\\]' && exit 1 || exit 0"
+  ignore = "if [ \"$PULL_REQUEST\" = \"true\" ] || [ \"$CONTEXT\" = \"deploy-preview\" ]; then exit 0; fi; git log -1 --pretty=%B | grep -q '\\[publicar\\]' && exit 1 || exit 0"
 
 [[headers]]
   for = "/*"
