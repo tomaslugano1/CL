@@ -310,6 +310,15 @@ const AJUSTES={
   // 21/10/2026: parieron la BAYA (hembra) y la COLORADA POTRA (macho), los dos de IRENITA PORRON. Datos del video de Tomás del 22/10.
   // 25/10/2026: Tomás confirma que ALEGRA, CONTIENDA y MARIMORENA se agarraron el 8/10/2026 (fecha aproximada; por la lluvia casi no jugaron)
   // 25/10/2026: Tomás: CALA está a la venta pero no está en Doña Cecilia y no la cuenta (ni en la manada ni en sanidad)
+  // 2/11: Tomás mandó el registro de la Poderosa (Poderosa Soy, SP, nacida 23/08/2008, zaina, criador San Leonardo). Solo completa lo vacío.
+  'nov-poderosa-pedigri':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='PODEROSA');if(!c)return;
+    const nuevo={padre:'PODERIO',madre:'FOSCARILLA',abueloP:'CAPO MAXIMO',abuelaP:'VACANCY GIRL',abueloM:'FOSCARI',abuelaM:'LA PRESUNTUOSA',nac:'2008-08-23',camada:2008,pelaje:'Zaino',apodo:'PODEROSA SOY'},u={};
+    for(const [k,v] of Object.entries(nuevo))if(!c[k])u[k]=v;
+    if(!/San Leonardo/i.test(c.obs||''))u.obs=[c.obs,'Nombre en el registro: PODEROSA SOY · SP · criador San Leonardo'].filter(Boolean).join(' · ');
+    if(Object.keys(u).length)await db.collection('caballos').doc(c.id).update(u)},
+  // 2/11: el 34 de doma es hembra (estaba cargado como macho)
+  'nov-34-hembra':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='34'&&x.categoria==='Doma');if(!c||c.sexo==='Hembra')return;
+    await db.collection('caballos').doc(c.id).update({sexo:'Hembra'})},
   'oct-cala-fuera':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='CALA');if(!c||/^afuera/i.test(c.lugar||''))return;
     await db.collection('caballos').doc(c.id).update({lugar:'Afuera (a la venta)',venta:true})},
   'oct-agarradas-0810':async()=>{const f='2026-10-08';

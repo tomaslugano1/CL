@@ -58,6 +58,22 @@ const PEDIGRIS={
   'IRENITA SUTILEZA':['CLARIN','SUGERENCIA','2004','Hembra','Alazán tostado',''],
   'ELLERSTINA PORTUARIA':['EL SOL','LAMBADA','1996-01-06','Hembra','Alazán','Ellerstina S.A.'],
   'EL SOL':['TOP SECRET','GAUCHA ACHA','1987','Macho','Alazán',''],
+  // ---- PODEROSA (Poderosa Soy, SP, de San Leonardo): su sangre, de la captura del registro que mandó Tomás el 2/11/2026 ----
+  'PODEROSA SOY':['PODERIO','FOSCARILLA','2008-08-23','Hembra','Zaino','San Leonardo'],
+  'PODERIO':['CAPO MAXIMO','VACANCY GIRL','1997-10-16','Macho'],
+  'FOSCARILLA':['FOSCARI','LA PRESUNTUOSA','1991-07-31','Hembra'],
+  'CAPO MAXIMO':['FARNESIO','CAPA CHOCHI','1985-08-04','Macho'],
+  'VACANCY GIRL':['BOLD FORLI (USA)','VACANCY','1990-09-18','Hembra'],
+  'FOSCARI':['SALT MARSH (USA)','FULL SUN','1982','Macho'],
+  'LA PRESUNTUOSA':['EL PRESUMIDO','SNOW LARDI','1979-09-14','Hembra'],
+  'FARNESIO':['GOOD MANNERS','LA FARNESINA','1974-10-15','Macho'],
+  'CAPA CHOCHI':['EL CAPO','MOLAS','1977-10-08','Hembra'],
+  'BOLD FORLI (USA)':['FORLI','EMPRESS ZOE','1979-04-06','Macho'],
+  'VACANCY':['NEUROLOGO','VERUSHKA','1977','Hembra'],
+  'SALT MARSH (USA)':['TOM ROLFE (USA)','SALINE','1970','Macho'],
+  'FULL SUN':['SOLAZO','BOANZA','1970','Hembra'],
+  'EL PRESUMIDO':['MALAMBO','LA PILLADA','1969','Macho'],
+  'SNOW LARDI':['SNOW ROYAL','LARDITA','1974','Hembra'],
 };
 /* Otras formas de escribir el mismo caballo (como aparece en las fichas o en las planillas) */
 const ALIAS_PEDIGRI={'HULK':'DOLFINA HULK','DON URBANO MEREQUETENGUE':'DON URBANO MEREQUETENGE','D.U. MEREQUETENGE':'DON URBANO MEREQUETENGE',

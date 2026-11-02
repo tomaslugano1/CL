@@ -301,3 +301,7 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 
 ## X. Publicación del 2/11 (Tomás: "publicá")
 - Herrero sin plata (Inicio y asistente); fotos y videos (ver en grande, girar, mover, portada, encuadrar, seleccionar y borrar varias, aviso al subir muchas, videos cortos y links).
+
+## Y. Datos del 2/11 (entran en la próxima publicación)
+- PODEROSA: Tomás mandó su registro. Es PODEROSA SOY (SP), nacida 23/08/2008, zaina, criador San Leonardo, por PODERIO y FOSCARILLA. Ajuste 'nov-poderosa-pedigri' (solo completa lo vacío: padres, abuelos, fecha, camada, pelaje, otro nombre y observación) y su sangre hasta los bisabuelos en la biblioteca de genealogías. Sheet: CABALLOS, PEDIGREE y GENEALOGÍAS.
+- El 34 de doma es hembra (estaba como macho). Ajuste 'nov-34-hembra'. Sheet: CABALLOS.
