@@ -1,0 +1,14 @@
+const {chromium}=require('playwright');const fs=require('fs'),path=require('path');
+const S=process.argv[2],APP='/home/user/CL/app';
+const rows=JSON.parse(fs.readFileSync(S+'/app.json'));const D={};for(const r of rows)(D[r.coleccion]=D[r.coleccion]||{})[r.id]=r.data;
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2});
+await p.route('**/*',async r=>{const u=new URL(r.request().url());if(u.hostname!=='app.local')return r.abort();
+ let f=u.pathname==='/'?'/index.html':u.pathname;if(f==='/config.js')return r.fulfill({body:'window.DC_CONFIG={url:"https://x.supabase.co",anonKey:"stub"};',contentType:'text/javascript'});
+ if(f==='/supabase.js')return r.fulfill({body:'const nunca=()=>new Promise(()=>{});const px=()=>new Proxy(function(){},{get:(t,k)=>k==="then"?undefined:px(),apply:()=>px()});window.supabase={createClient:()=>({auth:{getSession:nunca,signOut:nunca,signInWithPassword:nunca},from:()=>px(),rpc:nunca,storage:{from:()=>px()}})};',contentType:'text/javascript'});
+ if(f==='/sw.js')return r.fulfill({status:404,body:''});
+ try{r.fulfill({body:fs.readFileSync(path.join(APP,f)),contentType:{'.js':'text/javascript','.html':'text/html','.css':'text/css','.png':'image/png','.jpg':'image/jpeg','.webmanifest':'application/json','.ico':'image/x-icon'}[path.extname(f)]||'application/octet-stream'})}catch(e){r.fulfill({status:404,body:''})}});
+await p.addInitScript(d=>{localStorage.setItem('dc-nube-datos',d);window.DC_NUBE_LISTA=true;localStorage.setItem('dc-nube-yo',JSON.stringify({id:'u',email:'t@x',nombre:'Tomás'}))},JSON.stringify(D));
+p.on('pageerror',e=>console.log('ERR',e.message));
+await p.goto('http://app.local/');await p.waitForTimeout(1500);await p.evaluate(()=>render());await p.waitForTimeout(2500);
+await p.waitForTimeout(2000);const d=await p.evaluate(()=>localStorage.getItem('dc-nube-datos'));const DD=JSON.parse(d);const out=[];for(const c in DD)for(const id in DD[c])out.push({coleccion:c,id,data:DD[c][id]});fs.writeFileSync(S+'/app29.json',JSON.stringify(out));console.log(out.length);
+await b.close()})();
