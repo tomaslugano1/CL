@@ -74,6 +74,11 @@ const PEDIGRIS={
   'FULL SUN':['SOLAZO','BOANZA','1970','Hembra'],
   'EL PRESUMIDO':['MALAMBO','LA PILLADA','1969','Macho'],
   'SNOW LARDI':['SNOW ROYAL','LARDITA','1974','Hembra'],
+  // tatarabuelos (sin sus padres en la captura)
+  'GOOD MANNERS':['','','1966-03-29','Macho'],'LA FARNESINA':['','','1957','Hembra'],'EL CAPO':['','','1970','Macho'],'MOLAS':['','','1964-09-09','Hembra'],
+  'FORLI':['','','1963-08-10','Macho'],'EMPRESS ZOE':['','','1972','Hembra'],'NEUROLOGO':['','','1965','Macho'],'VERUSHKA':['','','1968','Hembra'],
+  'TOM ROLFE (USA)':['','','1962','Macho'],'SALINE':['','','1962','Hembra'],'SOLAZO':['','','1959','Macho'],'BOANZA':['','','1965','Hembra'],
+  'MALAMBO':['','','1954','Macho'],'LA PILLADA':['','','1954','Hembra'],'SNOW ROYAL':['','','1965','Macho'],'LARDITA':['','','1969','Hembra'],
 };
 /* Otras formas de escribir el mismo caballo (como aparece en las fichas o en las planillas) */
 const ALIAS_PEDIGRI={'HULK':'DOLFINA HULK','DON URBANO MEREQUETENGUE':'DON URBANO MEREQUETENGE','D.U. MEREQUETENGE':'DON URBANO MEREQUETENGE',

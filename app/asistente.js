@@ -372,6 +372,15 @@ function respuestasDeUso(q0,qc){const r={txt:'',cards:[],sug:[]},nq=norm(qc),tAc
   // lugares: "¿dónde están los caballos?", "lugares"
   if(!c&&tiene(nq,/^(LOS )?LUGARES$|DONDE ESTAN (LOS|LAS|TODOS|TODAS)( CABALLOS| YEGUAS)?$|EN QUE LUGARES|POR LUGAR|CUANTOS (HAY )?EN CADA LUGAR/)){const l=activos(),por={};for(const x of l){const k=x.lugar||'Sin lugar';(por[k]=por[k]||[]).push(x)}
     r.txt=`La manada por lugar:`;r.lista=Object.entries(por).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>`${k}: ${plural(v.length,'caballo','caballos')} (${CATS.filter(cat=>v.some(x=>x.categoria===cat)).map(cat=>v.filter(x=>x.categoria===cat).length+' '+cat.toLowerCase()).join(', ')})`);return r}
+  // un caballo de la biblioteca de genealogías ("¿quién es Forli?"): sus datos y en la sangre de quién aparece
+  {const lq=limpio(qc)+' '+limpio(q0),corto=n=>n.replace(/ \([A-Z]+\)$/,''),k=[...PED_LIB.keys()].filter(n=>lq.includes(' '+n+' ')||lq.includes(' '+corto(n)+' ')).sort((a,b)=>b.length-a.length)[0]; // también la pregunta sin corregir ("Capo" no es "campo")
+    // el nombre completo de la biblioteca gana sobre un caballo que coincide solo en una palabra ("Capo Máximo" no es MÁXIMO)
+    const gana=k&&!pad&&(!c||corto(k).split(' ').length>limpio(c.nombre).trim().split(' ').length);
+    if(gana){const v=PED_LIB.get(k),gen=['padre','madre','abuelo','abuela','bisabuelo','bisabuela','tatarabuelo','tatarabuela'];
+      const en=[];for(const h of activos()){let nivel=null;const ir=(n,d)=>{if(!n||d>4||nivel!==null)return;const pp=padresDeNombre(n);for(const [i,y] of [[0,pp.padre],[1,pp.madre]])if(y&&norm(y)===k){nivel=(d-1)*2+i;return}else if(y)ir(y,d+1)};
+        for(const [i,y] of [[0,h.padre],[1,h.madre]])if(y&&norm(y)===k)nivel=i;if(nivel===null)ir(h.padre,2),ir(h.madre,2);if(nivel!==null)en.push([h,gen[Math.min(nivel,7)]])}
+      const datos=[v.sexo,v.pelaje,v.nac?(v.nac.length>4?(v.sexo==='Hembra'?'nacida el ':'nacido el ')+fmt(v.nac):(v.sexo==='Hembra'?'nacida en ':'nacido en ')+v.nac):'',v.criador?'criador '+v.criador.replace(/\.$/,''):''].filter(Boolean).join(', ');
+      r.txt=`${v.nombre}${datos?': '+datos:''}.${v.padre||v.madre?` Es ${v.sexo==='Hembra'?'hija':'hijo'} de ${v.padre||'?'} y ${v.madre||'?'}.`:''}${en.length?` Está en la sangre de ${en.map(([h,g])=>`${h.nombre} (${g})`).join(', ')}.`:''}`;r.cards=en.map(x=>x[0]);return r}}
   // los que están afuera
   if(tiene(nq,/\bAFUERA\b|FUERA DE LA (MANADA|QUINTA)|EN OTRO (LADO|CAMPO)/)&&!c){let l=S.caballos.filter(x=>x.estado==='Activo'&&fuera(x));if(tiene(nq,/VENTA/))l=l.filter(x=>x.venta||/VENTA/.test(norm(x.lugar)));
     r.txt=l.length?`${tiene(nq,/CUANT/)?'Hay ':''}${plural(l.length,'caballo','caballos')} afuera${tiene(nq,/VENTA/)?' a la venta':''}: ${l.map(x=>x.nombre).join(', ')}. No cuentan en la manada ni en la sanidad.`:`No hay caballos afuera${tiene(nq,/VENTA/)?' a la venta':''}.`;
