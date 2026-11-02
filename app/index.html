@@ -771,7 +771,10 @@ document.addEventListener('click',e=>{if(e.target.matches?.('input[type=file]'))
 async function onFile(e){
   const el=e.target;if(!(el.dataset.foto||el.id==='logo-file')||!el.files?.length||!assets)return;
   if(!navigator.onLine){toast('Sin señal: la foto queda en tu galería, subila cuando tengas señal');el.value='';return}
-  const files=[...el.files];toast(files.length>1?`Subiendo ${files.length} fotos…`:'Subiendo foto…');
+  const files=[...el.files],cab=el.dataset.foto&&byId(el.dataset.foto);
+  // por si se eligieron fotos de más sin querer
+  if(cab&&files.length>5&&!confirm(`¿Subir ${files.length} fotos a ${cab.nombre}?`)){el.value='';return}
+  toast(files.length>1?`Subiendo ${files.length} fotos…`:'Subiendo foto…');
   try{const ids=[];for(const f of files){const b=await achicar(f);const r=await assets.upload(b,{type:b.type||'image/jpeg'});ids.push(r.id)}
     if(el.id==='logo-file'){await db.doc('config/app').set({...S.config,logo:ids[0]});toast('Logo actualizado');return}
     const c=byId(el.dataset.foto);await db.collection('caballos').doc(c.id).update({fotos:[...(c.fotos||[]),...ids]});toast(ids.length>1?'Fotos agregadas':'Foto agregada')}

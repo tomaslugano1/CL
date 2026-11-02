@@ -16,8 +16,14 @@ function dibujarFoto(x,im,dx,dy,W,H,e={x:50,y:50,z:1}){const k=Math.max(W/im.wid
   x.drawImage(im,(im.width-sw)*e.x/100,(im.height-sh)*e.y/100,sw,sh,dx,dy,W,H)}
 function seccionMedios(c){const ed=!!(assets&&canWrite),fotos=c.fotos||[],vids=c.videos||[];
   const botones=ed?`<div class="row mbtns"><label class="btn sm pri upl">+ Foto<input type="file" accept="image/*" multiple data-foto="${c.id}"></label><label class="btn sm upl">+ Video<input type="file" accept="video/*" data-video="${c.id}"></label><button type="button" class="btn sm" data-act="mLink" data-id="${c.id}">+ Link de video</button></div>`:'';
-  const gal=fotos.length?`<div class="gal">${fotos.map((f,k)=>`<button type="button" class="gfoto" data-act="mVer" data-id="${c.id}" data-k="${k}" aria-label="Ver foto ${k+1} de ${esc(c.nombre)}">${imgEnc(c,f,'gimg')}${k?'':'<span class="gport">Portada</span>'}</button>`).join('')}</div>
-    <p class="small muted" style="margin:0">${ed?'Tocá una foto para verla grande, encuadrarla, girarla o cambiarla de lugar.':'Tocá una foto para verla grande.'}</p>`:'';
+  // seleccionar varias para borrarlas de una (por si se subieron fotos sin querer)
+  const sel=ed&&MSEL.id===c.id?MSEL.set:null;
+  const barraSel=!ed||fotos.length<2?'':sel?`<div class="row msel"><b>${sel.size?plural(sel.size,'foto elegida','fotos elegidas'):'Tocá las fotos para elegirlas'}</b><span class="grow"></span>
+      <button type="button" class="btn sm" data-act="mSelTodas" data-id="${c.id}">${sel.size===fotos.length?'Ninguna':'Todas'}</button><button type="button" class="btn sm" data-act="mSelSalir">Cancelar</button>
+      <button type="button" class="btn sm danger" data-act="mSelBorrar" data-id="${c.id}" ${sel.size?'':'disabled'}>Borrar ${sel.size||''}</button></div>`
+    :`<div class="row msel"><span class="grow"></span><button type="button" class="btn sm" data-act="mSel" data-id="${c.id}">Seleccionar</button></div>`;
+  const gal=fotos.length?`${barraSel}<div class="gal">${fotos.map((f,k)=>`<button type="button" class="gfoto${sel?' eligiendo':''}${sel?.has(f)?' elegida':''}" data-act="${sel?'mSelFoto':'mVer'}" data-id="${c.id}" data-k="${k}" aria-pressed="${sel?sel.has(f):''}" aria-label="${sel?'Elegir':'Ver'} foto ${k+1} de ${esc(c.nombre)}">${imgEnc(c,f,'gimg')}${k?'':'<span class="gport">Portada</span>'}${sel?'<span class="gtick" aria-hidden="true">✓</span>':''}</button>`).join('')}</div>
+    <p class="small muted" style="margin:0">${sel?'Las fotos elegidas se borran juntas.':ed?'Tocá una foto para verla grande, encuadrarla, girarla o cambiarla de lugar.':'Tocá una foto para verla grande.'}</p>`:'';
   const del=(k)=>ed?`<button type="button" class="btn sm" data-act="mDelVid" data-id="${c.id}" data-k="${k}">Borrar</button>`:'';
   const vs=vids.length?`<div class="mvids">${vids.map((v,k)=>v.id
       ?`<figure class="gvid"><video controls playsinline preload="metadata" src="${fotoUrl(v.id)}"></video><figcaption><span class="small muted">${esc(v.nombre||'Video')}${v.fecha?' · '+fmt(v.fecha):''}</span>${del(k)}</figcaption></figure>`
@@ -46,6 +52,18 @@ document.addEventListener('keydown',e=>{if(!VISOR.id)return;
 async function guardarFotos(c,fotos,k,msg){await db.collection('caballos').doc(c.id).update({fotos});c.fotos=fotos;VISOR.k=k;visorDibujar();if(msg)toast(msg)}
 
 EXTRA_ACTS.mVer=d=>visorAbrir(d.id,+d.k);
+const MSEL={id:null,set:new Set()};
+const refrescarFicha=id=>{UI.ficha=id;renderFicha()};
+EXTRA_ACTS.mSel=d=>{MSEL.id=d.id;MSEL.set=new Set();refrescarFicha(d.id)};
+EXTRA_ACTS.mSelSalir=()=>{const id=MSEL.id;MSEL.id=null;MSEL.set=new Set();if(id)refrescarFicha(id)};
+EXTRA_ACTS.mSelFoto=d=>{const f=byId(d.id)?.fotos?.[+d.k];if(!f)return;MSEL.set.has(f)?MSEL.set.delete(f):MSEL.set.add(f);refrescarFicha(d.id)};
+EXTRA_ACTS.mSelTodas=d=>{const fs=byId(d.id)?.fotos||[];MSEL.set=MSEL.set.size===fs.length?new Set():new Set(fs);refrescarFicha(d.id)};
+EXTRA_ACTS.mSelBorrar=async(d,t)=>{const c=byId(d.id),borrar=[...MSEL.set].filter(f=>c?.fotos?.includes(f));if(!borrar.length)return;
+  if(t.dataset.seguro!=='1'){t.dataset.seguro='1';t.textContent=`¿Borrar ${borrar.length}? Tocá de nuevo`;setTimeout(()=>{if(t.isConnected){t.dataset.seguro='';t.textContent='Borrar '+borrar.length}},4000);return}
+  const en={...(c.encuadres||{})};for(const f of borrar)delete en[f];
+  await db.collection('caballos').doc(c.id).update({fotos:c.fotos.filter(f=>!borrar.includes(f)),encuadres:en});
+  MSEL.id=null;MSEL.set=new Set();toast(plural(borrar.length,'foto borrada','fotos borradas'));refrescarFicha(c.id);
+  for(const f of borrar)try{await assets.delete(f)}catch(e){}};
 EXTRA_ACTS.mCerrar=()=>visorCerrar();
 EXTRA_ACTS.mPaso=d=>{VISOR.k+=+d.d;visorDibujar()};
 EXTRA_ACTS.mMover=async d=>{const c=byId(VISOR.id),f=[...c.fotos],k=VISOR.k,j=k+(+d.d);if(j<0||j>=f.length)return;[f[k],f[j]]=[f[j],f[k]];await guardarFotos(c,f,j,j===0?'Ahora es la portada':'')};
@@ -124,6 +142,10 @@ EXTRA_ACTS.mDelVid=async(d,t)=>{const c=byId(d.id),k=+d.k,v=(c?.videos||[])[k];i
 .gfoto:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 .gport{position:absolute;left:6px;bottom:6px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff}
 .gal+p{margin-top:6px!important}
+.msel{align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px}.msel .grow{flex:1}
+.gfoto.eligiendo .gimg{opacity:.75}.gfoto.elegida .gimg{opacity:1;outline:3px solid var(--bad);outline-offset:-3px}
+.gtick{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:700;background:rgba(255,255,255,.85);color:transparent;border:2px solid rgba(0,0,0,.35)}
+.gfoto.elegida .gtick{background:var(--bad);color:#fff;border-color:var(--bad)}
 .mvids{display:grid;gap:10px;margin-top:12px}
 .gvid{margin:0;display:grid;gap:6px}.gvid video{width:100%;max-height:60vh;border-radius:10px;background:#000}
 .gvid figcaption,.vlink{display:flex;align-items:center;gap:8px;justify-content:space-between}

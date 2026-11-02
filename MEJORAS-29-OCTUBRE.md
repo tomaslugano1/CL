@@ -297,3 +297,7 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
   - El simulador ahora deja subir fotos y videos de prueba (quedan solo en ese navegador).
 - Encuadrar fotos (2/11, pedido de Tomás): en el visor, "⤢ Encuadrar": se mueve la foto con el dedo dentro del cuadro y se agranda o achica (con vista previa de la redondita de la lista). Queda fijo en la lista, en la foto grande de la ficha, en la galería y en las imágenes para compartir (ficha de venta y de potrillo). Girar o borrar la foto le saca el encuadre.
 - Para la próxima publicación: herrero sin plata (Inicio y asistente), fotos y videos (ver en grande, girar, mover, portada, encuadrar, videos cortos y links).
+- Seleccionar y borrar varias fotos de una (2/11, a Tomás se le subieron muchas fotos sin querer a la Blusera): "Seleccionar" en Fotos y videos, se tocan las fotos (o "Todas") y "Borrar N" (pide tocar dos veces). Y si se eligen más de 5 fotos para subir juntas, pregunta "¿Subir N fotos a …?" antes.
+
+## X. Publicación del 2/11 (Tomás: "publicá")
+- Herrero sin plata (Inicio y asistente); fotos y videos (ver en grande, girar, mover, portada, encuadrar, seleccionar y borrar varias, aviso al subir muchas, videos cortos y links).
