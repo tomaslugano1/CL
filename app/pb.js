@@ -265,7 +265,7 @@ async function dibujarFichaPot(c){
   if(S.config.logo){try{const l=await loadImg(fotoUrl(S.config.logo));x.fillStyle='#fff';x.fillRect(M,20,80,80);const k=Math.min(72/l.width,72/l.height);x.drawImage(l,M+40-l.width*k/2,60-l.height*k/2,l.width*k,l.height*k)}catch(e){}}
   x.textBaseline='middle';x.fillStyle='#fff';x.font='600 30px '+SAN;x.letterSpacing='6px';x.textAlign='left';x.fillText('DOÑA CECILIA',M+110,62);x.textAlign='right';x.font='500 24px '+SAN;x.fillText('POTRILLO',W-M,62);x.letterSpacing='0px';
   const fy=120;
-  if(foto){const im=foto,k=Math.max(W/im.width,fh/im.height);const sw=W/k,sh=fh/k;x.drawImage(im,(im.width-sw)/2,(im.height-sh)/2,sw,sh,0,fy,W,fh)}
+  if(foto)dibujarFoto(x,foto,0,fy,W,fh,encuadre(c,c.fotos[0]))
   else{x.fillStyle='#EDEDEA';x.fillRect(0,fy,W,fh);x.fillStyle='#8A8A85';x.textAlign='center';x.font='500 30px '+SAN;x.fillText('Sin foto',W/2,fy+fh/2)}
   x.textBaseline='alphabetic';x.textAlign='left';let y=fy+fh+86;x.fillStyle='#111';
   let fs=76;x.font=`700 ${fs}px ${SER}`;while(x.measureText(c.nombre).width>W-2*M&&fs>40){fs-=4;x.font=`700 ${fs}px ${SER}`}x.fillText(c.nombre,M,y);

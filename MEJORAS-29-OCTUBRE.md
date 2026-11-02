@@ -295,3 +295,5 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
   - Tocás una foto y se ve grande: se pasa deslizando (o con ‹ ›), y se puede girar (se guarda girada), mover de lugar (◀ ▶), poner de portada o borrar. La primera es la portada.
   - Videos cortos subidos a la app hasta 50 MB (unos 30 a 40 segundos); si pesa más, avisa y sugiere el link. Videos largos con un link (YouTube oculto, Google Drive…), que no ocupan lugar.
   - El simulador ahora deja subir fotos y videos de prueba (quedan solo en ese navegador).
+- Encuadrar fotos (2/11, pedido de Tomás): en el visor, "⤢ Encuadrar": se mueve la foto con el dedo dentro del cuadro y se agranda o achica (con vista previa de la redondita de la lista). Queda fijo en la lista, en la foto grande de la ficha, en la galería y en las imágenes para compartir (ficha de venta y de potrillo). Girar o borrar la foto le saca el encuadre.
+- Para la próxima publicación: herrero sin plata (Inicio y asistente), fotos y videos (ver en grande, girar, mover, portada, encuadrar, videos cortos y links).

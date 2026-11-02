@@ -72,7 +72,7 @@ function vCaballos(){
      const meta=[e!==null?e+(e===1?' año':' años'):'',cat===c.categoria?'':c.categoria,c.camada?'Camada '+c.camada:'',c.venta&&cat!=='__venta'?'A la venta':'',enDescanso(c)?textoDescanso(c).linea:(trabajoLinea(c)),c.estado!=='Activo'?c.estado+(c.bajaFecha?' '+fmt(c.bajaFecha):'')+(c.bajaPrecio?' · '+c.bajaPrecio:'')+(c.bajaComprador?' · a '+c.bajaComprador:''):''].filter(Boolean).join(' · ');
      return `<button class="hcard ${esc(c.sexo)} ${c.estado!=='Activo'?'baja':''}" data-${sel?'pick':'open'}="${c.id}">
       ${sel?`<input type="checkbox" tabindex="-1" ${sel.has(c.id)?'checked':''}>`:''}
-      ${c.fotos?.length?`<img class="thumb" src="${fotoUrl(c.fotos[0])}" alt="" loading="lazy">`:''}
+      ${c.fotos?.length?imgEnc(c,c.fotos[0],'thumb'):''}
       <div class="grow"><div class="nm">${esc(c.nombre)} ${preñadaAhora(c)?ICO_PRENADA:''} ${c.ritmo&&['Hechura','Jugadores'].includes(c.categoria)&&!['normal','fuerte'].includes(c.ritmo)?`<span class="pill p-none">${esc(RITMOS.find(r=>r[0]===c.ritmo)?.[1]||'')}</span>`:''}</div>
       <div class="meta">${esc(meta)}</div>${c.obs&&['Doma','Potrillos'].includes(c.categoria)?`<div class="obsl">${esc(c.obs)}</div>`:''}</div>
       ${c.estado==='Activo'&&enCampo(c)?`<div class="dots" title="Desparasitación · Desvasada">${ds.map(s=>`<span class="dot d-${s.st}"></span>`).join('')}</div>`:''}
@@ -159,7 +159,7 @@ function renderFicha(){
    <div class="sheet-b">
     <div class="row fpills"><span class="pill p-none">${esc(c.categoria)}</span>${c.lugar?`<span class="pill p-none">${esc(c.lugar)}</span>`:''}${c.venta?'<span class="pill p-venta">A la venta</span>':''}${!activo?`<span class="pill p-bad">${esc(c.estado)}${c.bajaFecha?' '+fmt(c.bajaFecha):''}</span>`:''}</div>
     ${c.obs||c.embocadura?`<div class="senas">${c.obs?`<div><span>Observación</span>${esc(c.obs)}</div>`:''}${c.embocadura?`<div><span>Embocadura</span>${esc(c.embocadura)}</div>`:''}</div>`:''}
-    ${c.fotos?.length?`<img class="cover" src="${fotoUrl(c.fotos[0])}" alt="${esc(c.nombre)}">`:''}
+    ${c.fotos?.length?imgEnc(c,c.fotos[0],'cover',c.nombre):''}
     ${sec('Datos','',`<div class="kvl">${datos.map(([k,v])=>`<div><span>${k}</span><b>${esc(v||'—')}</b></div>`).join('')}</div>`)}
     ${botonesEtapa(c)}
     ${!activo?sec('Baja','',`<div class="kvl"><div><span>Motivo</span><b>${esc(c.estado)}</b></div><div><span>Fecha</span><b>${fmt(c.bajaFecha)}</b></div>${c.bajaPrecio?`<div><span>Precio</span><b>${esc(c.bajaPrecio)}</b></div>`:''}${c.bajaComprador?`<div><span>Comprador</span><b>${esc(c.bajaComprador)}</b></div>`:''}${c.bajaObs?`<div><span>Detalle</span><b>${esc(c.bajaObs)}</b></div>`:''}</div>`):''}

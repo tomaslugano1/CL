@@ -590,7 +590,7 @@ async function dibujarVenta(c){
   x.textAlign='right';x.font='500 24px '+SAN;x.fillText('EN VENTA',W-48,62);x.letterSpacing='0px';
   // foto
   const fy=120,fh=640;
-  if(c.fotos?.length){try{const im=await loadImg(fotoUrl(c.fotos[0]));const k=Math.max(W/im.width,fh/im.height);const sw=W/k,sh=fh/k;x.drawImage(im,(im.width-sw)/2,(im.height-sh)/2,sw,sh,0,fy,W,fh)}catch(e){x.fillStyle='#EDEDEA';x.fillRect(0,fy,W,fh)}}
+  if(c.fotos?.length){try{const im=await loadImg(fotoUrl(c.fotos[0]));dibujarFoto(x,im,0,fy,W,fh,encuadre(c,c.fotos[0]))}catch(e){x.fillStyle='#EDEDEA';x.fillRect(0,fy,W,fh)}}
   else{x.fillStyle='#EDEDEA';x.fillRect(0,fy,W,fh);x.fillStyle='#8A8A85';x.textAlign='center';x.font='500 30px '+SAN;x.fillText('Sin foto',W/2,fy+fh/2)}
   // nombre
   let y=fy+fh+80;x.textAlign='left';x.textBaseline='alphabetic';x.fillStyle='#111';
