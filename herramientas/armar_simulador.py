@@ -30,7 +30,10 @@ nube=rd('nube.js')
 for a,b in [("let D=leer(LS_DATOS)||{};","let D=leer(LS_DATOS)||JSON.parse(JSON.stringify(window.DC_DEMO||{}));"),
             ("let yo=leer(LS_YO);","let yo=leer(LS_YO)||{id:'prueba',email:'prueba@donacecilia',nombre:'Prueba'};"),
             ("'serviceWorker' in navigator&&","false&&"),
-            ("window.claude={use:","window.DCAPP={use:")]:
+            ("window.claude={use:","window.DCAPP={use:"),
+            # fotos y videos de prueba: quedan en el navegador (no se suben a ningún lado)
+            ("const {error}=await sb.storage.from('fotos').upload(id,blob,{contentType:opt?.type||blob.type||'image/jpeg'});\n      if(error)throw error;return{id}},","window.DC_BLOBS[id]=URL.createObjectURL(blob);return{id}},"),
+            ("delete:async id=>{await sb.storage.from('fotos').remove([id])}};","delete:async id=>{delete window.DC_BLOBS[id]}};")]:
   assert a in nube,a; nube=nube.replace(a,b)
 stub="const nunca=()=>new Promise(()=>{});const px=()=>new Proxy(function(){},{get:(t,k)=>k==='then'?undefined:px(),apply:()=>px()});window.supabase={createClient:()=>({auth:{getSession:nunca,signOut:nunca,signInWithPassword:nunca},from:()=>px(),rpc:nunca,storage:{from:()=>px()}})};"
 import time

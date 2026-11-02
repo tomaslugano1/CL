@@ -290,3 +290,8 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 
 ## W. Después de publicar (29/10)
 - Inicio, cuadro Herrero: solo el precio de la desvasada y de la herrada (sin "próximos 30 días" ni "gastado en el año"), porque lo van a ver los empleados. Entra en la próxima publicación.
+- Herrero sin plata en el asistente (2/11): "cuánto se gasta / sale / cuesta el herrero" contesta solo los precios (desvasada y herrada). Los conteos de trabajos (por mes, por caballo, por período) siguen, sin pesos.
+- Fotos y videos (2/11, pedido de Tomás): en la ficha, sección "Fotos y videos" con + Foto, + Video y + Link de video.
+  - Tocás una foto y se ve grande: se pasa deslizando (o con ‹ ›), y se puede girar (se guarda girada), mover de lugar (◀ ▶), poner de portada o borrar. La primera es la portada.
+  - Videos cortos subidos a la app hasta 50 MB (unos 30 a 40 segundos); si pesa más, avisa y sugiere el link. Videos largos con un link (YouTube oculto, Google Drive…), que no ocupan lugar.
+  - El simulador ahora deja subir fotos y videos de prueba (quedan solo en ese navegador).

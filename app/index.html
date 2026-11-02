@@ -716,7 +716,7 @@ function notaForm(n){form(n?'Editar nota':'Nueva nota',[{k:'titulo',l:'Tema',v:n
 /* ---------- events ---------- */
 let pendingDel=null;
 document.addEventListener('click',async ev=>{
-  const t=ev.target.closest('[data-venta],[data-vsave],[data-vpng],[data-vtxt],[data-go],[data-prac],[data-torneo],[data-portada],[data-delfoto],[data-tab],[data-cat],[data-act],[data-open],[data-open-name],[data-pick],[data-temp],[data-camada],[data-sancat],[data-nf],[data-parto],[data-serv],[data-pad],[data-nota],[data-nota-toggle],[data-evento],[data-delev],[data-edit],[data-baja],[data-alta-de-nuevo],[data-delserv],[data-delnota],[data-close-ov]');
+  const t=ev.target.closest('[data-venta],[data-vsave],[data-vpng],[data-vtxt],[data-go],[data-prac],[data-torneo],[data-tab],[data-cat],[data-act],[data-open],[data-open-name],[data-pick],[data-temp],[data-camada],[data-sancat],[data-nf],[data-parto],[data-serv],[data-pad],[data-nota],[data-nota-toggle],[data-evento],[data-delev],[data-edit],[data-baja],[data-alta-de-nuevo],[data-delserv],[data-delnota],[data-close-ov]');
   if(!t)return;const d=t.dataset;
   if('closeOv' in d&&ev.target!==t)return;
   if('closeOv' in d){navAtras();return}
@@ -742,9 +742,6 @@ document.addEventListener('click',async ev=>{
   if(d.torneo){const c=byId(d.torneo);const t=prompt('¿Qué torneo? (podés dejarlo vacío)','');if(t===null)return;await db.collection('eventos').doc(slugId('e')).set({fecha:hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Torneo',detalle:'Torneo',obs:t.trim(),por:uid||''});toast('Torneo sumado a '+c.nombre);return}
   if(d.prac){const c=byId(d.prac);await db.collection('eventos').doc(slugId('e')).set({fecha:hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Práctica',detalle:'Práctica',obs:'',por:uid||''});toast('Práctica sumada a '+c.nombre);return}
   if(d.go){const [k,v]=d.go.split(':');UI.tab=k==='cat'?'caballos':'camadas';if(k==='cat'){UI.cat=v;UI.bajas=false}else UI.camada=+v;render();window.scrollTo(0,0);return}
-  if(d.portada){const [id,f]=d.portada.split('|');const c=byId(id);await db.collection('caballos').doc(id).update({fotos:[f,...c.fotos.filter(x=>x!==f)]});toast('Portada cambiada');return}
-  if(d.delfoto){const [id,f]=d.delfoto.split('|');if(pendingDel!==d.delfoto){pendingDel=d.delfoto;t.textContent='¿Seguro?';setTimeout(()=>{if(pendingDel===d.delfoto)pendingDel=null},4000);return}
-    pendingDel=null;const c=byId(id);await db.collection('caballos').doc(id).update({fotos:c.fotos.filter(x=>x!==f)});try{await assets.delete(f)}catch(e){}toast('Foto borrada');return}
   if(d.logo){return}
   if(d.edit){caballoForm(byId(d.edit));return}
   if(d.baja){bajaForm(byId(d.baja));return}
@@ -808,6 +805,7 @@ let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;ren
 <script src="trabajo.js"></script>
 <script src="padrillos.js"></script>
 <script src="fotos.js"></script>
+<script src="media.js"></script>
 <script src="tablero.js"></script>
 <script src="asistente.js"></script>
 <script src="diseno.js"></script>

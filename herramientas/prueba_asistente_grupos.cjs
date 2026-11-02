@@ -34,7 +34,7 @@ const casos=await p.evaluate(()=>{const A=activos().filter(x=>!fuera(x)),m=A.fil
   q('Movimientos','movimientos de la '+n(j[0]),'MOVIMIENTO');q('Movimientos','quien se movio este mes','EVENTO');
   q('Genealogía','nietos de '+n(con),'NIETO');q('Genealogía','descendientes de '+n(con),'DESCENDIENTES');
   const pd=S.caballos.find(x=>x.padre)?.padre;if(pd)q('Genealogía','que caballos tienen sangre de '+pd.toLowerCase(),'SANGRE');
-  q('Plata','cuanto se gasto en herrero de la '+n(j[0]),'HERRERO DE');q('Plata','precio promedio de venta','PROMEDIO|NO HAY VENTAS');
+  q('Plata','cuanto se gasto en herrero de la '+n(j[0]),'^HERRERO: LA DESVASADA SALE');q('Plata','precio promedio de venta','PROMEDIO|NO HAY VENTAS');
   q('Embriones','embriones','EMBRION');q('Embriones','receptoras','RECEPTORA');
   for(const t of ['yeguas no preñadas','potrillos sin castrar','sin desparasitar','no estan herrados','no estan a la venta'])q('Negaciones',t,'NO ESTAN|SIN |DE LOS QUE SE HIERRAN|DESPARASITAD');
   q('Dos en una','hijos de '+n(con)+' y cuando pare la '+n(pre),'HIJ[\\s\\S]*\\n\\n[\\s\\S]*'+esc(norm(pre.nombre)));
@@ -46,9 +46,10 @@ const casos=await p.evaluate(()=>{const A=activos().filter(x=>!fuera(x)),m=A.fil
   q('WhatsApp','cuants hijos tiene la '+n(con),'HIJ');q('WhatsApp','xq la '+n(j[0])+' esta en rojo',esc(norm(j[0].nombre)));
   for(const t of ['carga que pario la '+n(pre),'anotame una desparasitacion a la '+n(j[0]),'dale de baja a la '+n(j[1]),'podes cargar un servicio a la '+n(pre),'borra la nota','pasala a descanso a la '+n(j[0]),'ponele chip a la '+n(j[1])])q('Cargar',t,'SOLO LEO');
   for(const t of ['que se hizo entre marzo y junio','eventos desde agosto','que se hizo en 2025','bajas en 2026','herrero hasta junio','desparasitaciones entre agosto y octubre'])q('Rangos',t,'^(ENTRE|DESDE|EN 20|HERRERO|DE ENERO)');
-  for(const t of ['cuantos nacieron en 2025 contra 2026','se gasto mas en herrero este año o el pasado','ventas 2025 vs 2026','torneos 2025 2026','muertes 2025 contra 2026'])q('Comparar años',t,'^20\\d\\d: .* · 20\\d\\d: ');
-  for(const t of ['porcentaje de preñez','machos y hembras por camada','cuantos machos y hembras nacieron en 2026','promedio de potrillos por madre','promedio de herrero por mes'])q('Porcentajes',t,'%|CAMADA|MACHO|PROMEDIO|NO HAY');
-  for(const t of ['quien jugo mas este mes','quien jugo mas en septiembre','en que caballo se gasto mas herrero','en que caballo se gasto mas herrero este año','gasto de herrero por mes'])q('Rankings',t,'JUGO MAS|GASTO DE HERRERO|POR MES|NO HAY');
+  for(const t of ['cuantos nacieron en 2025 contra 2026','herrero este año contra el pasado','ventas 2025 vs 2026','torneos 2025 2026','muertes 2025 contra 2026'])q('Comparar años',t,'^20\\d\\d: .* · 20\\d\\d: ');
+  for(const t of ['porcentaje de preñez','machos y hembras por camada','cuantos machos y hembras nacieron en 2026','promedio de potrillos por madre','promedio de herrero por mes'])q('Porcentajes',t,'%|CAMADA|MACHO|PROMEDIO|NO HAY|HERRERO: LA DESVASADA');
+  for(const t of ['quien jugo mas este mes','quien jugo mas en septiembre','en que caballo se hizo mas herrero','en que caballo se hizo mas herrero este año','herrero por mes'])q('Rankings',t,'JUGO MAS|MAS HERRERO SE LE HIZO|POR MES|NO HAY');
+  for(const t of ['gasto de herrero por mes','en que caballo se gasto mas herrero','cuanto se gasto en herrero este año','se gasto mas en herrero este año o el pasado'])q('Herrero sin plata',t,'^HERRERO: LA DESVASADA SALE \\$');
   q('Polo','en que torneos jugo la '+n(tor),'TORNEO');q('Polo','cuando jugo por ultima vez la '+n(tor),'ULTIMA');q('Polo','cuando fue el ultimo torneo de la '+n(tor),'ULTIMO TORNEO|NO TIENE');
   if(chico){q('Meses','cuantos meses tiene el '+n(chico),'MES|DIA');q('Meses','edad del '+n(chico),'MES|DIA|ANO')}
   q('Notas','que anote de la '+n(j[0]),'NOTA');q('Notas','notas sobre herrero','NOTA');
@@ -76,7 +77,7 @@ let mal=0;const por={};for(const [g,t,re] of casos){const r=await p.evaluate(q=>
   if(!ok){mal++;console.log('MAL',g,'|',t,'::',r.slice(0,200))}}
 // cada caballo: sí/no, seguimiento, movimientos, nietos, herrero
 const todos=await p.evaluate(()=>activos().filter(x=>!fuera(x)).map(x=>x.nombre.toLowerCase()));const [b1,b2]=await p.evaluate(()=>{const A=activos();return [A.find(x=>x.categoria==='Jugadores').nombre.toLowerCase(),A.find(x=>hijosDe(x.nombre).length).nombre.toLowerCase()]});let n2=0;
-for(const nom of todos){const qs=['observaciones de la '+nom,'la '+nom+' tiene cara blanca?','el '+nom+' tiene estrella en la frente?','xq la '+nom+' esta en rojo','q edad tiene la '+nom,'cuando jugo por ultima vez la '+nom,'notas de la '+nom,'cargale un evento a la '+nom,'la '+nom+' esta a la venta?','la '+nom+' tiene chip?','la '+nom+' es macho?','la '+nom+' esta en doma?','movimientos de '+nom,'nietos de '+nom,'cuanto se gasto en herrero de '+nom,'edad de la '+b1,'y la '+nom+'?','hijos de la '+b2,'y de '+nom];
+for(const nom of todos){const qs=['observaciones de la '+nom,'la '+nom+' tiene cara blanca?','el '+nom+' tiene estrella en la frente?','xq la '+nom+' esta en rojo','q edad tiene la '+nom,'cuando jugo por ultima vez la '+nom,'notas de la '+nom,'cargale un evento a la '+nom,'la '+nom+' esta a la venta?','la '+nom+' tiene chip?','la '+nom+' es macho?','la '+nom+' esta en doma?','movimientos de '+nom,'nietos de '+nom,'cuando se herro '+nom,'edad de la '+b1,'y la '+nom+'?','hijos de la '+b2,'y de '+nom];
   for(const t of qs){n2++;const r=await p.evaluate(q=>{try{return responder(q).txt}catch(e){return 'ERROR '+e.message}},t);const R=r.normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();
     const debe=t.includes(b1)&&!t.includes(nom)||t.includes(b2)&&!t.includes(nom)?null:nom.normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();
     if(/NO TE ENTENDI|UNDEFINED|^ERROR |NULL/.test(R)||(debe&&!R.includes(debe)&&!/^(SI|NO)\b/.test(R))){mal++;console.log('MAL caballo |',t,'::',r.slice(0,200))}}}
