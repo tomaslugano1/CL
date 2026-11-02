@@ -306,3 +306,6 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - PODEROSA: Tomás mandó su registro. Es PODEROSA SOY (SP), nacida 23/08/2008, zaina, criador San Leonardo, por PODERIO y FOSCARILLA. Ajuste 'nov-poderosa-pedigri' (solo completa lo vacío: padres, abuelos, fecha, camada, pelaje, otro nombre y observación) y su sangre hasta los bisabuelos en la biblioteca de genealogías. Sheet: CABALLOS, PEDIGREE y GENEALOGÍAS.
 - El 34 de doma es hembra (estaba como macho). Ajuste 'nov-34-hembra'. Sheet: CABALLOS.
 - La sangre de la Poderosa completa (las 4 generaciones de la captura, 30 caballos) en la biblioteca y en GENEALOGÍAS del Sheet, con las fechas de los tatarabuelos. El asistente contesta quién es cualquier caballo de la biblioteca ("¿quién es Forli?") y en la sangre de quién aparece ("tatarabuelo de PODEROSA").
+
+## Z. Publicación del 2/11 (segunda, Tomás: "vamos a subirlo ya")
+- Datos de la Poderosa (Poderosa Soy, con su sangre hasta los tatarabuelos), el 34 de doma como hembra, y el asistente que contesta quién es cualquier caballo de la biblioteca.
