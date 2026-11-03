@@ -335,3 +335,6 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 
 ## AD. Publicación del 3/11 (Tomás: "dale, publicá")
 Se publica todo lo de AB y AC. Versión dc-v56.
+
+## AE. Pendiente de publicar (se sube con la próxima tanda, para no gastar créditos)
+- Botón del asistente un poco más arriba: el cartel "Powered by Netlify" lo tapaba (celular y compu). Versión dc-v57.
