@@ -327,6 +327,6 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Pendiente de Tomás: instalar el script del Sheet (sheet/LEEME.md).
 
 ## AC. Preñeces nuevas (3/11, sin publicar)
-- Ajuste `nov-prenez-primadona-poderosa-doma`: Primadona y Poderosa preñadas (eco 29/10/2026, servicio aprox. 19/10 → FPP 19/09/2027, temporada 2027, falta el padrillo).
+- Ajuste `nov-prenez-primadona-poderosa-doma`: Primadona y Poderosa preñadas con Irenita Porron (eco 29/10/2026, inseminación aprox. 19/10 → FPP 19/09/2027, temporada 2027).
 - Paranoica, Blusera y Psicodélica (descanso): preñez no buscada en la doma de Piri, padrillo nuevo "PADRILLO DE LA DOMA (PIRI)" (Taita Iluso × Polito 29). Servicio aprox. 15/12/2025 → FPP aprox. 15/11/2026. Revisión 1/11: panza y ubre grandes.
 - Sheet: PREÑECES, CAMADA 2026 y PADRILLOS cargados a mano. El script ahora muestra en PREÑECES cualquier yegua con servicio (no solo la categoría Madres) y escribe las fechas a medianoche (antes quedaban un día antes). Zona horaria del Sheet pasada a Argentina.

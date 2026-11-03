@@ -234,7 +234,7 @@ const AJUSTES={
       const c=S.caballos.find(x=>norm(x.nombre)===n);if(!c||(c.premios||[]).some(x=>x.torneo===p.torneo))continue;
       await db.collection('caballos').doc(c.id).update({premios:[...(c.premios||[]),{...p,...(c.fotos?.[0]?{foto:c.fotos[0]}:{})}]})}},
   // 3/11: lo que contó Tomás.
-  // a) El jueves 29/10/2026 confirmaron preñez de la Primadona y la Poderosa. Servicio ≈10 días antes de la eco (19/10, aproximado); falta el padrillo.
+  // a) El jueves 29/10/2026 confirmaron preñez de la Primadona y la Poderosa. Inseminación con Irenita Porron ≈10 días antes de la eco (19/10, aproximado).
   // b) Paranoica, Blusera y Psicodélica (hechura, en descanso) volvieron de la doma de Piri preñadas por un padrillo que estaba ahí
   //    (hijo de Taita Iluso y de Polito 29). Se entregaron en dic 2025 / ene 2026; el fin de semana (1/11) se vio panza y ubre grandes: están por parir.
   //    Servicio aproximado 15/12/2025 → FPP 15/11/2026.
@@ -249,7 +249,7 @@ const AJUSTES={
       await db.collection('eventos').doc(slugId('e')).set({fecha:s.fecha,caballoId:m.id,caballo:m.nombre,tipo:'Servicio',detalle:'Servicio'+(s.padrillo?' '+s.padrillo:'')+(s.tipo?' ('+s.tipo.toLowerCase()+')':''),obs:'Fecha aproximada',por:uid||''});
       await db.collection('eventos').doc(slugId('e')).set({caballoId:m.id,caballo:m.nombre,obs:'',por:uid||'',...ev})};
     for(const n of ['PRIMADONA','PODEROSA'])
-      await serv(n,{fecha:'2026-10-19',padrillo:'',tipo:'',estado:'Preñada',temporada:2027,obs:'Preñez confirmada el 29/10/2026. Fecha de servicio aproximada (≈10 días antes de la eco). Falta el padrillo.'},
+      await serv(n,{fecha:'2026-10-19',padrillo:'IRENITA PORRON',tipo:'Inseminación',estado:'Preñada',temporada:2027,obs:'Preñez confirmada el 29/10/2026. Fecha de inseminación aproximada (≈10 días antes de la eco).'},
         {fecha:'2026-10-29',resultado:'Preñada',sexo:'',obs:'Preñez confirmada el 29/10'},{fecha:'2026-10-29',tipo:'Tacto / Eco',detalle:'Confirmación de preñez'});
     for(const n of ['PARANOICA','BLUSERA','PSICODELICA'])
       await serv(n,{fecha:'2025-12-15',padrillo:PAD,tipo:'Monta natural',estado:'Preñada',temporada:2026,
