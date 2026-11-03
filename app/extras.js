@@ -254,7 +254,13 @@ const AJUSTES={
     for(const n of ['PARANOICA','BLUSERA','PSICODELICA'])
       await serv(n,{fecha:'2025-12-15',padrillo:PAD,tipo:'Monta natural',estado:'Preñada',temporada:2026,
         obs:'Preñez no buscada: se preñó en la doma de Piri, justo antes de entregarla (dic 2025 / ene 2026). Fecha de servicio y FPP aproximadas. 1/11/2026: panza y ubre muy grandes, primeriza: está por parir.'},
-        null,{fecha:'2026-11-01',tipo:'Revisión',detalle:'Preñada, por parir',obs:'Panza gigante y ubre muy grande (primeriza). Se preñó en la doma.'})},
+        null,{fecha:'2026-11-01',tipo:'Revisión',detalle:'Preñada, por parir',obs:'Panza gigante y ubre muy grande (primeriza). Se preñó en la doma.'});
+    // Tomás: pasan a Madres mientras crían; en julio 2027, cuando se desteten los potrillos, vuelven a hechura (o adonde corresponda)
+    for(const n of ['PARANOICA','BLUSERA','PSICODELICA']){const c=S.caballos.find(x=>norm(x.nombre)===n);
+      if(c&&c.estado==='Activo'&&c.categoria!=='Madres')await aplicarPaso(c,'Madres',{fecha:'2026-11-03',obs:'Preñada (se preñó en la doma). Vuelve a hechura en julio 2027, al destetar.'})}
+    if(!S.notas.some(x=>/DESTETE.*PARANOICA|PARANOICA.*DESTETE/.test(norm(x.titulo+' '+x.texto))))
+      await db.collection('notas').doc(slugId('n')).set({titulo:'Julio 2027: destete y vuelta a hechura de Paranoica, Blusera y Psicodélica',
+        texto:'Pasaron a Madres el 3/11/2026 porque se preñaron en la doma. Cuando se desteten los potrillos (julio 2027), pasarlas de nuevo a Hechura o adonde tengan que ir.',fecha:'2027-07-01',estado:'Pendiente'})},
 };
 let _ajustando=false;
 async function ajustesUnicos(){if(_ajustando||!canWrite||!db||!window.DC_NUBE_LISTA||!S.loaded.caballos||!S.loaded.eventos||!S.loaded.config||!S.loaded.servicios||!S.caballos.length)return;
