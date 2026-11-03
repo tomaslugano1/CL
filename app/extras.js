@@ -61,8 +61,8 @@ function panelTareas(){const {grupos,sinDato}=tareasSemana();TAREAS=grupos;const
   const porLugar=[...new Set(grupos.map(x=>x.lugar))];
   const bloque=porLugar.map(l=>`<div class="t-lugar"><h4>${esc(l)}</h4>${grupos.map((x,i)=>x.lugar!==l?'':(()=>{const v=x.items.filter(y=>y.s.d<0).length;
     return `<details class="tarea"><summary><span class="grow"><b>${VERBO[x.t]}</b> · ${x.items.length} caballo${x.items.length>1?'s':''}</span>${v?`<span class="pill p-bad">${v} vencido${v>1?'s':''}</span>`:'<span class="pill p-warn">esta semana</span>'}<span class="go">›</span></summary>
-      <div class="list">${x.items.map(y=>`<div class="li"><span class="a" data-open="${y.c.id}">${esc(y.c.nombre)}</span><span class="small ${y.s.d<0?'':'muted'}">${y.s.d<0?'vencido hace '+(-y.s.d)+' d':y.s.d===0?'vence hoy':'vence '+fmt(y.s.p)}</span></div>`).join('')}</div>
-      ${canWrite&&x.t!=='Agarrar'?`<button class="btn pri" data-act="tarea" data-k="${i}">Hecho: cargar a ${x.items.length>1?'los '+x.items.length:'este'}</button>`:''}</details>`})()).join('')}</div>`).join('');
+      <div class="list">${x.items.map(y=>`<div class="li"><span class="a" data-open="${y.c.id}">${esc(y.c.nombre)}</span><span class="grow"></span><span class="small ${y.s.d<0?'':'muted'}">${y.s.d<0?'vencido hace '+(-y.s.d)+' d':y.s.d===0?'vence hoy':'vence '+fmt(y.s.p)}</span>${canWrite&&x.t!=='Agarrar'?`<button class="btn sm hecho" data-act="hecho" data-k="${i}" data-id="${y.c.id}" aria-label="Hecho hoy: ${esc(y.c.nombre)}">✓ Hecho</button>`:''}</div>`).join('')}</div>
+      ${canWrite&&x.t!=='Agarrar'?`<div class="row"><button class="btn pri" data-act="hecho" data-k="${i}">✓ Hecho hoy, ${x.items.length>1?'los '+x.items.length:'este'}</button><button class="btn" data-act="tarea" data-k="${i}">Con fecha o detalle…</button></div>`:''}</details>`})()).join('')}</div>`).join('');
   const extras=[
     partos.length?`<div class="t-lugar"><h4>Partos a vigilar</h4>${partos.map(s=>{const d=diff(s.fpp,hoy());return `<div class="li"><div><span class="a" data-open-name="${esc(s.madre)}">${esc(s.madre)}</span><div class="sub">${esc(s.padrillo||'—')} · FPP ${fmt(s.fpp)}</div></div><span class="pill ${d<0?'p-bad':'p-warn'}">${d<0?'pasó hace '+(-d)+' d':d===0?'hoy':'faltan '+d+' d'}</span></div>`}).join('')}${canWrite?'':''}</div>`:'',
     notas?`<div class="li"><span>${notas} nota${notas>1?'s':''} para revisar</span><button class="btn sm" data-tab="notas">Ver</button></div>`:'',
@@ -73,6 +73,12 @@ function panelTareas(){const {grupos,sinDato}=tareasSemana();TAREAS=grupos;const
   return `<div class="panel tareas"><div class="head" style="margin-bottom:8px"><h3 style="margin:0">Para hacer esta semana</h3><span class="small muted">hasta el ${fmt(addDays(hoy(),7))}</span></div>
     ${bloque||'<div class="muted small" style="padding:6px 0 10px">Nada de sanidad para esta semana.</div>'}${extras?`<div class="list" style="margin-top:6px">${extras}</div>`:''}</div>`}
 EXTRA_ACTS.tarea=d=>{const g=TAREAS[+d.k];if(g)eventoForm(g.items.map(x=>x.c.id),g.t)};
+/* "✓ Hecho": carga el evento con la fecha de hoy, sin formulario (pedido de Tomás el 3/11). El herrero va con el precio de la lista.
+   Si fue por error, se borra desde la ficha, en Eventos. */
+EXTRA_ACTS.hecho=async(d,t)=>{const g=TAREAS[+d.k];if(!g||g.t==='Agarrar')return;const items=d.id?g.items.filter(x=>x.c.id===d.id):g.items;if(!items.length)return;
+  t.disabled=true;const p=precios(),det=g.etiqueta||g.t;
+  for(const {c} of items){const e={fecha:hoy(),caballoId:c.id,caballo:c.nombre,tipo:g.t,detalle:det,obs:'',por:uid||''};if(p[g.t])e.precio=p[g.t];await db.collection('eventos').doc(slugId('e')).set(e)}
+  toast(`${VERBO[g.etiqueta||g.t]||det}: ${items.length>1?items.length+' caballos':items[0].c.nombre} ✓ cargado`)};
 function contarTareas(){const {grupos}=tareasSemana();let n=0,v=0;for(const g of grupos)for(const i of g.items){n++;if(i.s.d<0)v++}return{n,v}}
 
 /* ================= 3) Nombres parecidos ================= */
@@ -219,130 +225,15 @@ EXTRA_ACTS.pushProbar=async()=>{const m=$('#not-msg');if(m)m.textContent='Mandan
    Corren solos al abrir la app (con datos cargados y permiso de escritura) y quedan anotados en
    config.ajustes para no repetirse. Así se corrigen datos sin tocar la base a mano. */
 const AJUSTES={
-  // Vieja Loca quedó desvasada y sin herraduras: no hay que herrarla
-  'vieja-loca-desherrada':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='VIEJA LOCA');if(!c)return;
-    if(ultimo(c.id,'Herrada')&&ultimo(c.id,'Desherrada')<ultimo(c.id,'Herrada'))
-      await db.collection('eventos').doc(slugId('e')).set({fecha:hoy(),caballoId:c.id,caballo:c.nombre,tipo:'Desherrada',detalle:'Desherrado',obs:'Quedó desvasada, no hay que herrarla',por:uid||''})},
-  // La 25 es la que Martín llama "Avispa"
-  // 14/10/2026: Tomás confirma que la fecha de nacimiento de ROCKERA es aproximada (la planilla de partos decía 02/11/2022)
-  'oct-rockera-fecha-aprox':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='ROCKERA');if(!c||/aproximad/i.test(c.obs||''))return;
-    await db.collection('caballos').doc(c.id).update({obs:[c.obs,'Fecha de nacimiento aproximada (la planilla de partos decía 02/11/2022)'].filter(Boolean).join(' · ')})},
-  'apodo-25-avispa':async()=>{const c=S.caballos.find(x=>x.nombre==='25');if(c&&!c.apodo)await db.collection('caballos').doc(c.id).update({apodo:'AVISPA'})},
-  // Madres y jugadores en descanso: desvasar cada 80 días (si quedó guardado el 75 de antes)
-  'desvase-80-madres-descanso':async()=>{const g=S.config.intervalos;if(!g)return;const n={...g};let ch=false;
-    for(const k of ['Madres','descanso'])if(n[k]&&+n[k].desv===75){n[k]={...n[k],desv:80};ch=true}
-    if(ch){await db.doc('config/app').set({...S.config,intervalos:n});S.config.intervalos=n}},
-  // ---- Datos rescatados del chat de WhatsApp "Doña Cecilia Polo" (1/10/2026) ----
-  // Muelas: mensaje de Pancho del 7/4/2026 "Estas se hicieron muelas"
-  'chat-muelas-2026-04-07':()=>cargarGrupo('2026-04-07','Muelas','Muelas (dentista)','Del chat: "Estas se hicieron muelas" (Pancho, 7/4/2026)',
-    ['SUSANA','MORIA','CHINA','VEDETTE','PARANOICA','PACHANGA','PSICODELICA','BLUSERA','RUBIA T','VIEJA LOCA','VILMA','ROCKERA','25']),
-  // Anemias: lista "Palermo" que mandó Juanchi el 1/4/2026 pidiendo las anemias (fecha aproximada)
-  'chat-anemias-2026-04-01':()=>cargarGrupo('2026-04-01','Anemia','Anemia (para viajar)','Del chat: lista "Palermo", Juanchi pidió las anemias el 1/4/2026 · fecha aproximada',
-    ['ROMAN','HAMMER','FALUCHO','GRACIELA','MARIMORENA','CONTIENDA','SUSANA','MORIA','ALEGRA','PODEROSA','GUERRERA','VEDETTE']),
-  // Embocaduras que aparecen en el chat (solo si el caballo no tiene una cargada)
-  'chat-embocaduras':async()=>{for(const [n,e] of [['PACHANGA','Sin riendillas · 4 riendas'],['PARANOICA','Levantador · 4 riendas'],['25','Levantador · 4 riendas'],
-      ['SUSANA','Sin riendillas · 4 riendas (dato de jun-2025)'],['MORIA','Sin riendillas · 4 riendas (dato de jun-2025)']]){
-      const c=S.caballos.find(x=>norm(x.nombre)===norm(n));if(c&&!c.embocadura)await db.collection('caballos').doc(c.id).update({embocadura:e})}},
-  // Susana es ruana (nombres de las yeguas nuevas, 8/6/2025) · Psicodélica: estrella en la frente (1/9/2026)
-  'chat-susana-psicodelica':async()=>{
-    const su=S.caballos.find(x=>norm(x.nombre)==='SUSANA');if(su&&(!su.pelaje||su.pelaje==='Alazán'))await db.collection('caballos').doc(su.id).update({pelaje:'Ruano'});
-    const ps=S.caballos.find(x=>norm(x.nombre)==='PSICODELICA');if(ps&&!/estrella/i.test(ps.obs||''))await db.collection('caballos').doc(ps.id).update({obs:[ps.obs,'Estrella en la frente'].filter(Boolean).join(' · ')})},
-  // Embocaduras de la lista que compartió Juanchi el 11/12/2024 (todo con riendillas). Solo si el caballo no tiene una cargada.
-  'chat-embocaduras-dic2024':async()=>{for(const [n,e] of [['ALEGRA','Levantador'],['CALA','Bisagra'],['CONTIENDA','Pelan'],['FALUCHO','Doble levantador'],['GUERRERA','Doble levantador'],
-      ['HAMMER','Bisagra'],['LAUCHITA','Levantador'],['MARIMORENA','Levantador'],['MARTINA','Levantador'],['PEPERINA','Levantador'],['PODEROSA','Levantador'],['ROMAN','Doble levantador']]){
-      const c=S.caballos.find(x=>norm(x.nombre)===n);if(c&&!c.embocadura)await db.collection('caballos').doc(c.id).update({embocadura:e+' · con riendillas (lista dic-2024)'})}},
-  // ---- Datos del 7/10/2026 (se cargan solos al publicar la versión del 29/10) ----
-  // Vendidos que figuran en Polo Breeders (Bajas → Vendido), con lo que contó Tomás
-  'oct-vendidos-pb':async()=>{const V=[
-      {nombre:'CHAVELA',sexo:'Hembra',pelaje:'Ruana',nac:'2019-09-20',bajaFecha:'2026-08-10',bajaPrecio:'USD 19.000',bajaComprador:'',bajaObs:'Vendida en Estados Unidos. La vendió Alfredo Arrenio (comprador no se sabe). Fecha aproximada.'},
-      {nombre:'MIRTHA',sexo:'Hembra',pelaje:'Alazán tostado',nac:'2020-10-01',bajaFecha:'2026-03-10',bajaPrecio:'USD 10.000',bajaComprador:'',bajaObs:'Vendida en Pilar. La vendió Pablo Mancilla.'},
-      {nombre:'RUMBA',sexo:'Hembra',pelaje:'Colorada',nac:'',bajaFecha:'2026-09-15',bajaPrecio:'USD 4.000',bajaComprador:'Alejo Sagasti',bajaObs:'Vendida junto con Serena y Servilleta. Fecha aproximada.'},
-      {nombre:'SERENA',sexo:'Hembra',pelaje:'',nac:'',bajaFecha:'2026-09-15',bajaPrecio:'USD 1.000',bajaComprador:'Alejo Sagasti',bajaObs:'Vendida junto con Rumba y Servilleta. Fecha aproximada.'},
-      {nombre:'SERVILLETA',sexo:'Hembra',pelaje:'',nac:'',bajaFecha:'2026-09-15',bajaPrecio:'USD 3.000',bajaComprador:'Alejo Sagasti',bajaObs:'Vendida junto con Rumba y Serena. Fecha aproximada.'}];
-    for(const v of V){const c=S.caballos.find(x=>norm(x.nombre)===v.nombre);const d={...v,estado:'Vendido'};
-      if(!d.nac)delete d.nac;if(!d.pelaje)delete d.pelaje;if(d.nac)d.camada=+d.nac.slice(0,4);
-      let id=c?.id;if(c)await db.collection('caballos').doc(c.id).update(d);
-      else{id=slugId('c');await db.collection('caballos').doc(id).set({categoria:'Jugadores',lugar:'',padre:'',madre:'',chip:'',rp:'',obs:'Dato de Polo Breeders (vendidos)',...d})}
-      if(!S.eventos.some(e=>e.caballoId===id&&/^Baja: Vendido/.test(e.detalle||'')))
-      await db.collection('eventos').doc(slugId('e')).set({fecha:d.bajaFecha,caballoId:id,caballo:v.nombre,tipo:'Otro',detalle:'Baja: Vendido'+(d.bajaComprador?' a '+d.bajaComprador:''),obs:['Precio: '+d.bajaPrecio,d.bajaObs].filter(Boolean).join(' · '),por:uid||''})}},
-  // Los de Hechura se largaron a descanso alrededor del 19/9/2026
-  'oct-hechura-descanso':async()=>{for(const c of S.caballos.filter(x=>x.estado==='Activo'&&x.categoria==='Hechura')){
-      await db.collection('caballos').doc(c.id).update({categoria:'Descanso',catPrevia:'Hechura',descansoDesde:'2026-09-19',descansoHasta:c.descansoHasta||'',ritmo:''});
-      await db.collection('eventos').doc(slugId('e')).set({fecha:'2026-09-19',caballoId:c.id,caballo:c.nombre,tipo:'Movimiento',detalle:'Hechura → Descanso',obs:'Fecha aproximada (se largó todo el lote de hechura)',por:uid||''})}},
-  // POTRANCA BAYA: preñez confirmada el 6/10/2026, inseminada unos 15 días antes
-  // 8/10/2026: VILMA tiene 4 prácticas y la 25 (Avispa) 0 torneos (contando lo cargado hasta ese día; lo que se sume después se suma arriba)
-  'oct-vilma-practicas-25-torneos':async()=>{const hasta='2026-10-08';
-    const v=S.caballos.find(x=>norm(x.nombre)==='VILMA'&&x.estado==='Activo');
-    if(v){const n=S.eventos.filter(e=>e.caballoId===v.id&&e.tipo==='Práctica'&&e.fecha<=hasta).length;await db.collection('caballos').doc(v.id).update({practicasPrevias:Math.max(0,4-n)})}
-    const a=S.caballos.find(x=>x.nombre==='25'&&x.estado==='Activo');
-    if(a){await db.collection('caballos').doc(a.id).update({torneosPrevios:0});
-      for(const e of S.eventos.filter(e=>e.caballoId===a.id&&e.tipo==='Torneo'&&e.fecha<=hasta))await db.collection('eventos').doc(e.id).delete()}},
-  'oct-potranca-baya-prenez':async()=>{const m=S.caballos.find(x=>norm(x.nombre)==='POTRANCA BAYA');if(!m)return;
-    if(S.servicios.some(s=>norm(s.madre)==='POTRANCA BAYA'&&(s.fecha||'')>='2026-08-01'))return; // ya la cargó alguien
-    const f='2026-09-21',id=slugId('s');
-    await db.collection('servicios').doc(id).set({madre:m.nombre,madreId:m.id,fecha:f,padrillo:'IRENITA PORRON',tipo:'Inseminación',estado:'Preñada',fpp:addDays(f,335),temporada:2027,
-      ecos:[{fecha:'2026-10-06',resultado:'Preñada',sexo:'',obs:'Preñez confirmada el 6/10'}],obs:'Fecha de inseminación aproximada (≈15 días antes de la eco).'});
-    await db.collection('eventos').doc(slugId('e')).set({fecha:f,caballoId:m.id,caballo:m.nombre,tipo:'Servicio',detalle:'Servicio IRENITA PORRON (inseminación)',obs:'Fecha aproximada',por:uid||''});
-    await db.collection('eventos').doc(slugId('e')).set({fecha:'2026-10-06',caballoId:m.id,caballo:m.nombre,tipo:'Tacto / Eco',detalle:'Confirmación de preñez',obs:'',por:uid||''})},
-  // Partos: lo que dijo Juan el 14/9/2026 (no se cambia la FPP, queda anotado) + nota de la Primadona
-  'chat-partos-primadona':async()=>{
-    const nota=(m,t)=>{const s=S.servicios.find(x=>norm(x.madre)===m&&x.estado==='Preñada');if(s&&!(s.obs||'').includes('Juan (14/9)'))return db.collection('servicios').doc(s.id).update({obs:[s.obs,t].filter(Boolean).join(' · ')})};
-    await nota('BAYA','Juan (14/9) dice que pare el 13/10');await nota('COLORADA POTRA','Juan (14/9) dice que pare el 13/10');await nota('PIPA','Juan (14/9) dijo que paría "el 31" (fin de septiembre): confirmar si ya parió');
-    await db.collection('notas').doc(slugId('n')).set({titulo:'Primadona: ¿descarte o se le da servicio?',texto:'El 15/9 Pancho preguntó si es descarte. Juan iba a hacerla revisar con Santiago (junto con la Gorda). Falta decidir.',fecha:'2026-09-15',estado:'Pendiente'})},
-  // 11/10/2026 (domingo): la PIPA parió el potrillo muerto y ella también murió por complicaciones en el parto.
-  // La cría (hembra) queda en Bajas y en la camada 2026 como muerta (registro histórico; no cuenta entre los vivos).
-  'oct-pipa-parto-muerte':async()=>{const f='2026-10-11',m=S.caballos.find(x=>norm(x.nombre)==='PIPA');if(!m)return;
-    const det='Murió en el parto (11/10/2026) por complicaciones; ya era grande. El potrillo nació muerto.';
-    const s=S.servicios.filter(x=>norm(x.madre)==='PIPA'&&['Preñada','Servida (sin tacto)'].includes(x.estado)).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''))[0];
-    if(s)await db.collection('servicios').doc(s.id).update({estado:'Parida',obs:[s.obs,'Parto 11/10/2026: potrillo nacido muerto. La yegua murió en el parto.'].filter(Boolean).join(' · ')});
-    if(!S.eventos.some(e=>e.caballoId===m.id&&e.tipo==='Parición'&&e.fecha===f))
-      await db.collection('eventos').doc(slugId('e')).set({fecha:f,caballoId:m.id,caballo:m.nombre,tipo:'Parición',detalle:'Parto: potrillo nacido muerto'+(s?.padrillo?' (de '+s.padrillo+')':''),obs:'Complicaciones en el parto',por:uid||''});
-    if(m.estado==='Activo'){await db.collection('caballos').doc(m.id).update({estado:'Muerto',bajaFecha:f,bajaObs:det,bajaPrecio:'',bajaComprador:'',catPrevia:m.categoria});
-      await db.collection('eventos').doc(slugId('e')).set({fecha:f,caballoId:m.id,caballo:m.nombre,tipo:'Otro',detalle:'Baja: Muerto (murió en el parto)',obs:det,por:uid||''})}
-    if(!S.caballos.some(x=>norm(x.madre)==='PIPA'&&(x.nac||'')>='2026-08-01')){const id=slugId('c');
-      await db.collection('caballos').doc(id).set({nombre:'Cría de Pipa 2026',sexo:'Hembra',pelaje:'',categoria:'Potrillos',estado:'Muerto',nac:f,camada:2026,madre:m.nombre,padre:s?.padrillo||'',
-        rp:'',chip:'',lugar:'',obs:'Hembra, nació muerta',fotos:[],bajaFecha:f,bajaObs:'Hembra. Nació muerta en el parto del 11/10/2026. La madre (PIPA) también murió en el parto.',catPrevia:'Potrillos'});
-      await db.collection('eventos').doc(slugId('e')).set({fecha:f,caballoId:id,caballo:'Cría de Pipa 2026',tipo:'Otro',detalle:'Baja: Muerta (nació muerta, hembra)',obs:'Madre PIPA, murió en el mismo parto',por:uid||''})}},
-  // 18/10/2026: DC (MINI) 30 se llama MÁXIMO (el número queda como apodo)
-  'oct-nombre-maximo':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='DC (MINI) 30');if(!c)return;
-    await db.collection('caballos').doc(c.id).update({nombre:'MÁXIMO',apodo:c.apodo||'DC (MINI) 30'});
-    for(const e of S.eventos.filter(e=>e.caballoId===c.id&&e.caballo!=='MÁXIMO'))await db.collection('eventos').doc(e.id).update({caballo:'MÁXIMO'})},
-  // 21/10/2026: parieron la BAYA (hembra) y la COLORADA POTRA (macho), los dos de IRENITA PORRON. Datos del video de Tomás del 22/10.
-  // 25/10/2026: Tomás confirma que ALEGRA, CONTIENDA y MARIMORENA se agarraron el 8/10/2026 (fecha aproximada; por la lluvia casi no jugaron)
-  // 25/10/2026: Tomás: CALA está a la venta pero no está en Doña Cecilia y no la cuenta (ni en la manada ni en sanidad)
-  // 2/11: Tomás mandó el registro de la Poderosa (Poderosa Soy, SP, nacida 23/08/2008, zaina, criador San Leonardo). Solo completa lo vacío.
-  'nov-poderosa-pedigri':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='PODEROSA');if(!c)return;
-    const nuevo={padre:'PODERIO',madre:'FOSCARILLA',abueloP:'CAPO MAXIMO',abuelaP:'VACANCY GIRL',abueloM:'FOSCARI',abuelaM:'LA PRESUNTUOSA',nac:'2008-08-23',camada:2008,pelaje:'Zaino',apodo:'PODEROSA SOY'},u={};
-    for(const [k,v] of Object.entries(nuevo))if(!c[k])u[k]=v;
-    if(!/San Leonardo/i.test(c.obs||''))u.obs=[c.obs,'Nombre en el registro: PODEROSA SOY · SP · criador San Leonardo'].filter(Boolean).join(' · ');
-    if(Object.keys(u).length)await db.collection('caballos').doc(c.id).update(u)},
-  // 2/11: el 34 de doma es hembra (estaba cargado como macho)
-  'nov-34-hembra':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='34'&&x.categoria==='Doma');if(!c||c.sexo==='Hembra')return;
-    await db.collection('caballos').doc(c.id).update({sexo:'Hembra'})},
-  'oct-cala-fuera':async()=>{const c=S.caballos.find(x=>norm(x.nombre)==='CALA');if(!c||/^afuera/i.test(c.lugar||''))return;
-    await db.collection('caballos').doc(c.id).update({lugar:'Afuera (a la venta)',venta:true})},
-  'oct-agarradas-0810':async()=>{const f='2026-10-08';
-    for(const n of ['ALEGRA','CONTIENDA','MARIMORENA']){const c=S.caballos.find(x=>norm(x.nombre)===n);if(!c||c.agarradoEl)continue;
-      await db.collection('caballos').doc(c.id).update({agarradoEl:f});
-      if(!S.eventos.some(e=>e.caballoId===c.id&&e.tipo==='Movimiento'&&e.fecha===f))
-        await db.collection('eventos').doc(slugId('e')).set({fecha:f,caballoId:c.id,caballo:c.nombre,tipo:'Movimiento',detalle:'Agarrada',obs:'Fecha aproximada',por:uid||''})}},
-  'oct-partos-baya-colorada':async()=>{const f='2026-10-21';
-    for(const [madre,nombre,sexo,pelaje,obs] of [
-      ['BAYA','DC S/N BAYA 26','Hembra','Bayo claro','Cara blanca ancha (lista hasta el hocico) · patas claras'],
-      ['COLORADA POTRA','DC S/N COLORADA POTRA 26','Macho','Colorado','Patas blancas · lista blanca en la cara']]){
-      const m=S.caballos.find(x=>norm(x.nombre)===madre);if(!m)continue;
-      if(S.caballos.some(x=>norm(x.madre)===madre&&(x.nac||'')>='2026-08-01'))continue; // ya lo cargó alguien
-      const s=S.servicios.filter(x=>norm(x.madre)===madre&&['Preñada','Servida (sin tacto)'].includes(x.estado)).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''))[0];
-      const padre=s?.padrillo||'IRENITA PORRON',gp=padresDe(padre)||{},gm=padresDe(madre)||{},id=slugId('c');
-      await db.collection('caballos').doc(id).set({nombre,sexo,pelaje,categoria:'Potrillos',estado:'Activo',nac:f,camada:2026,madre:m.nombre,padre,
-        abueloP:gp.padre||'',abuelaP:gp.madre||'',abueloM:gm.padre||'',abuelaM:gm.madre||'',rp:'',chip:'',lugar:m.lugar||'Doña Cecilia',obs,fotos:[]});
-      if(s)await db.collection('servicios').doc(s.id).update({estado:'Parida',criaId:id,obs:[s.obs,'Parió 21/10/2026: '+nombre+' ('+sexo.toLowerCase()+')'].filter(Boolean).join(' · ')});
-      await db.collection('eventos').doc(slugId('e')).set({fecha:f,caballoId:m.id,caballo:m.nombre,tipo:'Parición',detalle:'Parición: '+sexo.toLowerCase()+' '+pelaje.toLowerCase()+' · '+nombre,obs:'',por:uid||''})}},
+  // Los ajustes ya aplicados en los datos reales se sacan del código (quedan anotados en config.ajustes y no vuelven a correr).
+  // 3/11: premios que contó Tomás. Contienda: mejor caballo de la final de la Copa Carnaval 2024 (18/02/2024).
+  // Cala: mejor caballo de la final de la Copa Diario La Nación 2024 (fin de diciembre: 30/12/2024, aproximada). Con su foto.
+  'nov-premios-cala-contienda':async()=>{
+    for(const [n,p] of [['CONTIENDA',{fecha:'2024-02-18',torneo:'Copa Carnaval 2024 · final',premio:'Mejor caballo de la final (BPP)',detalle:'Manta'}],
+                        ['CALA',{fecha:'2024-12-30',torneo:'Copa Diario La Nación 2024 · final',premio:'Mejor caballo de la final (BPP)',detalle:'Manta · fecha aproximada'}]]){
+      const c=S.caballos.find(x=>norm(x.nombre)===n);if(!c||(c.premios||[]).some(x=>x.torneo===p.torneo))continue;
+      await db.collection('caballos').doc(c.id).update({premios:[...(c.premios||[]),{...p,...(c.fotos?.[0]?{foto:c.fotos[0]}:{})}]})}},
 };
-// Carga un mismo evento a varios caballos por nombre (si ya está cargado ese día, no lo repite)
-async function cargarGrupo(fecha,tipo,detalle,obs,nombres){for(const n of nombres){const c=S.caballos.find(x=>norm(x.nombre)===norm(n)&&x.estado==='Activo');if(!c)continue;
-  if(S.eventos.some(e=>e.caballoId===c.id&&e.tipo===tipo&&e.fecha===fecha))continue;
-  await db.collection('eventos').doc(slugId('e')).set({fecha,caballoId:c.id,caballo:c.nombre,tipo,detalle,obs,por:uid||''})}}
 let _ajustando=false;
 async function ajustesUnicos(){if(_ajustando||!canWrite||!db||!window.DC_NUBE_LISTA||!S.loaded.caballos||!S.loaded.eventos||!S.loaded.config||!S.loaded.servicios||!S.caballos.length)return;
   const hechos=new Set(S.config.ajustes||[]),pend=Object.keys(AJUSTES).filter(k=>!hechos.has(k));if(!pend.length)return;

@@ -24,6 +24,9 @@ export function reglas(config = {}) {
 const VERBO = { 'Desparasitación': 'Desparasitar', 'Desvasada': 'Desvasar', 'Herrada': 'Herrar', 'Muelas': 'Hacer muelas', 'Agarrar': 'Agarrar del descanso' };
 const addDays = (s, n) => { const d = new Date(s + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const diff = (a, b) => Math.round((new Date(a + 'T12:00:00Z') - new Date(b + 'T12:00:00Z')) / 864e5);
+const diasEntre = (a, b) => Math.round((new Date(a + 'T12:00:00Z') - new Date(b + 'T12:00:00Z')) / 864e5);
+// Ventana de parto (igual que la app, tablero.js): del día 320 al 360 desde el servicio
+const VENTANA = [320, 360];
 export const hoyAR = () => new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
 
 // Llama una función de Supabase. Con token de usuario actúa como ese usuario; sin token, como anónimo.
@@ -77,7 +80,9 @@ function preparar(filas) {
       }
     }
   }
-  return { vence, prenadas: D.servicios.filter(s => s.estado === 'Preñada' && s.fpp) };
+  const vivas = new Set(D.caballos.filter(c => c.estado === 'Activo').map(c => String(c.nombre).toUpperCase()));
+  const vuelven = D.caballos.filter(c => c.estado === 'Activo' && c.categoria === 'Descanso' && c.descansoHasta);
+  return { vence, prenadas: D.servicios.filter(s => s.estado === 'Preñada' && s.fpp && vivas.has(String(s.madre || '').toUpperCase())), vuelven };
 }
 // Controles de sanidad (mismos que app/pb.js: CONTROLES_DEF). Si se cambian allá, cambiarlos acá.
 const PRENEZ_DESDE = '2026-10-29';
@@ -105,6 +110,9 @@ export function avisoDiario(filas, hoy = hoyAR()) {
   const pAtr = prenadas.filter(s => s.fpp < hoy), pHoy = prenadas.filter(s => s.fpp === hoy), pProx = prenadas.filter(s => s.fpp > hoy && s.fpp <= en7);
   if (pAtr.length) lineas.push('Parto atrasado: ' + pAtr.map(s => `${s.madre} (FPP ${fmtCorta(s.fpp)})`).join(', '));
   if (pHoy.length) lineas.push('Parto probable HOY: ' + pHoy.map(s => s.madre).join(', '));
+  // el día que una yegua entra en la ventana de parto (día 320 desde el servicio), para empezar a vigilarla
+  const entran = prenadas.filter(s => s.fecha && diasEntre(hoy, s.fecha) === VENTANA[0]);
+  if (entran.length) lineas.push('Entra hoy en la ventana de parto: ' + entran.map(s => `${s.madre} (más probable ${fmtCorta(s.fpp)})`).join(', '));
   if (atr.length) lineas.push('Atrasado → ' + linea(atr));
   if (hoyL.length) lineas.push('Vence HOY → ' + linea(hoyL));
   if (pProx.length) lineas.push('Partos en 7 días: ' + pProx.map(s => `${s.madre} ${fmtCorta(s.fpp)}`).join(', '));
@@ -114,19 +122,26 @@ export function avisoDiario(filas, hoy = hoyAR()) {
 
 // Resumen de la semana (se manda los lunes): lo atrasado + lo que vence en los próximos 7 días + partos.
 export function avisoSemanal(filas, hoy = hoyAR()) {
-  const { vence, prenadas } = preparar(filas), en7 = addDays(hoy, 7);
+  const p0 = preparar(filas), { vence, prenadas } = p0, en7 = addDays(hoy, 7);
   const ls = porTipo(vence.filter(x => x.p <= en7)).map(([t, l]) => {
     const atr = l.filter(x => x.p < hoy).length;
     return `${VERBO[t]} ${l.length}${atr ? ` (${atr} atrasado${atr > 1 ? 's' : ''})` : ''}`;
   });
   const partos = prenadas.filter(s => s.fpp >= addDays(hoy, -7) && s.fpp <= en7).sort((a, b) => a.fpp.localeCompare(b.fpp)).map(s => `${s.madre} ${fmtCorta(s.fpp)}`);
   if (partos.length) ls.push('Partos: ' + partos.join(', '));
-  return ls.length ? { title: 'Doña Cecilia · Esta semana', body: 'Para hacer hasta el ' + fmtCorta(en7) + ':\n' + ls.join('\n'), url: '/', tag: 'dc-semana' } : null;
+  const enVentana = prenadas.filter(s => s.fecha && diasEntre(hoy, s.fecha) >= VENTANA[0] && diasEntre(hoy, s.fecha) <= VENTANA[1]);
+  if (enVentana.length) ls.push('En ventana de parto: ' + enVentana.map(s => `${s.madre} (día ${diasEntre(hoy, s.fecha)})`).join(', '));
+  const entran = prenadas.filter(s => s.fecha && diasEntre(hoy, s.fecha) > VENTANA[0] - 8 && diasEntre(hoy, s.fecha) < VENTANA[0]);
+  if (entran.length) ls.push('Entran en ventana esta semana: ' + entran.map(s => `${s.madre} (${fmtCorta(addDays(s.fecha, VENTANA[0]))})`).join(', '));
+  const vuelven = (p0.vuelven || []).filter(c => c.descansoHasta <= en7).map(c => `${c.nombre} ${fmtCorta(c.descansoHasta)}`);
+  if (vuelven.length) ls.push('Vuelven del descanso: ' + vuelven.join(', '));
+  return ls.length ? { title: 'Doña Cecilia · Resumen de la semana', body: 'Hasta el ' + fmtCorta(en7) + ':\n' + ls.join('\n'), url: '/', tag: 'dc-semana' } : null;
 }
 
-// Todos los avisos de un día: uno solo, el diario (ya incluye lo atrasado y la semana).
+// Los avisos de un día: el diario, y los lunes además el resumen de la semana.
 export function avisosDelDia(filas, hoy = hoyAR()) {
-  return [avisoDiario(filas, hoy)].filter(Boolean);
+  const lunes = new Date(hoy + 'T12:00:00Z').getUTCDay() === 1;
+  return [avisoDiario(filas, hoy), lunes ? avisoSemanal(filas, hoy) : null].filter(Boolean);
 }
 
 // Manda un aviso a una lista de celulares. Devuelve los que ya no existen para borrarlos.

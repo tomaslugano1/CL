@@ -441,9 +441,9 @@ function vInicio(){
   const pend=S.notas.filter(n=>n.estado!=='Listo').length;
   const ult=[...S.eventos].sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,8);
   const cnt=CATS.map(c=>[c,act.filter(x=>x.categoria===c).length]).filter(([,n])=>n>0);
-  const sinSubir=typeof DC_PENDIENTES==='function'?DC_PENDIENTES():[],sinFoto=act.filter(c=>!c.fotos?.length).length;
+  const sinSubir=[...(typeof DC_PENDIENTES==='function'?DC_PENDIENTES():[]),...(FOTOS_COLA.n?[FOTOS_COLA.n>1?FOTOS_COLA.n+' fotos para subir':'1 foto para subir']:[])],sinFoto=act.filter(c=>!c.fotos?.length).length;
   // cada recuadro se toca (pedido de Tomás el 25/10): Ver caballos, Madres y partos, ficha de la próxima en parir, Para hacer, Notas
-  return `${sinSubir.length?`<details class="pbpend"><summary>⟳ ${sinSubir.length} cambio${sinSubir.length>1?'s':''} sin subir · se ${sinSubir.length>1?'suben solos':'sube solo'} cuando haya señal</summary><ul>${sinSubir.slice(0,10).map(t=>`<li>${esc(t)}</li>`).join('')}${sinSubir.length>10?`<li>y ${sinSubir.length-10} más</li>`:''}</ul></details>`:''}<button class="pbver" data-tab="caballos">Ver caballos <span>›</span></button>
+  return `${sinSubir.length?`<details class="pbpend"><summary>⟳ ${sinSubir.length} cambio${sinSubir.length>1?'s':''} sin subir · se ${sinSubir.length>1?'suben solos':'sube solo'} cuando haya señal</summary><ul>${sinSubir.slice(0,10).map(t=>`<li>${esc(t)}</li>`).join('')}${sinSubir.length>10?`<li>y ${sinSubir.length-10} más</li>`:''}</ul></details>`:''}<form class="ibusca" id="ibusca" role="search" autocomplete="off"><span class="ibl" aria-hidden="true">${ICO_LUPA}</span><input id="iq" type="search" placeholder="Buscar caballo: nombre, número o seña" enterkeyhint="search" aria-label="Buscar caballo"><div id="ires" class="ires" hidden></div></form><button class="pbver" data-tab="caballos">Ver caballos <span>›</span></button>
     <div class="pbacc">${[['camadas','Camadas'],['sanidad','Sanidad'],['notas','Notas']].map(([k,t])=>`<button class="chip" data-tab="${k}">${t}</button>`).join('')}${sinFoto?`<button class="chip" data-act="diaFotos">Día de fotos · faltan ${sinFoto}</button>`:''}</div><div class="tiles">
     <div class="tile toca" data-act="iniVer" role="button" tabindex="0"><span>Caballos propios ›</span><b>${act.length}</b><div class="small muted">${cnt.map(([c,n])=>n+' '+c.toLowerCase()).join(' · ')}</div></div>
     <div class="tile toca" data-tab="madres" role="button" tabindex="0"><span>Preñadas ›</span><b>${pren.length}</b><div class="small muted">${prenOtra.length?prenT.length+' paren esta temporada · '+prenOtra.map(s=>esc(s.madre)+' en '+(s.fpp?s.fpp.slice(0,4):'la próxima')).join(' · '):''}</div></div>
@@ -569,7 +569,7 @@ function ventaView(id){const c=byId(id);UI.ficha=null;
       <label class="chk" style="flex-direction:row;align-items:center;gap:8px;color:var(--fg);font-size:.9rem"><input id="v-mostrar" type="checkbox" style="width:auto" ${c.mostrarPrecio?'checked':''}>Mostrar el precio en la imagen</label>
       <label class="full">Contacto (va en todas las fichas)<input id="v-contacto" value="${esc(S.config.contacto)}" placeholder="Ej: Consultas: Toto · 11 5555-5555"></label>
     </div><div class="row" style="margin-top:12px"><button class="btn pri" data-vsave="${c.id}">Guardar y actualizar imagen</button></div>
-    <p class="note">La foto que sale es la portada. Para cambiarla, andá a la ficha del caballo y tocá “Portada” en otra foto.</p></div>`:''}
+    <p class="note">La foto que sale es la portada, con su encuadre. Para cambiarla, en la ficha tocá una foto → “Portada” o “Encuadrar”. Si tiene premios, salen con la estrellita; los links de video van en el texto.</p></div>`:''}
    </div></div></div>`;
   dibujarVenta(c).then(b=>{const u=URL.createObjectURL(b);$('#vprev').innerHTML=`<img src="${u}" alt="Ficha de venta de ${esc(c.nombre)}" style="width:100%;max-width:420px;border-radius:10px;border:1px solid var(--line)">`}).catch(e=>{console.error(e);$('#vprev').innerHTML='<div class="empty">No se pudo armar la imagen.</div>'})}
 async function guardarVenta(id){const c=byId(id);const d={descVenta:$('#v-desc').value.trim(),precio:$('#v-precio').value.trim(),mostrarPrecio:$('#v-mostrar').checked};const ct=$('#v-contacto').value.trim();
@@ -597,19 +597,26 @@ async function dibujarVenta(c){
   let fs=76;x.font=`700 ${fs}px ${SER}`;while(x.measureText(c.nombre).width>W-96&&fs>40){fs-=4;x.font=`700 ${fs}px ${SER}`}x.fillText(c.nombre,48,y);
   if(c.mostrarPrecio&&c.precio){x.textAlign='right';x.font='700 44px '+SAN;x.fillText(c.precio,W-48,y);x.textAlign='left'}
   y+=50;x.font='500 30px '+SAN;x.fillStyle='#555';x.fillText([I.sub,I.cat,I.pr?I.pr+' prácticas':'',I.tr?I.tr+' torneos':''].filter(Boolean).join(' · '),48,y);
+  // premios (★): una franja dorada por premio, hasta 2
+  const prs=premiosDe(c).slice(0,2);
+  for(const pz of prs){y+=22;x.fillStyle='#F6E7C1';x.fillRect(48,y,W-96,58);x.fillStyle='#7A5A12';x.textBaseline='middle';
+    const t='★ '+premioTxt(pz);let fz=28;x.font=`700 ${fz}px ${SAN}`;while(x.measureText(t).width>W-136&&fz>18){fz--;x.font=`700 ${fz}px ${SAN}`}x.fillText(t,68,y+30,W-136);x.textBaseline='alphabetic';y+=58}
   y+=34;x.fillStyle='#111';x.fillRect(48,y,W-96,2);
   // genealogia
   y+=52;const col=(lab,val,cx,w)=>{x.fillStyle='#777';x.font='600 20px '+SAN;x.letterSpacing='3px';x.fillText(lab,cx,y);x.letterSpacing='0px';x.fillStyle='#111';x.font='600 30px '+SAN;
     const ls=wrap(x,val||'Desconocido',w).slice(0,3);ls.forEach((l,i)=>x.fillText(l,cx,y+42+i*38));return ls.length};
   const n=Math.max(col('PADRE',I.padre,48,(W-96)/2-20),col('MADRE',I.madre,W/2+10,(W-96)/2-20));
   y+=42+n*38+20;
+  // embocadura y video
+  if(c.embocadura){x.fillStyle='#555';x.font='500 26px '+SAN;x.fillText('Embocadura: '+c.embocadura,48,y);y+=46}
+  const vid=(c.videos||[]).find(v=>v.url);if(vid){x.fillStyle='#555';x.font='500 26px '+SAN;x.fillText('▶ Video: '+vid.url.replace(/^https?:\/\/(www\.)?/,''),48,y);y+=46}
   // descripcion
   if(c.descVenta){x.fillStyle='#333';x.font='400 28px '+SAN;const ls=wrap(x,c.descVenta,W-96);const room=Math.max(0,Math.floor((H-90-y)/38));ls.slice(0,room).forEach((l,i)=>x.fillText(l,48,y+i*38))}
   // pie
   x.fillStyle='#0E0E0E';x.fillRect(0,H-80,W,80);x.fillStyle='#fff';x.font='500 26px '+SAN;x.textBaseline='middle';x.textAlign='left';x.fillText(S.config.contacto||'Doña Cecilia',48,H-40);
   return await new Promise((ok,no)=>cv.toBlob(b=>b?ok(b):no(new Error('toBlob')),'image/png'))}
 async function bajarPng(id){const c=byId(id);try{const b=await dibujarVenta(c);await downloads.save({filename:'Ficha de venta '+c.nombre.replace(/[\\/:*?"<>|]/g,'')+'.png',data:b});toast('Imagen lista')}catch(e){if(e?.code!=='declined')toast('No se pudo descargar la imagen.')}}
-function ventaTexto(c){const I=ventaInfo(c);return [`*${c.nombre}* · A la venta`,[I.sub,I.cat].filter(Boolean).join(' · '),I.padre?'Padre: '+I.padre:'',I.madre?'Madre: '+I.madre:'',I.pr?'Prácticas: '+I.pr:'',I.tr?'Torneos: '+I.tr:'',c.descVenta||'',c.mostrarPrecio&&c.precio?'Precio: '+c.precio:'',S.config.contacto||'','— Doña Cecilia'].filter(Boolean).join('\n')}
+function ventaTexto(c){const I=ventaInfo(c);return [`*${c.nombre}* · A la venta`,[I.sub,I.cat].filter(Boolean).join(' · '),...premiosDe(c).map(p=>'★ '+premioTxt(p)),I.padre?'Padre: '+I.padre:'',I.madre?'Madre: '+I.madre:'',I.pr?'Prácticas: '+I.pr:'',I.tr?'Torneos: '+I.tr:'',c.embocadura?'Embocadura: '+c.embocadura:'',...(c.videos||[]).filter(v=>v.url).map(v=>'Video'+(v.titulo?' ('+v.titulo+')':'')+': '+v.url),c.descVenta||'',c.mostrarPrecio&&c.precio?'Precio: '+c.precio:'',S.config.contacto||'','— Doña Cecilia'].filter(Boolean).join('\n')}
 async function copiarTxt(id){const t=ventaTexto(byId(id));try{await navigator.clipboard.writeText(t);toast('Texto copiado: pegalo en WhatsApp')}catch(e){$('#vprev').insertAdjacentHTML('afterend',`<textarea readonly style="min-height:180px">${esc(t)}</textarea><p class="note">Seleccioná el texto y copialo.</p>`)}}
 
 /* ---------- forms ---------- */
@@ -770,7 +777,10 @@ document.addEventListener('change',e=>{if(e.target.id==='lugar'){UI.lugar=e.targ
 document.addEventListener('click',e=>{if(e.target.matches?.('input[type=file]'))e.target.onchange=onFile},true);
 async function onFile(e){
   const el=e.target;if(!(el.dataset.foto||el.id==='logo-file')||!el.files?.length||!assets)return;
-  if(!navigator.onLine){toast('Sin señal: la foto queda en tu galería, subila cuando tengas señal');el.value='';return}
+  // sin señal: las fotos quedan guardadas en el celular y se suben solas cuando vuelve la señal (media.js)
+  if(!navigator.onLine&&el.dataset.foto){const fs=[...el.files];el.value='';for(const f of fs)await encolarFoto(el.dataset.foto,await achicar(f));
+    toast(fs.length>1?`Sin señal: las ${fs.length} fotos quedan guardadas y se suben solas cuando vuelva la señal`:'Sin señal: la foto queda guardada y se sube sola cuando vuelva la señal');return}
+  if(!navigator.onLine){toast('Sin señal: probá de nuevo cuando tengas señal');el.value='';return}
   const files=[...el.files],cab=el.dataset.foto&&byId(el.dataset.foto);
   // por si se eligieron fotos de más sin querer
   if(cab&&files.length>5&&!confirm(`¿Subir ${files.length} fotos a ${cab.nombre}?`)){el.value='';return}

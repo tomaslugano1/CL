@@ -112,6 +112,21 @@ EXTRA_ACTS.mGirar=async(d,t)=>{const c=byId(VISOR.id),k=VISOR.k,f=c.fotos[k];if(
     const fotos=[...c.fotos];fotos[k]=id;await sinEncuadre(c,f);await guardarFotos(c,fotos,k,'Foto girada');try{await assets.delete(f)}catch(e){}}
   catch(e){console.error(e);toast(navigator.onLine?'No se pudo girar la foto. Probá de nuevo.':'Para girar la foto necesitás señal.');if(t.isConnected){t.disabled=false;t.textContent='↻ Girar'}}};
 
+/* ---------- fotos sin señal: cola en el celular (IndexedDB) ---------- */
+const FOTOS_COLA={n:0,subiendo:false};
+function colaDB(){return new Promise((ok,mal)=>{const r=indexedDB.open('dc-fotos-cola',1);r.onupgradeneeded=()=>r.result.createObjectStore('fotos',{keyPath:'k',autoIncrement:true});r.onsuccess=()=>ok(r.result);r.onerror=()=>mal(r.error)})}
+async function colaOp(modo,fn){const db0=await colaDB();return new Promise((ok,mal)=>{const tx=db0.transaction('fotos',modo),st=tx.objectStore('fotos');const r=fn(st);tx.oncomplete=()=>ok(r?.result);tx.onerror=()=>mal(tx.error)})}
+async function encolarFoto(caballoId,blob){try{await colaOp('readwrite',st=>st.add({caballoId,blob,fecha:hoy()}));await contarCola()}catch(e){console.error(e);toast('No se pudo guardar la foto en el celular. Probá con señal.')}}
+async function contarCola(){try{FOTOS_COLA.n=await colaOp('readonly',st=>st.count())||0}catch(e){FOTOS_COLA.n=0}if(UI.tab==='inicio'&&!UI.ficha)render()}
+async function subirCola(){if(FOTOS_COLA.subiendo||!navigator.onLine||!assets)return;FOTOS_COLA.subiendo=true;let n=0;
+  try{const todas=await colaOp('readonly',st=>st.getAll())||[];
+    for(const f of todas){const c=byId(f.caballoId);if(!c){await colaOp('readwrite',st=>st.delete(f.k));continue}
+      const {id}=await assets.upload(f.blob,{type:f.blob.type||'image/jpeg'});await db.collection('caballos').doc(c.id).update({fotos:[...(byId(c.id).fotos||[]),id]});
+      await colaOp('readwrite',st=>st.delete(f.k));n++}}
+  catch(e){console.error(e)}finally{FOTOS_COLA.subiendo=false;await contarCola();if(n)toast(n>1?`Se subieron ${n} fotos que estaban guardadas`:'Se subió la foto que estaba guardada')}}
+addEventListener('online',()=>setTimeout(subirCola,1500));
+setTimeout(()=>{contarCola();subirCola()},4000);
+
 /* ---------- videos ---------- */
 document.addEventListener('change',async e=>{const el=e.target;if(!el.dataset?.video||!el.files?.length)return;const c=byId(el.dataset.video),f=el.files[0];el.value='';if(!c)return;
   if(!navigator.onLine){toast('Sin señal: el video queda en tu galería, subilo cuando tengas señal');return}

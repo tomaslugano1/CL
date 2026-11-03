@@ -315,3 +315,13 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Arriba de la ficha, la portada se desliza para pasar a las otras fotos (con puntitos y "2 / 5"); tocarla la abre en grande.
 - Falta: los datos de los premios de la Cala y la Contienda (torneo, fecha, premio).
 - Ficha reordenada (3/11, propuesta para Tomás, sin publicar): arriba etiquetas (con "agarrada/suelta desde…"), fotos que se deslizan, premios, señas, Datos y Pedigree (si no tiene padres, una sola línea con "Cargar padres"). Después, según la categoría: madres → Preñez, Servicios, Pedigree, Progenie, Hermanos, Sanidad, Trabajos; jugadores/hechura/descanso → Descanso, Polo, Trabajos, Sanidad; potrillos y doma → Sanidad, Trabajos. Al final Eventos, Fotos y videos, "Cambiar categoría o lugar" (se abre al tocarlo) y Editar / Venta / Baja.
+
+## AB. Mejoras pedidas el 3/11 (sin publicar, Tomás quiere ver la lista antes)
+- Premios cargados: Contienda (Mejor caballo de la final, Copa Carnaval 2024, 18/02/2024) y Cala (Mejor caballo de la final, Copa Diario La Nación 2024, 30/12/2024 aprox.), con su foto. Ajuste 'nov-premios-cala-contienda'. Sheet: CABALLOS columna PREMIOS.
+- "✓ Hecho" en Para hacer esta semana: por caballo o todos juntos, carga el evento con la fecha de hoy (el herrero con el precio de la lista), sin formulario. "Con fecha o detalle…" abre el formulario de siempre.
+- Avisos al celular: el día que una yegua entra en la ventana de parto (día 320); los lunes, resumen de la semana (lo que hay que hacer, partos, quiénes están en ventana o entran esa semana, quiénes vuelven del descanso). Es en Netlify: entra al publicar.
+- Fotos sin señal: quedan guardadas en el celular y se suben solas cuando vuelve la señal (el cartel de cambios sin subir las cuenta).
+- Ficha de venta: premios con estrellita, embocadura y link del video (en la imagen y en el texto); la foto con su encuadre.
+- Buscador grande arriba del Inicio: muestra hasta 6 caballos mientras se escribe (nombre, número, chip o seña); Enter abre la lista con la búsqueda.
+- Limpieza: se sacaron del código las 21 cargas de datos ya aplicadas (confirmado en los datos reales: todas en config.ajustes).
+- Pendiente de Tomás: instalar el script del Sheet (sheet/LEEME.md).
