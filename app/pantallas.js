@@ -56,11 +56,11 @@ function vCaballos(){
   const bt=UI.bajaTab||'';if(cat==='__bajas'&&bt)l=l.filter(c=>bt==='Otros'?!['Vendido','Muerto'].includes(c.estado):c.estado===bt);
   l.sort(sortCab);if(cat==='__bajas')l.sort((a,b)=>(b.bajaFecha||'').localeCompare(a.bajaFecha||'')); // bajas: la más nueva arriba
   const sel=UI.sel,catTxt=(CATS_LISTA.find(x=>x[0]===cat)||['','Todos'])[1],lugTxt=UI.lugar==='__sin'?'Sin lugar':UI.lugar||'Todos';
-  const buscando=UI.buscar||UI.q;
   const madresTabs=['Madres','Receptoras'].includes(cat);
-  return `<div class="lbar">${canWrite?(sel?`<button class="btn" data-act="selmover">Cancelar</button>`:`<button class="btn pri" data-act="alta">+ Alta</button><button class="btn" data-act="selmode">+ Sanidad</button><button class="btn" data-act="selmover">Seleccionar</button>`):''}
-     ${cat==='Potrillos'&&!sel?'<button class="btn" data-act="fichasPot">Fichas</button>':''}<span style="flex:1"></span><button class="btn icon" data-act="chip" aria-label="Leer chip" title="Leer chip">${ICO_CHIP}</button><button class="btn icon ${buscando?'on':''}" data-act="lupa" aria-label="Buscar" title="Buscar">${ICO_LUPA}</button></div>
-   ${buscando?`<div class="row" style="margin-bottom:10px"><input id="q" class="search" type="search" placeholder="Nombre o señas: bayo pata blanca, estrella…" value="${esc(UI.q)}"></div>`:''}
+  // buscador grande arriba de todo, igual que en el Inicio (pedido de Tomás el 3/11)
+  return `<div class="ibusca" role="search"><span class="ibl" aria-hidden="true">${ICO_LUPA}</span><input id="q" type="search" placeholder="Buscar caballo: nombre, número o seña" value="${esc(UI.q)}" enterkeyhint="search" aria-label="Buscar caballo"></div>
+   <div class="lbar">${canWrite?(sel?`<button class="btn" data-act="selmover">Cancelar</button>`:`<button class="btn pri" data-act="alta">+ Alta</button><button class="btn" data-act="selmode">+ Sanidad</button><button class="btn" data-act="selmover">Seleccionar</button>`):''}
+     ${cat==='Potrillos'&&!sel?'<button class="btn" data-act="fichasPot">Fichas</button>':''}<span style="flex:1"></span><button class="btn icon" data-act="chip" aria-label="Leer chip" title="Leer chip">${ICO_CHIP}</button></div>
    <div class="fchips"><button class="fchip ${UI.drop==='cat'?'on':''}" data-act="drop" data-d="cat">${ICO_CAT}<span>${esc(catTxt)}</span></button><button class="fchip ${UI.drop==='lug'?'on':''}" data-act="drop" data-d="lug">${ICO_PIN}<span>${esc(lugTxt)}</span></button></div>
    ${UI.drop==='cat'?`<div class="fdrop">${CATS_LISTA.map(([k,t])=>`<button class="${cat===k?'on':''}" data-act="fcat" data-v="${k}">${t}</button>`).join('')}</div>`:''}
    ${UI.drop==='lug'?`<div class="fdrop">${[['','Todos'],['__sin','Sin lugar definido'],...lugares().map(x=>[x,x])].map(([k,t])=>`<button class="${(UI.lugar||'')===k?'on':''}" data-act="flug" data-v="${esc(k)}">${esc(t)}</button>`).join('')}</div>`:''}
@@ -69,7 +69,7 @@ function vCaballos(){
    ${madresTabs?`<div class="tabs">${[['Madres','Madres'],['Receptoras','Receptoras']].map(([k,t])=>`<button class="${cat===k?'on':''}" data-act="fcat" data-v="${k}">${t}</button>`).join('')}</div>`:''}
    ${sel?`<p class="note">Tocá los caballos que querés mover. Después elegí la categoría o el lugar nuevo.</p>`:''}
    <div class="hcards">${l.map(c=>{const e=edad(c.nac);const ds=['Desparasitación','Desvasada'].map(t=>estadoSan(c,t));
-     const meta=[e!==null?e+(e===1?' año':' años'):'',cat===c.categoria?'':c.categoria,c.camada?'Camada '+c.camada:'',c.venta&&cat!=='__venta'?'A la venta':'',enDescanso(c)?textoDescanso(c).linea:(trabajoLinea(c)),c.estado!=='Activo'?c.estado+(c.bajaFecha?' '+fmt(c.bajaFecha):'')+(c.bajaPrecio?' · '+c.bajaPrecio:'')+(c.bajaComprador?' · a '+c.bajaComprador:''):''].filter(Boolean).join(' · ');
+     const meta=[e!==null?(e?e+(e===1?' año':' años'):(m=>m?m+(m===1?' mes':' meses'):'recién nacido')(Math.floor(diff(hoy(),c.nac)/30.44))):'',cat===c.categoria?'':c.categoria,c.camada?'Camada '+c.camada:'',c.venta&&cat!=='__venta'?'A la venta':'',enDescanso(c)?textoDescanso(c).linea:(trabajoLinea(c)),c.estado!=='Activo'?c.estado+(c.bajaFecha?' '+fmt(c.bajaFecha):'')+(c.bajaPrecio?' · '+c.bajaPrecio:'')+(c.bajaComprador?' · a '+c.bajaComprador:''):''].filter(Boolean).join(' · ');
      return `<button class="hcard ${esc(c.sexo)} ${c.estado!=='Activo'?'baja':''}" data-${sel?'pick':'open'}="${c.id}">
       ${sel?`<input type="checkbox" tabindex="-1" ${sel.has(c.id)?'checked':''}>`:''}
       ${c.fotos?.length?imgEnc(c,c.fotos[0],'thumb'):''}
@@ -83,7 +83,6 @@ EXTRA_ACTS.drop=d=>{UI.drop=UI.drop===d.d?null:d.d;render()};
 EXTRA_ACTS.fcat=d=>{UI.drop=null;if(d.v==='__padrillos'){UI.tab='padrillos';render();window.scrollTo(0,0);return}UI.subCam=null;if(d.v==='__bajas'){UI.bajas=true;UI.cat=''}else{UI.bajas=false;UI.cat=d.v}render()};
 EXTRA_ACTS.flug=d=>{UI.drop=null;UI.lugar=d.v;render()};
 EXTRA_ACTS.subcam=d=>{UI.subCam=d.v?+d.v:null;render()};
-EXTRA_ACTS.lupa=()=>{if(UI.buscar&&!UI.q){UI.buscar=false;render();return}UI.buscar=true;render();const q=$('#q');q&&q.focus()};
 
 /* ================= Ficha del caballo ================= */
 const GRUPO_EV={'Parición':['Reproducción','#D9822B'],'Revisión':['Reproducción','#D9822B'],'Tacto / Eco':['Preñez','#C2307E'],'Aborto':['Preñez','#C2307E'],
