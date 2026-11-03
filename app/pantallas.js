@@ -154,31 +154,38 @@ function renderFicha(){
   const tbE=tabsSec('ev',[['hist','Historial'],['mov','Movimientos'],['todos','Todos']]);
   const evsF=evs.filter(x=>tbE.v==='todos'?true:tbE.v==='mov'?x.tipo==='Movimiento':x.tipo!=='Movimiento');
   const kE='ev-'+c.id+'-'+tbE.v;
+  // Bloques de la ficha. El orden depende de la categoría (pedido de Tomás el 3/11): lo que más se mira arriba, las acciones abajo.
+  const b_port=`${portadaFicha(c)}`;
+  const b_pr1=`${c.premios?.length?seccionPremios(c,polo):''}`;
+  const b_datos=`${sec('Datos','',`<div class="kvl">${datos.map(([k,v])=>`<div><span>${k}</span><b>${esc(v||'—')}</b></div>`).join('')}</div>`)}`;
+  const b_etapa=`${botonesEtapa(c)}`;
+  const b_baja=`${!activo?sec('Baja','',`<div class="kvl"><div><span>Motivo</span><b>${esc(c.estado)}</b></div><div><span>Fecha</span><b>${fmt(c.bajaFecha)}</b></div>${c.bajaPrecio?`<div><span>Precio</span><b>${esc(c.bajaPrecio)}</b></div>`:''}${c.bajaComprador?`<div><span>Comprador</span><b>${esc(c.bajaComprador)}</b></div>`:''}${c.bajaObs?`<div><span>Detalle</span><b>${esc(c.bajaObs)}</b></div>`:''}</div>`):''}`;
+  const b_desc=`${enDescanso(c)&&activo?seccionDescanso(c):''}`;
+  const b_repro=`${esMadre(c)?seccionPrenez(c)+seccionServicios(c):''}`;
+  const b_polo=`${polo?sec('Polo','',`<div class="prac"><b>${practicas(c)}</b><div class="grow" style="flex:1">prácticas<div class="small muted">${(u=>u?'Última: '+fmt(u.fecha):'Sin prácticas cargadas')(ultimoDe('Práctica'))}</div></div>${canWrite?`<button class="btn" data-act="menos" data-t="Práctica" data-id="${c.id}" aria-label="Restar una práctica">−1</button><button class="btn pri" data-prac="${c.id}" aria-label="Sumar una práctica">+1</button>`:''}</div>
+      <div class="prac"><b>${torneos(c)}</b><div class="grow" style="flex:1">torneos<div class="small muted">${(u=>u?'Último: '+fmt(u.fecha)+(u.obs?' · '+esc(u.obs):''):'Sin torneos cargados')(ultimoDe('Torneo'))}</div></div>${canWrite?`<button class="btn" data-act="menos" data-t="Torneo" data-id="${c.id}" aria-label="Restar un torneo">−1</button><button class="btn pri" data-act="torneoForm" data-id="${c.id}" aria-label="Sumar un torneo">+1</button>`:''}</div>${enDescanso(c)?'':bloqueRitmo(c)}`):''}`;
+  const b_pr2=`${c.premios?.length?'':seccionPremios(c,polo)}`;
+  const b_san=`${activo?seccionControles(c,evs,'san','Sanidad',['Desparasitación'],['Desparasitación','Vacuna','Anemia','Veterinario']):''}`;
+  const b_trab=`${activo?seccionControles(c,evs,'trab','Trabajos',['Desvasada','Herrada','Muelas'],['Desvasada','Herrada','Desherrada','Muelas','Castración']):''}`;
+  const b_ev=`${sec('Eventos',canWrite?`<button class="btn sm pri" data-evento="${c.id}">+ Evento</button>`:'',tbE.html+(evsF.length?`<div class="tlw">${filaEv(evsF[0])}</div>${evsF.length>1?`<details class="desp mas" data-k="${kE}" ${UI.abiertos?.has(kE)?'open':''}><summary><div class="grow">Ver todos (${evsF.length})</div><span class="go">›</span></summary><div class="tlw">${evsF.slice(1).map(filaEv).join('')}</div></details>`:''}`:`<div class="muted small">${tbE.v==='mov'?'Sin movimientos registrados.':'Sin eventos registrados.'}</div>`))}`;
+  const b_ped=!(c.padre||c.madre)?sec('Pedigree',canWrite?`<button class="btn sm" data-edit="${c.id}">Cargar padres</button>`:'','<div class="muted small">Padre y madre sin cargar.</div>'):`${sec('Pedigree',`<div class="row"><button class="btn sm" data-act="pedShare" data-id="${c.id}">Compartir</button>${canWrite?`<button class="btn sm" data-edit="${c.id}">Editar</button>`:''}</div>`,`<div class="treewrap">${arbol4(c,padre,madre)}</div><p class="note" style="margin:6px 0 0">Deslizá para ver los bisabuelos. Tocá un caballo para abrir su ficha.</p>`)}`;
+  const b_prog=`${progenieSec(c,hijos)}`;
+  const b_herm=`${herm.length?sec('Hermanos (misma madre)','',`<div class="small">${herm.map(h=>`<span class="a" data-open="${h.id}">${esc(h.nombre)}</span>${h.estado!=='Activo'?' ('+esc(h.estado.toLowerCase())+')':''}`).join(' · ')}</div>`):''}`;
+  const b_med=`${seccionMedios(c)}`;
+  const b_fb=`${canWrite?`<div class="fbtns"><button class="btn ancho" data-edit="${c.id}">Editar datos</button>
+      ${c.venta&&activo?`<button class="btn ancho" data-venta="${c.id}">Ficha de venta</button>`:''}
+      ${activo?`<button class="btn ancho danger" data-baja="${c.id}">Dar de baja</button>`:`<button class="btn ancho" data-alta-de-nuevo="${c.id}">Volver a activo</button>`}</div>`:''}`;
+  const b_senas=`${c.obs||c.embocadura?`<div class="senas">${c.obs?`<div><span>Observación</span>${esc(c.obs)}</div>`:''}${c.embocadura?`<div><span>Embocadura</span>${esc(c.embocadura)}</div>`:''}</div>`:''}`;
+  const cambiar=botonesEtapa(c)?`<details class="desp acc" data-k="cat-${c.id}" ${UI.abiertos?.has('cat-'+c.id)?'open':''}><summary><div class="grow">Cambiar categoría o lugar<div class="sub">Pasar a…, mandar a descanso, otra categoría</div></div><span class="go">›</span></summary>${b_etapa}</details>`:'';
+  const madreF=esMadre(c),poloF=polo||enDescanso(c);
+  const orden=[b_port,b_pr1,b_baja,b_senas,b_datos,...(madreF?[b_repro,b_ped,b_prog,b_herm,b_san,b_trab]:[b_ped]),
+    ...(madreF?[]:poloF?[b_desc,b_polo,b_pr2,b_trab,b_san,b_herm,b_prog]:[b_san,b_trab,b_herm,b_prog]),
+    b_ev,b_med,cambiar,b_fb];
   $('#modal').innerHTML=`<div class="ov"><div class="sheet" role="dialog" aria-label="Ficha">
    <div class="sheet-h"><h2>${esc(c.nombre)}</h2><button class="x" data-act="close" aria-label="Volver">×</button></div>
    <div class="sheet-b">
-    <div class="row fpills"><span class="pill p-none">${esc(c.categoria)}</span>${c.lugar?`<span class="pill p-none">${esc(c.lugar)}</span>`:''}${c.venta?'<span class="pill p-venta">A la venta</span>':''}${c.premios?.length?`<span class="pill p-premio">★ ${plural(c.premios.length,'premio','premios')}</span>`:''}${!activo?`<span class="pill p-bad">${esc(c.estado)}${c.bajaFecha?' '+fmt(c.bajaFecha):''}</span>`:''}</div>
-    ${c.obs||c.embocadura?`<div class="senas">${c.obs?`<div><span>Observación</span>${esc(c.obs)}</div>`:''}${c.embocadura?`<div><span>Embocadura</span>${esc(c.embocadura)}</div>`:''}</div>`:''}
-    ${portadaFicha(c)}
-    ${c.premios?.length?seccionPremios(c,polo):''}
-    ${sec('Datos','',`<div class="kvl">${datos.map(([k,v])=>`<div><span>${k}</span><b>${esc(v||'—')}</b></div>`).join('')}</div>`)}
-    ${botonesEtapa(c)}
-    ${!activo?sec('Baja','',`<div class="kvl"><div><span>Motivo</span><b>${esc(c.estado)}</b></div><div><span>Fecha</span><b>${fmt(c.bajaFecha)}</b></div>${c.bajaPrecio?`<div><span>Precio</span><b>${esc(c.bajaPrecio)}</b></div>`:''}${c.bajaComprador?`<div><span>Comprador</span><b>${esc(c.bajaComprador)}</b></div>`:''}${c.bajaObs?`<div><span>Detalle</span><b>${esc(c.bajaObs)}</b></div>`:''}</div>`):''}
-    ${enDescanso(c)&&activo?seccionDescanso(c):''}
-    ${esMadre(c)?seccionServicios(c)+seccionPrenez(c):''}
-    ${polo?sec('Polo','',`<div class="prac"><b>${practicas(c)}</b><div class="grow" style="flex:1">prácticas<div class="small muted">${(u=>u?'Última: '+fmt(u.fecha):'Sin prácticas cargadas')(ultimoDe('Práctica'))}</div></div>${canWrite?`<button class="btn" data-act="menos" data-t="Práctica" data-id="${c.id}" aria-label="Restar una práctica">−1</button><button class="btn pri" data-prac="${c.id}" aria-label="Sumar una práctica">+1</button>`:''}</div>
-      <div class="prac"><b>${torneos(c)}</b><div class="grow" style="flex:1">torneos<div class="small muted">${(u=>u?'Último: '+fmt(u.fecha)+(u.obs?' · '+esc(u.obs):''):'Sin torneos cargados')(ultimoDe('Torneo'))}</div></div>${canWrite?`<button class="btn" data-act="menos" data-t="Torneo" data-id="${c.id}" aria-label="Restar un torneo">−1</button><button class="btn pri" data-act="torneoForm" data-id="${c.id}" aria-label="Sumar un torneo">+1</button>`:''}</div>${enDescanso(c)?'':bloqueRitmo(c)}`):''}
-    ${c.premios?.length?'':seccionPremios(c,polo)}
-    ${activo?seccionControles(c,evs,'san','Sanidad',['Desparasitación'],['Desparasitación','Vacuna','Anemia','Veterinario']):''}
-    ${activo?seccionControles(c,evs,'trab','Trabajos',['Desvasada','Herrada','Muelas'],['Desvasada','Herrada','Desherrada','Muelas','Castración']):''}
-    ${sec('Eventos',canWrite?`<button class="btn sm pri" data-evento="${c.id}">+ Evento</button>`:'',tbE.html+(evsF.length?`<div class="tlw">${filaEv(evsF[0])}</div>${evsF.length>1?`<details class="desp mas" data-k="${kE}" ${UI.abiertos?.has(kE)?'open':''}><summary><div class="grow">Ver todos (${evsF.length})</div><span class="go">›</span></summary><div class="tlw">${evsF.slice(1).map(filaEv).join('')}</div></details>`:''}`:`<div class="muted small">${tbE.v==='mov'?'Sin movimientos registrados.':'Sin eventos registrados.'}</div>`))}
-    ${sec('Pedigree',`<div class="row"><button class="btn sm" data-act="pedShare" data-id="${c.id}">Compartir</button>${canWrite?`<button class="btn sm" data-edit="${c.id}">Editar</button>`:''}</div>`,`<div class="treewrap">${arbol4(c,padre,madre)}</div><p class="note" style="margin:6px 0 0">Deslizá para ver los bisabuelos. Tocá un caballo para abrir su ficha.</p>`)}
-    ${progenieSec(c,hijos)}
-    ${herm.length?sec('Hermanos (misma madre)','',`<div class="small">${herm.map(h=>`<span class="a" data-open="${h.id}">${esc(h.nombre)}</span>${h.estado!=='Activo'?' ('+esc(h.estado.toLowerCase())+')':''}`).join(' · ')}</div>`):''}
-    ${seccionMedios(c)}
-    ${canWrite?`<div class="fbtns"><button class="btn ancho" data-edit="${c.id}">Editar datos</button>
-      ${c.venta&&activo?`<button class="btn ancho" data-venta="${c.id}">Ficha de venta</button>`:''}
-      ${activo?`<button class="btn ancho danger" data-baja="${c.id}">Dar de baja</button>`:`<button class="btn ancho" data-alta-de-nuevo="${c.id}">Volver a activo</button>`}</div>`:''}
+    <div class="row fpills"><span class="pill p-none">${esc(c.categoria)}</span>${c.lugar?`<span class="pill p-none">${esc(c.lugar)}</span>`:''}${activo&&trabajoLinea(c)?`<span class="pill p-none">${esc(trabajoLinea(c))}</span>`:''}${c.venta?'<span class="pill p-venta">A la venta</span>':''}${c.premios?.length?`<span class="pill p-premio">★ ${plural(c.premios.length,'premio','premios')}</span>`:''}${!activo?`<span class="pill p-bad">${esc(c.estado)}${c.bajaFecha?' '+fmt(c.bajaFecha):''}</span>`:''}</div>
+    ${orden.join('\n')}
    </div></div></div>`}
 
 /* ================= Reproducción: nacimiento y aborto ================= */
