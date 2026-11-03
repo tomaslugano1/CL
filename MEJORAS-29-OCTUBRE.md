@@ -309,3 +309,8 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 
 ## Z. Publicación del 2/11 (segunda, Tomás: "vamos a subirlo ya")
 - Datos de la Poderosa (Poderosa Soy, con su sangre hasta los tatarabuelos), el 34 de doma como hembra, y el asistente que contesta quién es cualquier caballo de la biblioteca.
+
+## AA. Premios y fotos arriba (3/11)
+- Premios (Tomás: la Cala y la Contienda ganaron manta): "+ Premio" en la ficha (fecha, torneo, premio, detalle y una de sus fotos). Premios: "Mejor caballo de la final (BPP)" (BPP = Best Playing Pony, como se dice en polo), "Mejor producto", "Mejor caballo del partido" u "Otro premio". Estrellita ★ en la lista, "★ N premios" arriba de la ficha y la sección Premios abajo de las fotos. El asistente contesta "¿qué premios ganó la Contienda?", "¿quiénes ganaron manta?". Sheet: columna PREMIOS en CABALLOS (la llena el script).
+- Arriba de la ficha, la portada se desliza para pasar a las otras fotos (con puntitos y "2 / 5"); tocarla la abre en grande.
+- Falta: los datos de los premios de la Cala y la Contienda (torneo, fecha, premio).

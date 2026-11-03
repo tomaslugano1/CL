@@ -30,6 +30,12 @@ function seccionMedios(c){const ed=!!(assets&&canWrite),fotos=c.fotos||[],vids=c
       :`<div class="vlink"><a href="${esc(v.url)}" target="_blank" rel="noopener"><span class="vplay" aria-hidden="true">▶</span><span class="grow"><b>${esc(v.titulo||'Video')}</b><span class="small muted">${esc(dominio(v.url))}${v.fecha?' · '+fmt(v.fecha):''}</span></span></a>${del(k)}</div>`).join('')}</div>`:'';
   const vacio=!fotos.length&&!vids.length?`<div class="muted small">${ed?'Todavía no hay fotos ni videos. Con “+ Foto” podés sacarla con el celular.':'Sin fotos.'}</div>`:'';
   return sec('Fotos y videos','',botones+gal+vs+vacio)}
+/* Arriba de la ficha: la portada, y si hay más fotos se pasa deslizando (con puntitos); tocar la abre en grande */
+function portadaFicha(c){const fs=c.fotos||[];if(!fs.length)return '';
+  return `<div class="pcar-w"><div class="pcar" data-pcar="${c.id}">${fs.map((f,k)=>`<button type="button" class="pslide" data-act="mVer" data-id="${c.id}" data-k="${k}" aria-label="Foto ${k+1} de ${fs.length}, ver en grande">${imgEnc(c,f,'cover',k?'':c.nombre)}</button>`).join('')}</div>
+    ${fs.length>1?`<span class="pcount">1 / ${fs.length}</span><div class="pdots" aria-hidden="true">${fs.map((_,k)=>`<i class="${k?'':'on'}"></i>`).join('')}</div>`:''}</div>`}
+document.addEventListener('scroll',e=>{const el=e.target;if(!el.dataset?.pcar)return;const n=el.children.length,k=Math.round(el.scrollLeft/Math.max(1,el.clientWidth));
+  const w=el.parentElement,cnt=w.querySelector('.pcount');if(cnt)cnt.textContent=`${k+1} / ${n}`;w.querySelectorAll('.pdots i').forEach((d,i)=>d.classList.toggle('on',i===k))},true);
 const dominio=u=>{try{return new URL(u).hostname.replace(/^www\./,'')}catch(e){return ''}};
 
 /* ---------- ver en grande ---------- */
@@ -142,6 +148,14 @@ EXTRA_ACTS.mDelVid=async(d,t)=>{const c=byId(d.id),k=+d.k,v=(c?.videos||[])[k];i
 .gfoto:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 .gport{position:absolute;left:6px;bottom:6px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff}
 .gal+p{margin-top:6px!important}
+.pcar-w{position:relative}
+.pcar{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;border-radius:var(--r);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.pcar::-webkit-scrollbar{display:none}
+.pslide{flex:0 0 100%;scroll-snap-align:center;padding:0;border:0;background:none;cursor:zoom-in}
+.pslide .encw.cover{border-radius:0}
+.pcount{position:absolute;top:10px;right:10px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff;pointer-events:none}
+.pdots{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:6px;pointer-events:none}
+.pdots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 2px rgba(0,0,0,.5)}.pdots i.on{background:#fff}
 .msel{align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px}.msel .grow{flex:1}
 .gfoto.eligiendo .gimg{opacity:.75}.gfoto.elegida .gimg{opacity:1;outline:3px solid var(--bad);outline-offset:-3px}
 .gtick{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:700;background:rgba(255,255,255,.85);color:transparent;border:2px solid rgba(0,0,0,.35)}

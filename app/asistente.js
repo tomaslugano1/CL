@@ -110,7 +110,7 @@ function quienes(q){const out=[];let t=limpio(q);
   out.sort((a,b)=>pos(a)-pos(b));out.resto=t;return out}
 /* Errores de tipeo: "hijso", "hermnos", "prenadas", "sicodelica"… Se corrige cada palabra a la más parecida
    (una letra de diferencia; dos si la palabra es larga). Primero contra los nombres de los caballos, después contra las palabras que entiende. */
-const VOCAB=('HERRADO HERRADOS HERRADA HERRADAS DESHERRADO DESHERRADA CASTRADO CASTRADOS DESPARASITADO DESPARASITADOS DESPARASITADAS ALAZANES ALAZANAS ZAINOS ZAINAS TORDILLOS TORDILLAS TOBIANOS TOBIANAS OSCUROS OSCURAS COLORADOS MOROS MORAS RUANOS RUANAS VIEJOS JOVENES EMBRION EMBRIONES RECEPTORA RECEPTORAS NIETOS NIETAS NIETO NIETA DESCENDIENTES SANGRE PROMEDIO MOVIMIENTOS MOVIO HIJOS HIJAS HIJO HIJA HERMANOS HERMANAS HERMANO HERMANA PADRE MADRE PADRES ABUELO ABUELA ABUELOS PATERNO PATERNA MATERNO MATERNA '+
+const VOCAB=('PREMIO PREMIOS PREMIADO PREMIADA PREMIADOS MANTA MANTAS GANO GANARON HERRADO HERRADOS HERRADA HERRADAS DESHERRADO DESHERRADA CASTRADO CASTRADOS DESPARASITADO DESPARASITADOS DESPARASITADAS ALAZANES ALAZANAS ZAINOS ZAINAS TORDILLOS TORDILLAS TOBIANOS TOBIANAS OSCUROS OSCURAS COLORADOS MOROS MORAS RUANOS RUANAS VIEJOS JOVENES EMBRION EMBRIONES RECEPTORA RECEPTORAS NIETOS NIETAS NIETO NIETA DESCENDIENTES SANGRE PROMEDIO MOVIMIENTOS MOVIO HIJOS HIJAS HIJO HIJA HERMANOS HERMANAS HERMANO HERMANA PADRE MADRE PADRES ABUELO ABUELA ABUELOS PATERNO PATERNA MATERNO MATERNA '+
   'PREÑADA PREÑADAS PARTO PARTOS NACIMIENTO NACIMIENTOS NACIO NACIERON NACIDOS PARIERON PARIDAS PARIO EVENTOS HISTORIAL DESPARASITACION DESPARASITAR '+
   'DESVASE DESVASAR DESVASADA HERRADA HERRAR HERRERO VACUNA VACUNAS AGARRADOS AGARRADAS AGARRADO AGARRADA SUELTOS SUELTAS SUELTO SUELTA VENTA VENDIDOS '+
   'VENDIDAS MUERTOS MUERTAS FOTOS PADRILLO PADRILLOS CUANTOS CUANTAS JUGADORES POTRILLOS MADRES DOMA DESCANSO HECHURA EDAD CHIP PELAJE CAMADA ULTIMO '+
@@ -372,6 +372,12 @@ function respuestasDeUso(q0,qc){const r={txt:'',cards:[],sug:[]},nq=norm(qc),tAc
   // lugares: "¿dónde están los caballos?", "lugares"
   if(!c&&tiene(nq,/^(LOS )?LUGARES$|DONDE ESTAN (LOS|LAS|TODOS|TODAS)( CABALLOS| YEGUAS)?$|EN QUE LUGARES|POR LUGAR|CUANTOS (HAY )?EN CADA LUGAR/)){const l=activos(),por={};for(const x of l){const k=x.lugar||'Sin lugar';(por[k]=por[k]||[]).push(x)}
     r.txt=`La manada por lugar:`;r.lista=Object.entries(por).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>`${k}: ${plural(v.length,'caballo','caballos')} (${CATS.filter(cat=>v.some(x=>x.categoria===cat)).map(cat=>v.filter(x=>x.categoria===cat).length+' '+cat.toLowerCase()).join(', ')})`);return r}
+  // premios: "¿qué premios ganó la Contienda?", "¿quiénes ganaron manta?", "BPP"
+  if(tiene(nq,/PREMI|\bBPP\b|MANTA|MEJOR (CABALLO|PRODUCTO|EJEMPLAR)|BEST PLAYING|DESTACAD|GANO|GANARON/)&&!tiene(nq,/HERR|VEND|VENTA/)){
+    if(c){const l=premiosDe(c);r.txt=l.length?`${c.nombre} ganó ${plural(l.length,'premio','premios')} ★`:`${c.nombre} no tiene premios cargados.`;r.lista=l.map(premioTxt);r.cards=[c];return r}
+    const l=S.caballos.filter(x=>x.premios?.length).sort((a,b)=>(premiosDe(b)[0]?.fecha||'').localeCompare(premiosDe(a)[0]?.fecha||''));
+    r.txt=l.length?`Ganaron premios: ${l.length} ${l.length===1?'caballo':'caballos'} ★`:'Todavía no hay premios cargados. Se cargan en la ficha, con “+ Premio”.';r.cards=l;
+    r.meta=Object.fromEntries(l.map(x=>[x.id,premiosDe(x).map(premioTxt).join(' · ')]));return r}
   // un caballo de la biblioteca de genealogías ("¿quién es Forli?"): sus datos y en la sangre de quién aparece
   {const lq=limpio(qc)+' '+limpio(q0),corto=n=>n.replace(/ \([A-Z]+\)$/,''),k=[...PED_LIB.keys()].filter(n=>lq.includes(' '+n+' ')||lq.includes(' '+corto(n)+' ')).sort((a,b)=>b.length-a.length)[0]; // también la pregunta sin corregir ("Capo" no es "campo")
     // el nombre completo de la biblioteca gana sobre un caballo que coincide solo en una palabra ("Capo Máximo" no es MÁXIMO)

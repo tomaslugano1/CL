@@ -42,7 +42,8 @@ function filasCaballos(D) {
     'NOMBRE': c.nombre, 'RP': o(c.rp), 'N° CHIP': o(c.chip), 'CATEGORÍA': /^afuera/i.test(c.lugar || '') ? 'Afuera (a la venta)' : c.categoria, 'SEXO': o(c.sexo), 'PELAJE': o(c.pelaje),
     'FECHA NAC.': c.nac ? fecha(c.nac) : '—', 'CAMADA': c.camada || '—', 'PADRE': o(c.padre), 'MADRE': o(c.madre),
     'OBSERVACIÓN': [c.obs, c.categoria === 'Descanso' && c.descansoDesde ? 'En descanso desde ' + ddmm(c.descansoDesde) + (c.descansoHasta ? ', volver a agarrar ' + ddmm(c.descansoHasta) : '') : ''].filter(Boolean).join(' · '),
-    'EMBOCADURA': c.embocadura || '', 'APODO / OTRO NOMBRE': c.apodo || '' }));
+    'EMBOCADURA': c.embocadura || '', 'APODO / OTRO NOMBRE': c.apodo || '',
+    'PREMIOS': (c.premios || []).map(p => '★ ' + [p.premio, p.torneo, p.fecha ? fecha(p.fecha) : ''].filter(Boolean).join(' · ')).join(' | ') }));
 }
 
 function filasBajas(D) {

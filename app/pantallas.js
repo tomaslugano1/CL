@@ -73,7 +73,7 @@ function vCaballos(){
      return `<button class="hcard ${esc(c.sexo)} ${c.estado!=='Activo'?'baja':''}" data-${sel?'pick':'open'}="${c.id}">
       ${sel?`<input type="checkbox" tabindex="-1" ${sel.has(c.id)?'checked':''}>`:''}
       ${c.fotos?.length?imgEnc(c,c.fotos[0],'thumb'):''}
-      <div class="grow"><div class="nm">${esc(c.nombre)} ${preñadaAhora(c)?ICO_PRENADA:''} ${c.ritmo&&['Hechura','Jugadores'].includes(c.categoria)&&!['normal','fuerte'].includes(c.ritmo)?`<span class="pill p-none">${esc(RITMOS.find(r=>r[0]===c.ritmo)?.[1]||'')}</span>`:''}</div>
+      <div class="grow"><div class="nm">${esc(c.nombre)} ${c.premios?.length?ICO_PREMIO:''}${preñadaAhora(c)?ICO_PRENADA:''} ${c.ritmo&&['Hechura','Jugadores'].includes(c.categoria)&&!['normal','fuerte'].includes(c.ritmo)?`<span class="pill p-none">${esc(RITMOS.find(r=>r[0]===c.ritmo)?.[1]||'')}</span>`:''}</div>
       <div class="meta">${esc(meta)}</div>${c.obs&&['Doma','Potrillos'].includes(c.categoria)?`<div class="obsl">${esc(c.obs)}</div>`:''}</div>
       ${c.estado==='Activo'&&enCampo(c)?`<div class="dots" title="Desparasitación · Desvasada">${ds.map(s=>`<span class="dot d-${s.st}"></span>`).join('')}</div>`:''}
       ${sel?'':'<span class="go">›</span>'}</button>`}).join('')||'<div class="empty">No hay caballos en esta categoría.</div>'}</div>
@@ -157,9 +157,10 @@ function renderFicha(){
   $('#modal').innerHTML=`<div class="ov"><div class="sheet" role="dialog" aria-label="Ficha">
    <div class="sheet-h"><h2>${esc(c.nombre)}</h2><button class="x" data-act="close" aria-label="Volver">×</button></div>
    <div class="sheet-b">
-    <div class="row fpills"><span class="pill p-none">${esc(c.categoria)}</span>${c.lugar?`<span class="pill p-none">${esc(c.lugar)}</span>`:''}${c.venta?'<span class="pill p-venta">A la venta</span>':''}${!activo?`<span class="pill p-bad">${esc(c.estado)}${c.bajaFecha?' '+fmt(c.bajaFecha):''}</span>`:''}</div>
+    <div class="row fpills"><span class="pill p-none">${esc(c.categoria)}</span>${c.lugar?`<span class="pill p-none">${esc(c.lugar)}</span>`:''}${c.venta?'<span class="pill p-venta">A la venta</span>':''}${c.premios?.length?`<span class="pill p-premio">★ ${plural(c.premios.length,'premio','premios')}</span>`:''}${!activo?`<span class="pill p-bad">${esc(c.estado)}${c.bajaFecha?' '+fmt(c.bajaFecha):''}</span>`:''}</div>
     ${c.obs||c.embocadura?`<div class="senas">${c.obs?`<div><span>Observación</span>${esc(c.obs)}</div>`:''}${c.embocadura?`<div><span>Embocadura</span>${esc(c.embocadura)}</div>`:''}</div>`:''}
-    ${c.fotos?.length?imgEnc(c,c.fotos[0],'cover',c.nombre):''}
+    ${portadaFicha(c)}
+    ${c.premios?.length?seccionPremios(c,polo):''}
     ${sec('Datos','',`<div class="kvl">${datos.map(([k,v])=>`<div><span>${k}</span><b>${esc(v||'—')}</b></div>`).join('')}</div>`)}
     ${botonesEtapa(c)}
     ${!activo?sec('Baja','',`<div class="kvl"><div><span>Motivo</span><b>${esc(c.estado)}</b></div><div><span>Fecha</span><b>${fmt(c.bajaFecha)}</b></div>${c.bajaPrecio?`<div><span>Precio</span><b>${esc(c.bajaPrecio)}</b></div>`:''}${c.bajaComprador?`<div><span>Comprador</span><b>${esc(c.bajaComprador)}</b></div>`:''}${c.bajaObs?`<div><span>Detalle</span><b>${esc(c.bajaObs)}</b></div>`:''}</div>`):''}
@@ -167,6 +168,7 @@ function renderFicha(){
     ${esMadre(c)?seccionServicios(c)+seccionPrenez(c):''}
     ${polo?sec('Polo','',`<div class="prac"><b>${practicas(c)}</b><div class="grow" style="flex:1">prácticas<div class="small muted">${(u=>u?'Última: '+fmt(u.fecha):'Sin prácticas cargadas')(ultimoDe('Práctica'))}</div></div>${canWrite?`<button class="btn" data-act="menos" data-t="Práctica" data-id="${c.id}" aria-label="Restar una práctica">−1</button><button class="btn pri" data-prac="${c.id}" aria-label="Sumar una práctica">+1</button>`:''}</div>
       <div class="prac"><b>${torneos(c)}</b><div class="grow" style="flex:1">torneos<div class="small muted">${(u=>u?'Último: '+fmt(u.fecha)+(u.obs?' · '+esc(u.obs):''):'Sin torneos cargados')(ultimoDe('Torneo'))}</div></div>${canWrite?`<button class="btn" data-act="menos" data-t="Torneo" data-id="${c.id}" aria-label="Restar un torneo">−1</button><button class="btn pri" data-act="torneoForm" data-id="${c.id}" aria-label="Sumar un torneo">+1</button>`:''}</div>${enDescanso(c)?'':bloqueRitmo(c)}`):''}
+    ${c.premios?.length?'':seccionPremios(c,polo)}
     ${activo?seccionControles(c,evs,'san','Sanidad',['Desparasitación'],['Desparasitación','Vacuna','Anemia','Veterinario']):''}
     ${activo?seccionControles(c,evs,'trab','Trabajos',['Desvasada','Herrada','Muelas'],['Desvasada','Herrada','Desherrada','Muelas','Castración']):''}
     ${sec('Eventos',canWrite?`<button class="btn sm pri" data-evento="${c.id}">+ Evento</button>`:'',tbE.html+(evsF.length?`<div class="tlw">${filaEv(evsF[0])}</div>${evsF.length>1?`<details class="desp mas" data-k="${kE}" ${UI.abiertos?.has(kE)?'open':''}><summary><div class="grow">Ver todos (${evsF.length})</div><span class="go">›</span></summary><div class="tlw">${evsF.slice(1).map(filaEv).join('')}</div></details>`:''}`:`<div class="muted small">${tbE.v==='mov'?'Sin movimientos registrados.':'Sin eventos registrados.'}</div>`))}
