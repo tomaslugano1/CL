@@ -79,6 +79,17 @@ const PEDIGRIS={
   'FORLI':['','','1963-08-10','Macho'],'EMPRESS ZOE':['','','1972','Hembra'],'NEUROLOGO':['','','1965','Macho'],'VERUSHKA':['','','1968','Hembra'],
   'TOM ROLFE (USA)':['','','1962','Macho'],'SALINE':['','','1962','Hembra'],'SOLAZO':['','','1959','Macho'],'BOANZA':['','','1965','Hembra'],
   'MALAMBO':['','','1954','Macho'],'LA PILLADA':['','','1954','Hembra'],'SNOW ROYAL':['','','1965','Macho'],'LARDITA':['','','1969','Hembra'],
+  // ---- Taita Iluso: padre del padrillo de la doma de Piri (captura de Polo Argentino que mandó Tomás el 3/11/2026) ----
+  // La madre del padrillo de la doma es POLITO 29: de ella no se sabe nada.
+  'TAITA ILUSO':['LAVINIA NAIPE','GRAPPA ILUSA','2009-12-17','Macho','Zaino','Magrini, Juan Cruz'],
+  'LAVINIA NAIPE':['ELLERSTINA PICARO','RULETA','2002','Macho','Zaino',''],
+  'GRAPPA ILUSA':['RAINBOW CORNER','ILUSION','2002','Hembra','Zaino',''],
+  'ELLERSTINA PICARO':['PUCARA','SIMPATICA','1995','Macho','Zaino',''],
+  // El padre de Ruleta figura como "Rainbow Corner", pero no puede ser el de 2000 (Ruleta es de 1995): va aparte para no mezclar abuelos
+  'RULETA':['RAINBOW CORNER (PADRE DE RULETA)','RUSSIA','1995','Hembra','Alazán',''],
+  'ILUSION':['CAT MAN','PIMIENTA','','Hembra','Alazán',''],
+  'RAINBOW QUEST':['','','','Macho'],'KINGSCOTE':['','','','Hembra'],'PUCARA':['','','','Macho'],'SIMPATICA':['','','','Hembra'],
+  'RAINBOW CORNER (PADRE DE RULETA)':['','','','Macho'],'RUSSIA':['','','','Hembra'],'CAT MAN':['','','','Macho'],'PIMIENTA':['','','','Hembra'],
 };
 /* Otras formas de escribir el mismo caballo (como aparece en las fichas o en las planillas) */
 const ALIAS_PEDIGRI={'HULK':'DOLFINA HULK','DON URBANO MEREQUETENGUE':'DON URBANO MEREQUETENGE','D.U. MEREQUETENGE':'DON URBANO MEREQUETENGE',

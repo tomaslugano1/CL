@@ -331,3 +331,7 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Paranoica, Blusera y Psicodélica (descanso): preñez no buscada en la doma de Piri, padrillo nuevo "PADRILLO DE LA DOMA (PIRI)" (Taita Iluso × Polito 29). Servicio aprox. 15/12/2025 → FPP aprox. 15/11/2026. Revisión 1/11: panza y ubre grandes.
 - Sheet: PREÑECES, CAMADA 2026 y PADRILLOS cargados a mano. El script ahora muestra en PREÑECES cualquier yegua con servicio (no solo la categoría Madres) y escribe las fechas a medianoche (antes quedaban un día antes). Zona horaria del Sheet pasada a Argentina.
 - Paranoica, Blusera y Psicodélica pasan de Descanso a Madres (3/11/2026) mientras crían; nota pendiente para julio 2027: al destetar, vuelven a Hechura. Con esto el script viejo del Sheet ya las muestra en PREÑECES (no hace falta volver a pegarlo).
+- Sangre del Taita Iluso (padre del padrillo de la doma) en la biblioteca de genealogías y en la pestaña GENEALOGÍAS. Madre del padrillo: Polito 29 (sin datos).
+
+## AD. Publicación del 3/11 (Tomás: "dale, publicá")
+Se publica todo lo de AB y AC. Versión dc-v56.
