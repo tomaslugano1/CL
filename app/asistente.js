@@ -900,7 +900,7 @@ NAV.rehacer['p:Asistente']=pantallaAsistente;
 /* Botón ✨ flotante */
 {const b=document.createElement('button');b.className='afab';b.type='button';b.dataset.act='asistente';b.setAttribute('aria-label','Asistente');b.innerHTML=ICO_CHISPA;document.body.appendChild(b)}
 {const st=document.createElement('style');st.textContent=`
-.afab{position:fixed;right:16px;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:40;width:58px;height:58px;border-radius:50%;border:0;background:var(--campo);color:var(--on-pri);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}
+.afab{position:fixed;right:16px;bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:40;width:58px;height:58px;border-radius:50%;border:0;background:var(--campo);color:var(--on-pri);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}
 .achat{display:flex;flex-direction:column;gap:10px;padding-bottom:8px}
 .amsg{max-width:88%;border-radius:18px;padding:12px 14px;line-height:1.4}
 .amsg p{margin:0}
