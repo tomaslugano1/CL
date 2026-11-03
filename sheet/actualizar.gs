@@ -22,7 +22,11 @@ const GRUPO_EV = { 'Parición': 'Reproducción', 'Revisión': 'Reproducción', '
 const SIN_EVENTOS = ['Práctica', 'Torneo']; // en el Sheet no van uno por uno
 
 const norm = v => String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().trim();
-const fecha = s => { if (!s) return ''; const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : s; };
+/* La fecha va a medianoche en la zona horaria del Sheet (si no, Google le suma unas horas y los "días al parto" salen con coma). */
+let ZONA_SHEET = null;
+const fecha = s => { if (!s) return ''; const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s); if (!m) return s;
+  ZONA_SHEET = ZONA_SHEET || SpreadsheetApp.getActive().getSpreadsheetTimeZone() || ZONA;
+  return Utilities.parseDate(m[1] + '-' + m[2] + '-' + m[3], ZONA_SHEET, 'yyyy-MM-dd'); };
 const o = v => (v === undefined || v === null || v === '') ? '—' : v;
 const ddmm = s => s ? s.slice(8, 10) + '/' + s.slice(5, 7) + '/' + s.slice(0, 4) : '';
 const precio = v => v === undefined || v === null || v === '' ? '—' : (typeof v === 'number' ? v : String(v));
