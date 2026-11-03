@@ -233,6 +233,28 @@ const AJUSTES={
                         ['CALA',{fecha:'2024-12-30',torneo:'Copa Diario La Nación 2024 · final',premio:'Mejor caballo de la final (BPP)',detalle:'Manta · fecha aproximada'}]]){
       const c=S.caballos.find(x=>norm(x.nombre)===n);if(!c||(c.premios||[]).some(x=>x.torneo===p.torneo))continue;
       await db.collection('caballos').doc(c.id).update({premios:[...(c.premios||[]),{...p,...(c.fotos?.[0]?{foto:c.fotos[0]}:{})}]})}},
+  // 3/11: lo que contó Tomás.
+  // a) El jueves 29/10/2026 confirmaron preñez de la Primadona y la Poderosa. Servicio ≈10 días antes de la eco (19/10, aproximado); falta el padrillo.
+  // b) Paranoica, Blusera y Psicodélica (hechura, en descanso) volvieron de la doma de Piri preñadas por un padrillo que estaba ahí
+  //    (hijo de Taita Iluso y de Polito 29). Se entregaron en dic 2025 / ene 2026; el fin de semana (1/11) se vio panza y ubre grandes: están por parir.
+  //    Servicio aproximado 15/12/2025 → FPP 15/11/2026.
+  'nov-prenez-primadona-poderosa-doma':async()=>{
+    const PAD='PADRILLO DE LA DOMA (PIRI)';
+    if(!S.padrillos.some(p=>norm(p.nombre)===norm(PAD)))
+      await db.collection('padrillos').doc(slugId('p')).set({nombre:PAD,padre:'TAITA ILUSO',madre:'POLITO 29',tipo:'Servicio',
+        obs:'Padrillo sin nombre que estaba en la doma de Piri. Preñó sin buscarlo a la Paranoica, la Blusera y la Psicodélica antes de entregarlas (dic 2025 / ene 2026). De la madre (Polito 29) no se sabe nada.'});
+    const serv=async(n,s,eco,ev)=>{const m=S.caballos.find(x=>norm(x.nombre)===n);if(!m)return;
+      if(S.servicios.some(x=>norm(x.madre)===n&&+x.temporada===s.temporada&&x.estado!=='Vacía'))return; // ya está cargado
+      await db.collection('servicios').doc(slugId('s')).set({madre:m.nombre,madreId:m.id,...s,fpp:addDays(s.fecha,335),...(eco?{ecos:[eco]}:{})});
+      await db.collection('eventos').doc(slugId('e')).set({fecha:s.fecha,caballoId:m.id,caballo:m.nombre,tipo:'Servicio',detalle:'Servicio'+(s.padrillo?' '+s.padrillo:'')+(s.tipo?' ('+s.tipo.toLowerCase()+')':''),obs:'Fecha aproximada',por:uid||''});
+      await db.collection('eventos').doc(slugId('e')).set({caballoId:m.id,caballo:m.nombre,obs:'',por:uid||'',...ev})};
+    for(const n of ['PRIMADONA','PODEROSA'])
+      await serv(n,{fecha:'2026-10-19',padrillo:'',tipo:'',estado:'Preñada',temporada:2027,obs:'Preñez confirmada el 29/10/2026. Fecha de servicio aproximada (≈10 días antes de la eco). Falta el padrillo.'},
+        {fecha:'2026-10-29',resultado:'Preñada',sexo:'',obs:'Preñez confirmada el 29/10'},{fecha:'2026-10-29',tipo:'Tacto / Eco',detalle:'Confirmación de preñez'});
+    for(const n of ['PARANOICA','BLUSERA','PSICODELICA'])
+      await serv(n,{fecha:'2025-12-15',padrillo:PAD,tipo:'Monta natural',estado:'Preñada',temporada:2026,
+        obs:'Preñez no buscada: se preñó en la doma de Piri, justo antes de entregarla (dic 2025 / ene 2026). Fecha de servicio y FPP aproximadas. 1/11/2026: panza y ubre muy grandes, primeriza: está por parir.'},
+        null,{fecha:'2026-11-01',tipo:'Revisión',detalle:'Preñada, por parir',obs:'Panza gigante y ubre muy grande (primeriza). Se preñó en la doma.'})},
 };
 let _ajustando=false;
 async function ajustesUnicos(){if(_ajustando||!canWrite||!db||!window.DC_NUBE_LISTA||!S.loaded.caballos||!S.loaded.eventos||!S.loaded.config||!S.loaded.servicios||!S.caballos.length)return;

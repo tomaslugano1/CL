@@ -325,3 +325,8 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 - Buscador grande arriba del Inicio: muestra hasta 6 caballos mientras se escribe (nombre, número, chip o seña); Enter abre la lista con la búsqueda.
 - Limpieza: se sacaron del código las 21 cargas de datos ya aplicadas (confirmado en los datos reales: todas en config.ajustes).
 - Pendiente de Tomás: instalar el script del Sheet (sheet/LEEME.md).
+
+## AC. Preñeces nuevas (3/11, sin publicar)
+- Ajuste `nov-prenez-primadona-poderosa-doma`: Primadona y Poderosa preñadas (eco 29/10/2026, servicio aprox. 19/10 → FPP 19/09/2027, temporada 2027, falta el padrillo).
+- Paranoica, Blusera y Psicodélica (descanso): preñez no buscada en la doma de Piri, padrillo nuevo "PADRILLO DE LA DOMA (PIRI)" (Taita Iluso × Polito 29). Servicio aprox. 15/12/2025 → FPP aprox. 15/11/2026. Revisión 1/11: panza y ubre grandes.
+- Sheet: PREÑECES, CAMADA 2026 y PADRILLOS cargados a mano. El script ahora muestra en PREÑECES cualquier yegua con servicio (no solo la categoría Madres) y escribe las fechas a medianoche (antes quedaban un día antes). Zona horaria del Sheet pasada a Argentina.

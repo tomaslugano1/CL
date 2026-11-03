@@ -67,7 +67,8 @@ function filasEventos(D) {
 /* Una fila por madre: su servicio más nuevo. Las que murieron este año siguen apareciendo (historia de la temporada). */
 function filasPreneces(D) {
   const t = +D.config.temporada || new Date().getFullYear();
-  const madres = new Set(D.caballos.filter(c => ['Madres', 'Receptoras'].indexOf(c.categoria) >= 0).map(c => norm(c.nombre)));
+  // madres y receptoras, y cualquier yegua con servicio (ej. las de hechura que se preñaron en la doma)
+  const madres = new Set(D.caballos.filter(c => ['Madres', 'Receptoras'].indexOf(c.categoria) >= 0 || c.sexo === 'Hembra').map(c => norm(c.nombre)));
   const ult = {};
   for (const s of D.servicios) {
     const k = norm(s.madre); if (!madres.has(k) || (+s.temporada || 0) < t) continue;
