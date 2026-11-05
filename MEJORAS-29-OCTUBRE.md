@@ -336,7 +336,7 @@ Prácticas, torneos, ritmo de trabajo, apodo, embocadura, **observación y seña
 ## AD. Publicación del 3/11 (Tomás: "dale, publicá")
 Se publica todo lo de AB y AC. Versión dc-v56.
 
-## AE. Pendiente de publicar (se sube con la próxima tanda, para no gastar créditos)
+## AE. Publicado el 5/11 (Tomás: "subilo todo")
 - Botón del asistente un poco más arriba: el cartel "Powered by Netlify" lo tapaba (celular y compu). Versión dc-v57.
 - Fichas para compartir de cualquier caballo (5/11, pedido de Tomás): botón "Compartir ficha" en la ficha de cada uno (foto, edad, RP, chip, lugar, lo de su etapa: doma con quién, preñez, descanso, embocadura, premios; padres y abuelos, sanidad, hermanos).
 - Ver caballos → elegir una categoría (Doma, Madres, Hechura…) → "Fichas": una ficha grande con todo el grupo en una sola imagen y una ficha por caballo, para mandar todas juntas.
@@ -344,3 +344,5 @@ Se publica todo lo de AB y AC. Versión dc-v56.
 - Compartir como cuadro (5/11, Tomás: "una fotito, algo más serio"): botón "Compartir" en Madres (próximos partos, preñadas, paridas, vacías), en "Para hacer esta semana" del Inicio (partos a vigilar y tareas por lugar), en Sanidad (vencidos y por vencer), en Camadas (cualquier año) y en Ver caballos → Fichas ("Cuadro con la lista"). Arma una imagen prolija para WhatsApp; también se puede mandar como texto. Archivo nuevo app/compartir.js.
 - En las fichas, los de Doma no muestran "vencido": su sanidad la maneja el domador (el desvase del 24/02/2026 es del informe del herrero, antes de mandarlos a domar).
 - Ajuste `nov-senas-21-24-27`: 21 tres patas blancas y estrellita en la frente; 24 dos patas blancas; 27 alazán más oscuro.
+
+Se publicó todo lo de AE el 5/11 (versión dc-v57): botón del asistente más arriba, fichas para compartir de cualquier caballo, ficha grande por grupo, cuadros para compartir (madres, semana, sanidad, camadas, listas), recorte de franjas negras y señas del 21, 24 y 27.
