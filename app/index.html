@@ -506,7 +506,7 @@ function vMadres(){
      ${s?`<div class="sub">${s.padrillo?`<b>${esc(s.padrillo)}</b>`:'Sin padrillo'}${s.tipo?' · '+esc(s.tipo):''}${s.fecha?' · servida '+fmt(s.fecha):''}${s.fpp&&st.k==='pre'?' · FPP <b>'+fmt(s.fpp)+'</b>':''}</div>
        ${ue?`<div class="sub">Última eco ${fmt(ue.fecha)}: ${esc(ue.resultado)}${ue.obs?' · '+esc(ue.obs):''}</div>`:''}${barraGest(st)}${s.obs?`<div class="sub muted">${esc(s.obs)}</div>`:''}`:'<div class="sub">No tiene servicio cargado en esta temporada.</div>'}
      <div class="row" style="margin-top:8px">${botonesRepro(s,n,st)}</div></div>`}).join('');
-  return `<div class="head"><h2>Madres · temporada ${t}</h2><div class="row">${canWrite?'<button class="btn pri" data-act="servicio">+ Servicio</button>':''}</div></div>
+  return `<div class="head"><h2>Madres · temporada ${t}</h2><div class="row">${typeof botonComp==='function'?botonComp('madres'):''}${canWrite?'<button class="btn pri" data-act="servicio">+ Servicio</button>':''}</div></div>
   <div class="row" style="margin-bottom:10px">${temps.map(y=>`<button class="chip ${y===t?'on':''}" data-temp="${y}">${y}</button>`).join('')}</div>
   <div class="tiles" style="margin-bottom:14px"><div class="tile"><span>Preñadas</span><b>${cu('pre')}</b></div><div class="tile"><span>Falta eco</span><b>${cu('ser')}</b></div><div class="tile"><span>Vacías</span><b>${cu('vac')}</b></div><div class="tile"><span>Paridas</span><b>${cu('par')}</b></div></div>
   ${cards.includes('class="tg"')?leyendaVentana():''}<div class="mcards">${cards||'<div class="empty">No hay madres cargadas.</div>'}</div>
@@ -518,7 +518,7 @@ function vCamadas(){
   const l=S.caballos.filter(c=>c.camada===y).sort((a,b)=>(a.nac||'9').localeCompare(b.nac||'9'));
   const por=y===t?S.servicios.filter(s=>+s.temporada===y&&s.estado==='Preñada'):[];
   const viv=l.filter(c=>c.estado==='Activo');
-  return `<div class="head"><h2>Camada ${y}</h2></div>
+  return `<div class="head"><h2>Camada ${y}</h2>${typeof botonComp==='function'?botonComp('camada'):''}</div>
   <div class="row" style="margin-bottom:14px">${years.map(x=>`<button class="chip ${x===y?'on':''}" data-camada="${x}">${x}</button>`).join('')}</div>
   <div class="tiles"><div class="tile"><span>Vivos hoy</span><b>${viv.length}</b></div><div class="tile"><span>Machos</span><b>${viv.filter(c=>c.sexo==='Macho').length}</b></div><div class="tile"><span>Hembras</span><b>${viv.filter(c=>c.sexo==='Hembra').length}</b></div>${por.length?`<div class="tile"><span>Por nacer</span><b>${por.length}</b></div>`:''}</div>
   <div class="tablewrap"><table><thead><tr><th>Cría</th><th>Madre</th><th>Padre</th><th>Sexo</th><th>Pelaje</th><th>Nacimiento</th><th>Hoy está en</th><th>Observación</th></tr></thead><tbody>
@@ -531,7 +531,7 @@ function vCamadas(){
 function sanCell(c,t){const s=estadoSan(c,t);if(s.no)return `<td><div>${fmt(s.u)}</div><span class="pill p-none">No se hierra</span></td>`;return `<td><div>${fmt(s.u)}</div>${s.u?`<span class="pill p-${s.st}">${s.txt} · ${fmt(s.p)}</span>`:'<span class="pill p-none">Sin dato</span>'}</td>`}
 function vSanidad(){
   const l=activos().filter(c=>c.categoria!=='Doma'&&!fuera(c)&&(!UI.sanCat||c.categoria===UI.sanCat)).sort(sortCab);const k=S.config;
-  return `<div class="head"><h2>Sanidad y trabajos</h2>${canWrite?'<button class="btn pri" data-act="gosel">+ Cargar a varios</button>':''}</div>
+  return `<div class="head"><h2>Sanidad y trabajos</h2><div class="row">${typeof botonComp==='function'?botonComp('sanidad'):''}${canWrite?'<button class="btn pri" data-act="gosel">+ Cargar a varios</button>':''}</div></div>
   <div class="row" style="margin-bottom:14px">${['',...CATS.filter(c=>c!=='Doma')].map(c=>`<button class="chip ${UI.sanCat===c?'on':''}" data-sancat="${c}">${c||'Todas'}</button>`).join('')}</div>
   <div class="tablewrap"><table><thead><tr><th>Caballo</th><th>Categoría</th><th>Desparasitación</th><th>Desvasada</th><th>Herrada</th><th>Muelas</th></tr></thead><tbody>
   ${l.map(c=>`<tr><td class="link" data-open="${c.id}">${esc(c.nombre)}</td><td>${esc(c.categoria)}${c.ritmo&&['Hechura','Jugadores'].includes(c.categoria)?' · '+esc(RITMOS.find(r=>r[0]===c.ritmo)?.[1]||''):''}</td>${sanCell(c,'Desparasitación')}${sanCell(c,'Desvasada')}${sanCell(c,'Herrada')}${sanCell(c,'Muelas')}</tr>`).join('')}
@@ -823,6 +823,7 @@ let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;ren
 <script src="fotos.js"></script>
 <script src="media.js"></script>
 <script src="premios.js"></script>
+<script src="compartir.js"></script>
 <script src="tablero.js"></script>
 <script src="asistente.js"></script>
 <script src="diseno.js"></script>

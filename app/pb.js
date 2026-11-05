@@ -265,7 +265,9 @@ function etapaFicha(c){const L=[];
   return L.filter(Boolean)}
 function infoFicha(c){const p=findByName(c.padre),m=findByName(c.madre);
   const tipos=['Desparasitación','Desvasada',...(seHierra(c)?['Herrada']:[]),'Muelas',...ctrlDiasActivos(c).map(x=>x.k).filter(k=>!['Desparasitación','Desvasada','Muelas'].includes(k))];
-  const san=tipos.map(t=>({t,...estadoSan(c,t)})).filter(s=>s.u||['Desparasitación','Desvasada'].includes(s.t));
+  let san=tipos.map(t=>({t,...estadoSan(c,t)})).filter(s=>s.u||['Desparasitación','Desvasada'].includes(s.t));
+  // en doma la sanidad la maneja el domador (la app no la avisa): se muestra el último dato que hay, sin "vencido"
+  if(c.categoria==='Doma')san=san.map(s=>({...s,p:null,st:'none',txt:s.u?'antes de la doma':'sin dato'}));
   const herm=S.caballos.filter(x=>x.id!==c.id&&x.estado!=='Muerto'&&c.madre&&norm(x.madre)===norm(c.madre)).sort((a,b)=>(a.nac||'').localeCompare(b.nac||''))
     .map(h=>h.nombre+(c.padre&&norm(h.padre)===norm(c.padre)?' (hermano entero)':'')+(h.estado!=='Activo'?' ('+h.estado.toLowerCase()+')':''));
   const gp=padresDeNombre(c.padre),gm=padresDeNombre(c.madre);
@@ -351,7 +353,7 @@ EXTRA_ACTS.fichasPot=async()=>{const l=listaFichas();
   if(!l.length){toast('No hay caballos activos en esta lista.');return}
   const comp=puedeCompartirArchivos(),tit=tituloGrupo();for(const k in FICHAS)delete FICHAS[k];
   pantalla('Fichas · '+tit,`<p class="muted small">${plural(l.length,'caballo','caballos')}. Una <b>ficha grande</b> con todo el grupo en una sola imagen y una ficha por caballo, listas para mandar.</p>
-    <div class="row" style="margin:10px 0 14px">${comp?'<button class="btn pri" data-act="fichasShare" data-que="grande">Mandar la ficha grande</button><button class="btn" data-act="fichasShare">Mandar todas</button>':''}${downloads?`<button class="btn ${comp?'':'pri'}" data-act="fichasBajar">Descargar todas</button>`:''}</div>
+    <div class="row" style="margin:10px 0 14px">${comp?'<button class="btn pri" data-act="fichasShare" data-que="grande">Mandar la ficha grande</button><button class="btn" data-act="fichasShare">Mandar todas</button>':''}${downloads?`<button class="btn ${comp?'':'pri'}" data-act="fichasBajar">Descargar todas</button>`:''}<button class="btn" data-act="comp" data-que="lista">Mandar la lista en texto</button></div>
     <div id="fichas-prev" style="display:grid;gap:14px"><div data-fp="__grande" class="muted small">Armando la ficha grande…</div>${l.map(c=>`<div data-fp="${c.id}" class="muted small">Armando la ficha de ${esc(c.nombre)}…</div>`).join('')}</div>
     ${!comp&&!downloads?'<p class="note">Mantené apretada cada imagen para guardarla o compartirla.</p>':''}`);
   const poner=(k,b,alt)=>{const el=document.querySelector(`[data-fp="${k}"]`);if(el)el.outerHTML=`<img src="${URL.createObjectURL(b)}" alt="${esc(alt)}" style="width:100%;max-width:480px;border-radius:10px;border:1px solid var(--line)">`;return !!el};

@@ -70,7 +70,7 @@ function panelTareas(){const {grupos,sinDato}=tareasSemana();TAREAS=grupos;const
     sinDato?`<div class="li"><span class="muted">${sinDato} caballo${sinDato>1?'s':''} sin dato de desparasitación</span><button class="btn sm" data-tab="sanidad">Ver</button></div>`:'',
     sc===null||sc>=30?`<div class="li"><span>${sc===null?'Nunca bajaste una copia de los datos en este aparato':'Hace '+sc+' días que no bajás una copia de los datos'}</span><button class="btn sm" data-act="excel">Bajar Excel</button></div>`:''].filter(Boolean).join('');
   try{navigator.setAppBadge&&(grupos.length?navigator.setAppBadge(grupos.reduce((n,x)=>n+x.items.length,0)):navigator.clearAppBadge())}catch(e){}
-  return `<div class="panel tareas"><div class="head" style="margin-bottom:8px"><h3 style="margin:0">Para hacer esta semana</h3><span class="small muted">hasta el ${fmt(addDays(hoy(),7))}</span></div>
+  return `<div class="panel tareas"><div class="head" style="margin-bottom:8px"><h3 style="margin:0">Para hacer esta semana</h3><div class="row" style="align-items:center"><span class="small muted">hasta el ${fmt(addDays(hoy(),7))}</span>${typeof botonComp==='function'?botonComp('semana'):''}</div></div>
     ${bloque||'<div class="muted small" style="padding:6px 0 10px">Nada de sanidad para esta semana.</div>'}${extras?`<div class="list" style="margin-top:6px">${extras}</div>`:''}</div>`}
 EXTRA_ACTS.tarea=d=>{const g=TAREAS[+d.k];if(g)eventoForm(g.items.map(x=>x.c.id),g.t)};
 /* "✓ Hecho": carga el evento con la fecha de hoy, sin formulario (pedido de Tomás el 3/11). El herrero va con el precio de la lista.
@@ -261,6 +261,11 @@ const AJUSTES={
     if(!S.notas.some(x=>/DESTETE.*PARANOICA|PARANOICA.*DESTETE/.test(norm(x.titulo+' '+x.texto))))
       await db.collection('notas').doc(slugId('n')).set({titulo:'Julio 2027: destete y vuelta a hechura de Paranoica, Blusera y Psicodélica',
         texto:'Pasaron a Madres el 3/11/2026 porque se preñaron en la doma. Cuando se desteten los potrillos (julio 2027), pasarlas de nuevo a Hechura o adonde tengan que ir.',fecha:'2027-07-01',estado:'Pendiente'})},
+  // 5/11: señas que contó Tomás de los de doma (para reconocerlos en la foto y en las fichas)
+  'nov-senas-21-24-27':async()=>{
+    for(const [n,t] of [['21','3 patas blancas · estrellita en la frente'],['24','2 patas blancas'],['27','Alazán más oscuro']]){
+      const c=S.caballos.find(x=>x.nombre===n&&x.categoria==='Doma');if(!c||(c.obs||'').includes(t))continue;
+      await db.collection('caballos').doc(c.id).update({obs:[t,c.obs].filter(Boolean).join(' · ')})}},
 };
 let _ajustando=false;
 async function ajustesUnicos(){if(_ajustando||!canWrite||!db||!window.DC_NUBE_LISTA||!S.loaded.caballos||!S.loaded.eventos||!S.loaded.config||!S.loaded.servicios||!S.caballos.length)return;
