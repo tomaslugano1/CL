@@ -251,6 +251,7 @@ function listaFichas(){const ids=UI.listaVista||[];const l=ids.map(byId).filter(
   return l.length?l:activos().filter(c=>c.categoria==='Potrillos').sort(sortCab)}
 const potrillosFicha=listaFichas;
 function edadTxtPot(nac){const n=new Date(nac+'T12:00:00'),t=new Date();let m=(t.getFullYear()-n.getFullYear())*12+t.getMonth()-n.getMonth();if(t.getDate()<n.getDate())m--;m=Math.max(0,m);
+  if(m<1){const d=Math.max(0,Math.round((t-n)/864e5));return d<=1?'recién nacido':d+' días'}
   return m<24?(m===1?'1 mes':m+' meses'):Math.floor(m/12)+' años'}
 function edadFicha(c){if(c.nac)return 'Nació el '+fmt(c.nac)+' ('+edadTxtPot(c.nac)+')';
   const y=c.camada||camadaDe(c),n=edadCamada(c);return y?(n>0?n+(n===1?' año':' años')+' · camada '+y:'Camada '+y):''}
@@ -330,7 +331,7 @@ async function dibujarPlanilla(l,titulo){await cargarFuentesFicha();
     let y=y0+62;x.fillStyle='#111';x.font='700 38px '+SER;x.fillText(corta(c.nombre,TW-150),tx,y);
     if(c.rp||c.chip){x.textAlign='right';x.fillStyle='#777';x.font='500 22px '+SAN;x.fillText(c.rp?'RP '+c.rp:'chip',W-M,y);x.textAlign='left'}
     y+=38;x.fillStyle='#555';x.font='500 24px '+SAN;x.fillText(corta(I.sub||'—',TW),tx,y);
-    y+=34;x.fillStyle='#333';x.font='400 24px '+SAN;x.fillText(corta((I.padre||'Padre ?')+' × '+(I.madre||'Madre ?'),TW),tx,y);
+    y+=34;x.fillStyle='#333';x.font='400 24px '+SAN;x.fillText(corta(I.padre||I.madre?(I.padre||'?')+' × '+(I.madre||'?'):'Padres sin cargar',TW),tx,y);
     if(I.etapa.length){y+=34;x.fillStyle=/^★/.test(I.etapa[0])?'#9A6F12':'#2E5E3E';x.font='600 23px '+SAN;x.fillText(corta(I.etapa.join(' · '),TW),tx,y)}
     // sanidad en una línea: cada control con su color
     y+=36;let sx=tx;x.font='600 21px '+SAN;
