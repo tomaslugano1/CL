@@ -790,8 +790,11 @@ async function onFile(e){
     const c=byId(el.dataset.foto);await db.collection('caballos').doc(c.id).update({fotos:[...(c.fotos||[]),...ids]});toast(ids.length>1?'Fotos agregadas':'Foto agregada')}
   catch(err){console.error(err);toast(err?.code==='too_large'?'La foto es muy pesada.':err?.code==='unsupported_type'?'Ese archivo no es una foto que se pueda subir (usá JPG o PNG).':'No se pudo subir la foto. Probá de nuevo.')}
 }
-async function achicar(file){try{if(!/^image\/(jpeg|png|webp)$/.test(file.type))return file;const bmp=await createImageBitmap(file);const k=Math.min(1,1600/Math.max(bmp.width,bmp.height));if(k===1&&file.size<1.5e6)return file;
-  const cv=document.createElement('canvas');cv.width=Math.round(bmp.width*k);cv.height=Math.round(bmp.height*k);cv.getContext('2d').drawImage(bmp,0,0,cv.width,cv.height);
+async function achicar(file){try{if(!/^image\/(jpeg|png|webp)$/.test(file.type))return file;const bmp=await createImageBitmap(file);
+  // si es una captura con franjas negras, se sube recortada (zonaUtil está en media.js)
+  const u=typeof zonaUtil==='function'?zonaUtil(bmp):{x:0,y:0,w:bmp.width,h:bmp.height},rec=u.w<bmp.width-1||u.h<bmp.height-1;
+  const k=Math.min(1,1600/Math.max(u.w,u.h));if(k===1&&!rec&&file.size<1.5e6)return file;
+  const cv=document.createElement('canvas');cv.width=Math.round(u.w*k);cv.height=Math.round(u.h*k);cv.getContext('2d').drawImage(bmp,u.x,u.y,u.w,u.h,0,0,cv.width,cv.height);
   return await new Promise(r=>cv.toBlob(b=>r(b||file),'image/jpeg',.85))}catch(e){return file}}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modal').innerHTML)navAtras()});
 

@@ -57,10 +57,11 @@ function vCaballos(){
   l.sort(sortCab);if(cat==='__bajas')l.sort((a,b)=>(b.bajaFecha||'').localeCompare(a.bajaFecha||'')); // bajas: la más nueva arriba
   const sel=UI.sel,catTxt=(CATS_LISTA.find(x=>x[0]===cat)||['','Todos'])[1],lugTxt=UI.lugar==='__sin'?'Sin lugar':UI.lugar||'Todos';
   const madresTabs=['Madres','Receptoras'].includes(cat);
+  UI.listaVista=l.map(c=>c.id); // para las fichas del grupo (pb.js)
   // buscador grande arriba de todo, igual que en el Inicio (pedido de Tomás el 3/11)
   return `<div class="ibusca" role="search"><span class="ibl" aria-hidden="true">${ICO_LUPA}</span><input id="q" type="search" placeholder="Buscar caballo: nombre, número o seña" value="${esc(UI.q)}" enterkeyhint="search" aria-label="Buscar caballo"></div>
    <div class="lbar">${canWrite?(sel?`<button class="btn" data-act="selmover">Cancelar</button>`:`<button class="btn pri" data-act="alta">+ Alta</button><button class="btn" data-act="selmode">+ Sanidad</button><button class="btn" data-act="selmover">Seleccionar</button>`):''}
-     ${cat==='Potrillos'&&!sel?'<button class="btn" data-act="fichasPot">Fichas</button>':''}<span style="flex:1"></span><button class="btn icon" data-act="chip" aria-label="Leer chip" title="Leer chip">${ICO_CHIP}</button></div>
+     ${cat&&cat!=='__bajas'&&!sel&&l.length?'<button class="btn" data-act="fichasPot" title="Fichas para mandar: una grande con todo el grupo y una por caballo">Fichas</button>':''}<span style="flex:1"></span><button class="btn icon" data-act="chip" aria-label="Leer chip" title="Leer chip">${ICO_CHIP}</button></div>
    <div class="fchips"><button class="fchip ${UI.drop==='cat'?'on':''}" data-act="drop" data-d="cat">${ICO_CAT}<span>${esc(catTxt)}</span></button><button class="fchip ${UI.drop==='lug'?'on':''}" data-act="drop" data-d="lug">${ICO_PIN}<span>${esc(lugTxt)}</span></button></div>
    ${UI.drop==='cat'?`<div class="fdrop">${CATS_LISTA.map(([k,t])=>`<button class="${cat===k?'on':''}" data-act="fcat" data-v="${k}">${t}</button>`).join('')}</div>`:''}
    ${UI.drop==='lug'?`<div class="fdrop">${[['','Todos'],['__sin','Sin lugar definido'],...lugares().map(x=>[x,x])].map(([k,t])=>`<button class="${(UI.lugar||'')===k?'on':''}" data-act="flug" data-v="${esc(k)}">${esc(t)}</button>`).join('')}</div>`:''}
@@ -171,9 +172,10 @@ function renderFicha(){
   const b_prog=`${progenieSec(c,hijos)}`;
   const b_herm=`${herm.length?sec('Hermanos (misma madre)','',`<div class="small">${herm.map(h=>`<span class="a" data-open="${h.id}">${esc(h.nombre)}</span>${h.estado!=='Activo'?' ('+esc(h.estado.toLowerCase())+')':''}`).join(' · ')}</div>`):''}`;
   const b_med=`${seccionMedios(c)}`;
-  const b_fb=`${canWrite?`<div class="fbtns"><button class="btn ancho" data-edit="${c.id}">Editar datos</button>
+  // "Compartir ficha": una imagen prolija de cualquier caballo para mandar (pedido de Tomás el 5/11)
+  const b_fb=`<div class="fbtns"><button class="btn ancho" data-act="fichaShare" data-id="${c.id}">Compartir ficha</button>${canWrite?`<button class="btn ancho" data-edit="${c.id}">Editar datos</button>
       ${c.venta&&activo?`<button class="btn ancho" data-venta="${c.id}">Ficha de venta</button>`:''}
-      ${activo?`<button class="btn ancho danger" data-baja="${c.id}">Dar de baja</button>`:`<button class="btn ancho" data-alta-de-nuevo="${c.id}">Volver a activo</button>`}</div>`:''}`;
+      ${activo?`<button class="btn ancho danger" data-baja="${c.id}">Dar de baja</button>`:`<button class="btn ancho" data-alta-de-nuevo="${c.id}">Volver a activo</button>`}`:''}</div>`;
   const b_senas=`${c.obs||c.embocadura?`<div class="senas">${c.obs?`<div><span>Observación</span>${esc(c.obs)}</div>`:''}${c.embocadura?`<div><span>Embocadura</span>${esc(c.embocadura)}</div>`:''}</div>`:''}`;
   const cambiar=botonesEtapa(c)?`<details class="desp acc" data-k="cat-${c.id}" ${UI.abiertos?.has('cat-'+c.id)?'open':''}><summary><div class="grow">Cambiar categoría o lugar<div class="sub">Pasar a…, mandar a descanso, otra categoría</div></div><span class="go">›</span></summary>${b_etapa}</details>`:'';
   const madreF=esMadre(c),poloF=polo||enDescanso(c);

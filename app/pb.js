@@ -240,37 +240,59 @@ EXTRA_ACTS.pedShare=async d=>{let c,sub;
     const u=URL.createObjectURL(b);pantalla('Pedigree · '+c.nombre,`<img src="${u}" alt="Pedigree de ${esc(c.nombre)}" style="width:100%;border-radius:10px;border:1px solid var(--line)"><p class="note">Mantené apretada la imagen para guardarla o compartirla.</p>`)}
   catch(e){console.error(e);toast('No se pudo armar la imagen.')}};
 
-/* ================= Fichas de potrillos =================
-   Una imagen prolija por potrillo (foto, padres, sanidad, hermanos) para mandar por WhatsApp. */
-function potrillosFicha(){let l=activos().filter(c=>c.categoria==='Potrillos');if(UI.subCam)l=l.filter(c=>c.camada===UI.subCam);return l.sort(sortCab)}
+/* ================= Fichas para compartir (todas las categorías) =================
+   Una imagen prolija por caballo (foto, edad, padres, lo de su etapa, sanidad, hermanos) para mandar por WhatsApp.
+   Empezó para potrillos; el 5/11 Tomás la pidió para todos (doma, hechura, madres…) y una "ficha grande" con todo el grupo. */
+const ETQ_FICHA={Potrillos:'POTRILLO',Doma:'EN DOMA',Hechura:'HECHURA',Jugadores:'JUGADOR',Descanso:'EN DESCANSO',Madres:'MADRE',Receptoras:'RECEPTORA'};
+const etqFicha=c=>c.categoria==='Jugadores'&&c.sexo==='Hembra'?'JUGADORA':ETQ_FICHA[c.categoria]||'';
+const TIT_GRUPO={Potrillos:'Potrillos',Doma:'En doma',Hechura:'Hechura',Jugadores:'Jugadores',Descanso:'En descanso',Madres:'Madres',Receptoras:'Receptoras'};
+// los caballos que se ven en la lista (categoría, lugar y camada elegidos); la lista los anota al dibujarse
+function listaFichas(){const ids=UI.listaVista||[];const l=ids.map(byId).filter(c=>c&&c.estado==='Activo');
+  return l.length?l:activos().filter(c=>c.categoria==='Potrillos').sort(sortCab)}
+const potrillosFicha=listaFichas;
 function edadTxtPot(nac){const n=new Date(nac+'T12:00:00'),t=new Date();let m=(t.getFullYear()-n.getFullYear())*12+t.getMonth()-n.getMonth();if(t.getDate()<n.getDate())m--;m=Math.max(0,m);
   return m<24?(m===1?'1 mes':m+' meses'):Math.floor(m/12)+' años'}
+function edadFicha(c){if(c.nac)return 'Nació el '+fmt(c.nac)+' ('+edadTxtPot(c.nac)+')';
+  const y=c.camada||camadaDe(c),n=edadCamada(c);return y?(n>0?n+(n===1?' año':' años')+' · camada '+y:'Camada '+y):''}
+// lo propio de cada etapa: doma, descanso, preñez, embocadura, premios
+function etapaFicha(c){const L=[];
+  if(c.categoria==='Doma')L.push('En doma'+(c.domador?' con '+c.domador:'')+(c.ingresoDoma?' desde el '+fmt(c.ingresoDoma)+' ('+diff(hoy(),c.ingresoDoma)+' días)':''));
+  if(c.categoria==='Descanso'||(typeof enDescanso==='function'&&enDescanso(c)))L.push('En descanso'+(c.descansoDesde?' desde el '+fmt(c.descansoDesde):'')+(c.catPrevia&&c.catPrevia!=='Descanso'?' · venía de '+c.catPrevia.toLowerCase():''));
+  if(typeof esMadre==='function'&&esMadre(c)){const s=servUltimo(c.nombre);
+    if(s)L.push(s.estado==='Preñada'?'Preñada'+(s.padrillo?' de '+s.padrillo:'')+(s.fpp?' · parto estimado '+fmt(s.fpp):''):s.estado==='Parida'?'Parió'+(s.padrillo?' (de '+s.padrillo+')':''):s.estado==='Vacía'?'Vacía'+(s.fecha?' · último tacto '+fmt(s.fecha):''):s.estado||'')}
+  if(c.embocadura)L.push('Embocadura: '+c.embocadura);
+  for(const p of (typeof premiosDe==='function'?premiosDe(c):[]).slice(0,2))L.push('★ '+premioTxt(p));
+  return L.filter(Boolean)}
 function infoFicha(c){const p=findByName(c.padre),m=findByName(c.madre);
   const tipos=['Desparasitación','Desvasada',...(seHierra(c)?['Herrada']:[]),'Muelas',...ctrlDiasActivos(c).map(x=>x.k).filter(k=>!['Desparasitación','Desvasada','Muelas'].includes(k))];
   const san=tipos.map(t=>({t,...estadoSan(c,t)})).filter(s=>s.u||['Desparasitación','Desvasada'].includes(s.t));
   const herm=S.caballos.filter(x=>x.id!==c.id&&x.estado!=='Muerto'&&c.madre&&norm(x.madre)===norm(c.madre)).sort((a,b)=>(a.nac||'').localeCompare(b.nac||''))
     .map(h=>h.nombre+(c.padre&&norm(h.padre)===norm(c.padre)?' (hermano entero)':'')+(h.estado!=='Activo'?' ('+h.estado.toLowerCase()+')':''));
-  return {sub:[c.sexo,c.pelaje,c.nac?'Nació el '+fmt(c.nac)+' ('+edadTxtPot(c.nac)+')':'',c.camada?'Camada '+c.camada:''].filter(Boolean).join(' · '),
-    padre:c.padre||'',madre:c.madre||'',gp:[c.abueloP||p?.padre,c.abuelaP||p?.madre].filter(Boolean).join(' × '),gm:[c.abueloM||m?.padre,c.abuelaM||m?.madre].filter(Boolean).join(' × '),
-    san,herm,extra:[c.chip?'Chip '+c.chip:'',c.rp?'RP '+c.rp:'',c.lugar?'Está en '+c.lugar:''].filter(Boolean).join(' · '),obs:[c.senas,c.obs].filter(Boolean).join(' · ')}}
-async function dibujarFichaPot(c){
-  try{await Promise.all([document.fonts.load('700 72px "Playfair Display"'),document.fonts.load('500 30px Inter'),document.fonts.load('600 30px Inter')])}catch(e){}
+  const gp=padresDeNombre(c.padre),gm=padresDeNombre(c.madre);
+  return {sub:[c.sexo,c.pelaje,edadFicha(c)].filter(Boolean).join(' · '),etapa:etapaFicha(c),
+    padre:c.padre||'',madre:c.madre||'',gp:[c.abueloP||p?.padre||gp.padre,c.abuelaP||p?.madre||gp.madre].filter(Boolean).join(' × '),gm:[c.abueloM||m?.padre||gm.padre,c.abuelaM||m?.madre||gm.madre].filter(Boolean).join(' × '),
+    san,herm,extra:[c.rp?'RP '+c.rp:'',c.chip?'Chip '+c.chip:'',c.lugar?'Está en '+c.lugar:''].filter(Boolean).join(' · '),obs:[c.senas,c.obs].filter(Boolean).join(' · ')}}
+async function cargarFuentesFicha(){try{await Promise.all([document.fonts.load('700 72px "Playfair Display"'),document.fonts.load('500 30px Inter'),document.fonts.load('600 30px Inter')])}catch(e){}}
+async function logoFicha(x,M){if(S.config.logo){try{const l=await loadImg(fotoUrl(S.config.logo));x.fillStyle='#fff';x.fillRect(M,20,80,80);const k=Math.min(72/l.width,72/l.height);x.drawImage(l,M+40-l.width*k/2,60-l.height*k/2,l.width*k,l.height*k)}catch(e){}}}
+async function dibujarFicha(c){await cargarFuentesFicha();
   const I=infoFicha(c),SER='"Playfair Display", Georgia, serif',SAN='Inter, system-ui, sans-serif',W=1080,M=48;
   const me=document.createElement('canvas').getContext('2d');me.font='400 28px '+SAN;
   const obsL=I.obs?wrap(me,I.obs,W-2*M).slice(0,3):[];me.font='500 28px '+SAN;const hL=I.herm.length?wrap(me,I.herm.join(' · '),W-2*M).slice(0,4):[];
+  const subL=wrap(me,I.sub,W-2*M).slice(0,2);me.font='600 28px '+SAN;const etL=I.etapa.flatMap(t=>wrap(me,t,W-2*M).slice(0,2)).slice(0,6);
   let foto=null;if(c.fotos?.length)try{foto=await loadImg(fotoUrl(c.fotos[0]))}catch(e){}
-  const fh=foto?Math.round(Math.min(900,Math.max(600,W*foto.height/foto.width))):700,H=120+fh+190+(obsL.length?obsL.length*38+20:0)+(I.extra?44:0)+190+70+I.san.length*58+(hL.length?90+hL.length*38:0)+110;
+  const z=foto?zonaUtil(foto):null,fh=foto?Math.round(Math.min(900,Math.max(600,W*z.h/z.w))):700;
+  const H=120+fh+96+subL.length*40+(I.extra?44:0)+(etL.length?16+etL.length*40:0)+(obsL.length?obsL.length*38+20:0)+238+I.san.length*58+(hL.length?70+hL.length*40:0)+50+70;
   const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
-  x.fillStyle='#fff';x.fillRect(0,0,W,H);x.fillStyle='#0E0E0E';x.fillRect(0,0,W,120);
-  if(S.config.logo){try{const l=await loadImg(fotoUrl(S.config.logo));x.fillStyle='#fff';x.fillRect(M,20,80,80);const k=Math.min(72/l.width,72/l.height);x.drawImage(l,M+40-l.width*k/2,60-l.height*k/2,l.width*k,l.height*k)}catch(e){}}
-  x.textBaseline='middle';x.fillStyle='#fff';x.font='600 30px '+SAN;x.letterSpacing='6px';x.textAlign='left';x.fillText('DOÑA CECILIA',M+110,62);x.textAlign='right';x.font='500 24px '+SAN;x.fillText('POTRILLO',W-M,62);x.letterSpacing='0px';
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);x.fillStyle='#0E0E0E';x.fillRect(0,0,W,120);await logoFicha(x,M);
+  x.textBaseline='middle';x.fillStyle='#fff';x.font='600 30px '+SAN;x.letterSpacing='6px';x.textAlign='left';x.fillText('DOÑA CECILIA',M+110,62);x.textAlign='right';x.font='500 24px '+SAN;x.fillText(etqFicha(c),W-M,62);x.letterSpacing='0px';
   const fy=120;
   if(foto)dibujarFoto(x,foto,0,fy,W,fh,encuadre(c,c.fotos[0]))
   else{x.fillStyle='#EDEDEA';x.fillRect(0,fy,W,fh);x.fillStyle='#8A8A85';x.textAlign='center';x.font='500 30px '+SAN;x.fillText('Sin foto',W/2,fy+fh/2)}
   x.textBaseline='alphabetic';x.textAlign='left';let y=fy+fh+86;x.fillStyle='#111';
   let fs=76;x.font=`700 ${fs}px ${SER}`;while(x.measureText(c.nombre).width>W-2*M&&fs>40){fs-=4;x.font=`700 ${fs}px ${SER}`}x.fillText(c.nombre,M,y);
-  y+=50;x.font='500 28px '+SAN;x.fillStyle='#555';let s=I.sub;while(x.measureText(s).width>W-2*M&&s.length>10)s=s.slice(0,-2);x.fillText(s,M,y);
+  y+=10;x.font='500 28px '+SAN;x.fillStyle='#555';subL.forEach(l=>{y+=40;x.fillText(l,M,y)});
   if(I.extra){y+=44;x.fillText(I.extra,M,y)}
+  if(etL.length){y+=16;x.fillStyle='#2E5E3E';x.font='600 28px '+SAN;etL.forEach(l=>{y+=40;x.fillStyle=/^★/.test(l)?'#9A6F12':'#2E5E3E';x.fillText(l,M,y)})}
   if(obsL.length){y+=20;x.fillStyle='#8A6D00';x.font='400 28px '+SAN;obsL.forEach(l=>{y+=38;x.fillText(l,M,y)})}
   y+=34;x.fillStyle='#111';x.fillRect(M,y,W-2*M,2);
   const etiqueta=(t,cx,yy)=>{x.fillStyle='#777';x.font='600 20px '+SAN;x.letterSpacing='3px';x.fillText(t,cx,yy);x.letterSpacing='0px'};
@@ -285,19 +307,60 @@ async function dibujarFichaPot(c){
   if(hL.length){y+=70;etiqueta('HERMANOS (MISMA MADRE)',M,y);x.fillStyle='#111';x.font='500 28px '+SAN;hL.forEach(l=>{y+=40;x.fillText(l,M,y)})}
   x.fillStyle='#0E0E0E';x.fillRect(0,H-70,W,70);x.fillStyle='#fff';x.font='500 22px '+SAN;x.textBaseline='middle';x.fillText('Doña Cecilia · ficha al '+fmt(hoy()),M,H-35);
   return await new Promise((ok,no)=>cv.toBlob(b=>b?ok(b):no(new Error('toBlob')),'image/jpeg',.88))}
+const dibujarFichaPot=dibujarFicha;
+/* Ficha grande: todo el grupo en una sola imagen, un renglón por caballo con su foto chica */
+async function dibujarPlanilla(l,titulo){await cargarFuentesFicha();
+  const SER='"Playfair Display", Georgia, serif',SAN='Inter, system-ui, sans-serif',W=1080,M=40,RH=236,FW=270,TOP=120+120,H=TOP+l.length*RH+90;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);x.fillStyle='#0E0E0E';x.fillRect(0,0,W,120);await logoFicha(x,M);
+  x.textBaseline='middle';x.fillStyle='#fff';x.font='600 30px '+SAN;x.letterSpacing='6px';x.textAlign='left';x.fillText('DOÑA CECILIA',M+110,62);x.letterSpacing='0px';
+  x.textAlign='right';x.font='500 24px '+SAN;x.fillText('FICHA DEL GRUPO',W-M,62);
+  x.textAlign='left';x.textBaseline='alphabetic';x.fillStyle='#111';x.font='700 54px '+SER;x.fillText(titulo,M,200);
+  x.fillStyle='#666';x.font='500 26px '+SAN;x.textAlign='right';x.fillText(plural(l.length,'caballo','caballos')+' · al '+fmt(hoy()),W-M,200);x.textAlign='left';
+  const col={bad:'#B23A3A',warn:'#C27C0E',ok:'#2E7D4F',none:'#888'},TW=W-M-(M+FW+28);
+  const corta=(t,w)=>{let s=t;while(x.measureText(s).width>w&&s.length>4)s=s.slice(0,-2);return s===t?s:s.trim()+'…'};
+  for(let i=0;i<l.length;i++){const c=l[i],I=infoFicha(c),y0=TOP+i*RH,tx=M+FW+28;
+    if(i%2===0){x.fillStyle='#F7F7F4';x.fillRect(0,y0,W,RH)}
+    let foto=null;if(c.fotos?.length)try{foto=await loadImg(fotoUrl(c.fotos[0]))}catch(e){}
+    x.save();x.beginPath();x.roundRect(M,y0+18,FW,200,14);x.clip();
+    if(foto)dibujarFoto(x,foto,M,y0+18,FW,200,encuadre(c,c.fotos[0]));else{x.fillStyle='#E4E4E0';x.fillRect(M,y0+18,FW,200);x.fillStyle='#999';x.font='500 22px '+SAN;x.textAlign='center';x.fillText('Sin foto',M+FW/2,y0+124);x.textAlign='left'}
+    x.restore();
+    let y=y0+62;x.fillStyle='#111';x.font='700 38px '+SER;x.fillText(corta(c.nombre,TW-150),tx,y);
+    if(c.rp||c.chip){x.textAlign='right';x.fillStyle='#777';x.font='500 22px '+SAN;x.fillText(c.rp?'RP '+c.rp:'chip',W-M,y);x.textAlign='left'}
+    y+=38;x.fillStyle='#555';x.font='500 24px '+SAN;x.fillText(corta(I.sub||'—',TW),tx,y);
+    y+=34;x.fillStyle='#333';x.font='400 24px '+SAN;x.fillText(corta((I.padre||'Padre ?')+' × '+(I.madre||'Madre ?'),TW),tx,y);
+    if(I.etapa.length){y+=34;x.fillStyle=/^★/.test(I.etapa[0])?'#9A6F12':'#2E5E3E';x.font='600 23px '+SAN;x.fillText(corta(I.etapa.join(' · '),TW),tx,y)}
+    // sanidad en una línea: cada control con su color
+    y+=36;let sx=tx;x.font='600 21px '+SAN;
+    for(const r of I.san){const t=({Desparasitación:'Desparasit.',Desvasada:'Desvase',Herrada:'Herrado'}[r.t]||r.t)+': '+(r.txt||'—').toLowerCase();const w=x.measureText(t).width;if(sx+w>W-M)break;
+      x.fillStyle=col[r.st]||'#888';x.fillText(t,sx,y);sx+=w+22}}
+  x.fillStyle='#0E0E0E';x.fillRect(0,H-70,W,70);x.fillStyle='#fff';x.font='500 22px '+SAN;x.textBaseline='middle';x.fillText('Doña Cecilia · '+titulo+' · '+fmt(hoy()),M,H-35);
+  return await new Promise((ok,no)=>cv.toBlob(b=>b?ok(b):no(new Error('toBlob')),'image/jpeg',.88))}
+const nomArch=n=>n.replace(/[\\/:*?"<>|]/g,'');
+// compartir una imagen (o varias): WhatsApp si se puede, si no descargar, si no mostrarla para guardarla
+async function compartirImagenes(files,texto,titulo){
+  if(puedeCompartirArchivos()){try{await navigator.share({files,text:texto});return}catch(e){if(e?.name==='AbortError')return}}
+  if(downloads){for(const f of files)await downloads.save({filename:f.name,data:f});toast(files.length>1?'Imágenes descargadas':'Imagen lista');return}
+  pantalla(titulo,files.map(f=>`<img src="${URL.createObjectURL(f)}" alt="${esc(f.name)}" style="width:100%;max-width:480px;border-radius:10px;border:1px solid var(--line);margin-bottom:12px">`).join('')+'<p class="note">Mantené apretada la imagen para guardarla o compartirla.</p>')}
+EXTRA_ACTS.fichaShare=async d=>{const c=byId(d.id);if(!c)return;toast('Armando la ficha…');
+  try{const b=await dibujarFicha(c);await compartirImagenes([new File([b],'Ficha '+nomArch(c.nombre)+'.jpg',{type:'image/jpeg'})],'Ficha de '+c.nombre+' · Doña Cecilia','Ficha · '+c.nombre)}
+  catch(e){console.error(e);toast('No se pudo armar la ficha.')}};
 const FICHAS={};
-EXTRA_ACTS.fichasPot=async()=>{const l=potrillosFicha();
-  if(!l.length){toast('No hay potrillos activos.');return}
-  const comp=puedeCompartirArchivos();
-  pantalla('Fichas de potrillos',`<p class="muted small">${l.length} potrillo${l.length>1?'s':''}${UI.subCam?' · camada '+UI.subCam:''}. Una imagen por potrillo, lista para mandar.</p>
-    <div class="row" style="margin:10px 0 14px">${comp?'<button class="btn pri" data-act="fichasShare">Mandar todas por WhatsApp</button>':''}${downloads?`<button class="btn ${comp?'':'pri'}" data-act="fichasBajar">Descargar todas</button>`:''}</div>
-    <div id="fichas-prev" style="display:grid;gap:14px">${l.map(c=>`<div data-fp="${c.id}" class="muted small">Armando la ficha de ${esc(c.nombre)}…</div>`).join('')}</div>
+function tituloGrupo(){const cat=UI.cat&&!UI.cat.startsWith('__')?UI.cat:'';return [TIT_GRUPO[cat]||(cat||'Caballos'),UI.subCam?'camada '+UI.subCam:'',UI.lugar&&UI.lugar!=='__sin'?UI.lugar:''].filter(Boolean).join(' · ')}
+EXTRA_ACTS.fichasPot=async()=>{const l=listaFichas();
+  if(!l.length){toast('No hay caballos activos en esta lista.');return}
+  const comp=puedeCompartirArchivos(),tit=tituloGrupo();for(const k in FICHAS)delete FICHAS[k];
+  pantalla('Fichas · '+tit,`<p class="muted small">${plural(l.length,'caballo','caballos')}. Una <b>ficha grande</b> con todo el grupo en una sola imagen y una ficha por caballo, listas para mandar.</p>
+    <div class="row" style="margin:10px 0 14px">${comp?'<button class="btn pri" data-act="fichasShare" data-que="grande">Mandar la ficha grande</button><button class="btn" data-act="fichasShare">Mandar todas</button>':''}${downloads?`<button class="btn ${comp?'':'pri'}" data-act="fichasBajar">Descargar todas</button>`:''}</div>
+    <div id="fichas-prev" style="display:grid;gap:14px"><div data-fp="__grande" class="muted small">Armando la ficha grande…</div>${l.map(c=>`<div data-fp="${c.id}" class="muted small">Armando la ficha de ${esc(c.nombre)}…</div>`).join('')}</div>
     ${!comp&&!downloads?'<p class="note">Mantené apretada cada imagen para guardarla o compartirla.</p>':''}`);
-  for(const c of l){try{const b=FICHAS[c.id]=await dibujarFichaPot(c);const el=document.querySelector(`[data-fp="${c.id}"]`);if(!el)return;
-    el.outerHTML=`<img src="${URL.createObjectURL(b)}" alt="Ficha de ${esc(c.nombre)}" style="width:100%;max-width:480px;border-radius:10px;border:1px solid var(--line)">`}
+  const poner=(k,b,alt)=>{const el=document.querySelector(`[data-fp="${k}"]`);if(el)el.outerHTML=`<img src="${URL.createObjectURL(b)}" alt="${esc(alt)}" style="width:100%;max-width:480px;border-radius:10px;border:1px solid var(--line)">`;return !!el};
+  try{FICHAS.__grande=await dibujarPlanilla(l,tit);if(!poner('__grande',FICHAS.__grande,'Ficha grande · '+tit))return}catch(e){console.error(e);const el=document.querySelector('[data-fp="__grande"]');if(el)el.textContent='No se pudo armar la ficha grande'}
+  for(const c of l){try{FICHAS[c.id]=await dibujarFicha(c);if(!poner(c.id,FICHAS[c.id],'Ficha de '+c.nombre))return}
     catch(e){console.error(e);const el=document.querySelector(`[data-fp="${c.id}"]`);if(el)el.textContent='No se pudo armar la ficha de '+c.nombre}}};
-const archivosFichas=()=>potrillosFicha().filter(c=>FICHAS[c.id]).map(c=>new File([FICHAS[c.id]],'Ficha '+c.nombre.replace(/[\\/:*?"<>|]/g,'')+'.jpg',{type:'image/jpeg'}));
-EXTRA_ACTS.fichasShare=async()=>{const f=archivosFichas();if(!f.length){toast('Esperá que terminen de armarse.');return}
-  try{await navigator.share({files:f,text:'Fichas de los potrillos · Doña Cecilia'})}catch(e){if(e?.name!=='AbortError')toast('No se pudo compartir. Probá con menos o descargalas.')}};
+const archivosFichas=que=>{const tit=tituloGrupo(),g=FICHAS.__grande?[new File([FICHAS.__grande],'Ficha grande · '+nomArch(tit)+'.jpg',{type:'image/jpeg'})]:[];
+  return que==='grande'?g:[...g,...listaFichas().filter(c=>FICHAS[c.id]).map(c=>new File([FICHAS[c.id]],'Ficha '+nomArch(c.nombre)+'.jpg',{type:'image/jpeg'}))]};
+EXTRA_ACTS.fichasShare=async d=>{const f=archivosFichas(d?.que);if(!f.length){toast('Esperá que terminen de armarse.');return}
+  try{await navigator.share({files:f,text:tituloGrupo()+' · Doña Cecilia'})}catch(e){if(e?.name!=='AbortError')toast('No se pudo compartir. Probá con menos o descargalas.')}};
 EXTRA_ACTS.fichasBajar=async()=>{const f=archivosFichas();if(!f.length){toast('Esperá que terminen de armarse.');return}
   try{for(const x of f)await downloads.save({filename:x.name,data:x});toast('Fichas descargadas')}catch(e){if(e?.code!=='declined')toast('No se pudieron descargar.')}};

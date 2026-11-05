@@ -12,8 +12,22 @@ const estiloEnc=e=>`object-position:${e.x}% ${e.y}%;transform:scale(${e.z});tran
 /* La foto con su encuadre (cls: thumb = redondita de la lista, cover = la de arriba de la ficha) */
 function imgEnc(c,f,cls,alt=''){return `<span class="encw ${cls}"><img src="${fotoUrl(f)}" alt="${esc(alt)}" style="${estiloEnc(encuadre(c,f))}" loading="lazy"></span>`}
 /* Lo mismo para las imágenes que se dibujan (ficha de venta, ficha de potrillo para WhatsApp) */
-function dibujarFoto(x,im,dx,dy,W,H,e={x:50,y:50,z:1}){const k=Math.max(W/im.width,H/im.height)*e.z,sw=W/k,sh=H/k;
-  x.drawImage(im,(im.width-sw)*e.x/100,(im.height-sh)*e.y/100,sw,sh,dx,dy,W,H)}
+/* Parte útil de una foto: saca las franjas negras (o blancas) lisas de los bordes, típicas de las capturas de pantalla
+   y de las fotos reenviadas por WhatsApp (pedido de Tomás el 5/11: las fotos del 21, 24 y 27 venían con franjas grandes). */
+const _ZONA=new WeakMap();
+function zonaUtil(im){if(_ZONA.has(im))return _ZONA.get(im);let r={x:0,y:0,w:im.width,h:im.height};
+  try{const k=Math.min(1,240/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*k)),h=Math.max(1,Math.round(im.height*k));
+    const cv=document.createElement('canvas');cv.width=w;cv.height=h;const x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0,w,h);const d=x.getImageData(0,0,w,h).data;
+    const lum=i=>.3*d[i]+.59*d[i+1]+.11*d[i+2];
+    const liso=(i0,paso,n)=>{let s=0,s2=0;for(let j=0;j<n;j++){const v=lum(i0+j*paso);s+=v;s2+=v*v}const m=s/n,sd=Math.sqrt(Math.max(0,s2/n-m*m));return sd<6&&(m<24||m>246)};
+    let t=0;while(t<h-1&&liso(t*w*4,4,w))t++;let b=h-1;while(b>t&&liso(b*w*4,4,w))b--;
+    let l=0;while(l<w-1&&liso((t*w+l)*4,w*4,b-t+1))l++;let rr=w-1;while(rr>l&&liso((t*w+rr)*4,w*4,b-t+1))rr--;
+    // solo si las franjas son de verdad (más del 5% de la foto) y queda una foto razonable; se come 1 píxel de más para no dejar el borde
+    if((t+h-1-b>h*.05||l+w-1-rr>w*.05)&&b-t>h*.15&&rr-l>w*.15){if(t)t++;if(b<h-1)b--;if(l)l++;if(rr<w-1)rr--;r={x:l/k,y:t/k,w:(rr-l+1)/k,h:(b-t+1)/k}}
+  }catch(e){}
+  _ZONA.set(im,r);return r}
+function dibujarFoto(x,im,dx,dy,W,H,e={x:50,y:50,z:1}){const u=zonaUtil(im),k=Math.max(W/u.w,H/u.h)*e.z,sw=W/k,sh=H/k;
+  x.drawImage(im,u.x+(u.w-sw)*e.x/100,u.y+(u.h-sh)*e.y/100,sw,sh,dx,dy,W,H)}
 function seccionMedios(c){const ed=!!(assets&&canWrite),fotos=c.fotos||[],vids=c.videos||[];
   const botones=ed?`<div class="row mbtns"><label class="btn sm pri upl">+ Foto<input type="file" accept="image/*" multiple data-foto="${c.id}"></label><label class="btn sm upl">+ Video<input type="file" accept="video/*" data-video="${c.id}"></label><button type="button" class="btn sm" data-act="mLink" data-id="${c.id}">+ Link de video</button></div>`:'';
   // seleccionar varias para borrarlas de una (por si se subieron fotos sin querer)

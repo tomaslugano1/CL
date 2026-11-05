@@ -338,3 +338,6 @@ Se publica todo lo de AB y AC. Versión dc-v56.
 
 ## AE. Pendiente de publicar (se sube con la próxima tanda, para no gastar créditos)
 - Botón del asistente un poco más arriba: el cartel "Powered by Netlify" lo tapaba (celular y compu). Versión dc-v57.
+- Fichas para compartir de cualquier caballo (5/11, pedido de Tomás): botón "Compartir ficha" en la ficha de cada uno (foto, edad, RP, chip, lugar, lo de su etapa: doma con quién, preñez, descanso, embocadura, premios; padres y abuelos, sanidad, hermanos).
+- Ver caballos → elegir una categoría (Doma, Madres, Hechura…) → "Fichas": una ficha grande con todo el grupo en una sola imagen y una ficha por caballo, para mandar todas juntas.
+- Fotos con franjas negras (capturas, reenviadas por WhatsApp): las fichas las recortan solas, y las fotos nuevas se suben ya recortadas.
