@@ -23,7 +23,8 @@ function controles(){const g=S.config.controles||{};return CONTROLES_DEF.map(c=>
 const ctrlPor=k=>controles().find(c=>c.k===k);
 const aplica=(ct,c)=>ct.cats===TODAS||(ct.cats||[]).includes(c.categoria);
 /* Dosis de preñez de una madre preñada: cuándo toca cada una y si ya se dio */
-function dosisPrenez(c){const s=S.servicios.filter(x=>norm(x.madre)===norm(c.nombre)&&x.estado==='Preñada'&&x.fecha).sort((a,b)=>b.fecha.localeCompare(a.fecha))[0];if(!s)return[];const out=[];
+// sinPlanPrenez: preñez a la que no se le hace el plan de vacunas (ej. las que se preñaron en la doma: nos enteramos sobre la hora)
+function dosisPrenez(c){const s=S.servicios.filter(x=>norm(x.madre)===norm(c.nombre)&&x.estado==='Preñada'&&x.fecha).sort((a,b)=>b.fecha.localeCompare(a.fecha))[0];if(!s||s.sinPlanPrenez)return[];const out=[];
   for(const ct of controles().filter(x=>x.meses&&x.activo&&aplica(x,c)))for(const m of ct.meses){const due=addDays(s.fecha,Math.round(m*30.4)),base=ct.base||ct.k;
     const hecha=S.eventos.find(e=>e.caballoId===c.id&&e.tipo===base&&e.fecha>=addDays(due,-20)&&e.fecha<=addDays(due,40));
     out.push({ct,m,due,hecha,d:diff(due,hoy()),k:ct.k+' (mes '+m+')'})}

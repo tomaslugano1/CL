@@ -237,6 +237,11 @@ const AJUSTES={
       const c=S.caballos.find(x=>norm(x.nombre)===n&&x.estado==='Activo');if(!c)continue;
       if(S.eventos.some(e=>e.caballoId===c.id&&e.tipo==='Herrada'&&e.fecha==='2026-10-26'))continue; // ya está
       await db.collection('eventos').doc(slugId('e')).set({fecha:'2026-10-26',caballoId:c.id,caballo:c.nombre,tipo:'Herrada',detalle:'Herrada (desvase + herraduras)',obs:'',...(precio?{precio}:{}),por:uid||''})}},
+  // 11/11: Tomás: a Paranoica, Blusera y Psicodélica (preñadas en la doma) no se les dio el plan de vacunas de preñez
+  // (se enteraron sobre la hora y ya están pariendo). Se saca el plan: no se avisa Encéfalo, Adenitis ni Desparasitación de preñez.
+  'nov-sin-plan-prenez-doma':async()=>{
+    for(const s of S.servicios.filter(x=>['PARANOICA','BLUSERA','PSICODELICA'].includes(norm(x.madre))&&+x.temporada===2026&&!x.sinPlanPrenez))
+      await db.collection('servicios').doc(s.id).update({sinPlanPrenez:true,obs:[s.obs,'Sin plan de vacunas de preñez (nos enteramos sobre la hora)'].filter(Boolean).join(' · ')})},
 };
 let _ajustando=false;
 async function ajustesUnicos(){if(_ajustando||!canWrite||!db||!window.DC_NUBE_LISTA||!S.loaded.caballos||!S.loaded.eventos||!S.loaded.config||!S.loaded.servicios||!S.caballos.length)return;

@@ -351,3 +351,4 @@ Se publicó todo lo de AE el 5/11 (versión dc-v57): botón del asistente más a
 - Ajuste `nov-herrada-2610`: herrada (desvase + herraduras, $35.000) el 26/10/2026 a China, Moria, Wanda, Susana, Vedette, Graciela, Marimorena, Contienda y Alegra. Se borra el desvase de la China cargado por error con fecha 11/11.
 - Se sacaron del código los ajustes de noviembre ya aplicados en los datos reales (premios, preñeces, señas).
 - Sheet: las 9 herradas en EVENTOS (HERRERO de octubre las suma).
+- Ajuste `nov-sin-plan-prenez-doma`: Paranoica, Blusera y Psicodélica sin plan de vacunas de preñez (Tomás: "nos dimos cuenta sobre la hora, no se las dimos"). Nuevo campo del servicio `sinPlanPrenez`: con él no se avisan Encéfalo, Adenitis ni Desparasitación de preñez. Las demás madres siguen con el plan.
