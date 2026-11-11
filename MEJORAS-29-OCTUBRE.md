@@ -346,3 +346,8 @@ Se publica todo lo de AB y AC. Versión dc-v56.
 - Ajuste `nov-senas-21-24-27`: 21 tres patas blancas y estrellita en la frente; 24 dos patas blancas; 27 alazán más oscuro.
 
 Se publicó todo lo de AE el 5/11 (versión dc-v57): botón del asistente más arriba, fichas para compartir de cualquier caballo, ficha grande por grupo, cuadros para compartir (madres, semana, sanidad, camadas, listas), recorte de franjas negras y señas del 21, 24 y 27.
+
+## AF. Herrero del 26/10 (cargado el 11/11, sin publicar)
+- Ajuste `nov-herrada-2610`: herrada (desvase + herraduras, $35.000) el 26/10/2026 a China, Moria, Wanda, Susana, Vedette, Graciela, Marimorena, Contienda y Alegra. Se borra el desvase de la China cargado por error con fecha 11/11.
+- Se sacaron del código los ajustes de noviembre ya aplicados en los datos reales (premios, preñeces, señas).
+- Sheet: las 9 herradas en EVENTOS (HERRERO de octubre las suma).

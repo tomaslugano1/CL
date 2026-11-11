@@ -226,46 +226,17 @@ EXTRA_ACTS.pushProbar=async()=>{const m=$('#not-msg');if(m)m.textContent='Mandan
    config.ajustes para no repetirse. Así se corrigen datos sin tocar la base a mano. */
 const AJUSTES={
   // Los ajustes ya aplicados en los datos reales se sacan del código (quedan anotados en config.ajustes y no vuelven a correr).
-  // 3/11: premios que contó Tomás. Contienda: mejor caballo de la final de la Copa Carnaval 2024 (18/02/2024).
-  // Cala: mejor caballo de la final de la Copa Diario La Nación 2024 (fin de diciembre: 30/12/2024, aproximada). Con su foto.
-  'nov-premios-cala-contienda':async()=>{
-    for(const [n,p] of [['CONTIENDA',{fecha:'2024-02-18',torneo:'Copa Carnaval 2024 · final',premio:'Mejor caballo de la final (BPP)',detalle:'Manta'}],
-                        ['CALA',{fecha:'2024-12-30',torneo:'Copa Diario La Nación 2024 · final',premio:'Mejor caballo de la final (BPP)',detalle:'Manta · fecha aproximada'}]]){
-      const c=S.caballos.find(x=>norm(x.nombre)===n);if(!c||(c.premios||[]).some(x=>x.torneo===p.torneo))continue;
-      await db.collection('caballos').doc(c.id).update({premios:[...(c.premios||[]),{...p,...(c.fotos?.[0]?{foto:c.fotos[0]}:{})}]})}},
-  // 3/11: lo que contó Tomás.
-  // a) El jueves 29/10/2026 confirmaron preñez de la Primadona y la Poderosa. Inseminación con Irenita Porron ≈10 días antes de la eco (19/10, aproximado).
-  // b) Paranoica, Blusera y Psicodélica (hechura, en descanso) volvieron de la doma de Piri preñadas por un padrillo que estaba ahí
-  //    (hijo de Taita Iluso y de Polito 29). Se entregaron en dic 2025 / ene 2026; el fin de semana (1/11) se vio panza y ubre grandes: están por parir.
-  //    Servicio aproximado 15/12/2025 → FPP 15/11/2026.
-  'nov-prenez-primadona-poderosa-doma':async()=>{
-    const PAD='PADRILLO DE LA DOMA (PIRI)';
-    if(!S.padrillos.some(p=>norm(p.nombre)===norm(PAD)))
-      await db.collection('padrillos').doc(slugId('p')).set({nombre:PAD,padre:'TAITA ILUSO',madre:'POLITO 29',tipo:'Servicio',
-        obs:'Padrillo sin nombre que estaba en la doma de Piri. Preñó sin buscarlo a la Paranoica, la Blusera y la Psicodélica antes de entregarlas (dic 2025 / ene 2026). De la madre (Polito 29) no se sabe nada.'});
-    const serv=async(n,s,eco,ev)=>{const m=S.caballos.find(x=>norm(x.nombre)===n);if(!m)return;
-      if(S.servicios.some(x=>norm(x.madre)===n&&+x.temporada===s.temporada&&x.estado!=='Vacía'))return; // ya está cargado
-      await db.collection('servicios').doc(slugId('s')).set({madre:m.nombre,madreId:m.id,...s,fpp:addDays(s.fecha,335),...(eco?{ecos:[eco]}:{})});
-      await db.collection('eventos').doc(slugId('e')).set({fecha:s.fecha,caballoId:m.id,caballo:m.nombre,tipo:'Servicio',detalle:'Servicio'+(s.padrillo?' '+s.padrillo:'')+(s.tipo?' ('+s.tipo.toLowerCase()+')':''),obs:'Fecha aproximada',por:uid||''});
-      await db.collection('eventos').doc(slugId('e')).set({caballoId:m.id,caballo:m.nombre,obs:'',por:uid||'',...ev})};
-    for(const n of ['PRIMADONA','PODEROSA'])
-      await serv(n,{fecha:'2026-10-19',padrillo:'IRENITA PORRON',tipo:'Inseminación',estado:'Preñada',temporada:2027,obs:'Preñez confirmada el 29/10/2026. Fecha de inseminación aproximada (≈10 días antes de la eco).'},
-        {fecha:'2026-10-29',resultado:'Preñada',sexo:'',obs:'Preñez confirmada el 29/10'},{fecha:'2026-10-29',tipo:'Tacto / Eco',detalle:'Confirmación de preñez'});
-    for(const n of ['PARANOICA','BLUSERA','PSICODELICA'])
-      await serv(n,{fecha:'2025-12-15',padrillo:PAD,tipo:'Monta natural',estado:'Preñada',temporada:2026,
-        obs:'Preñez no buscada: se preñó en la doma de Piri, justo antes de entregarla (dic 2025 / ene 2026). Fecha de servicio y FPP aproximadas. 1/11/2026: panza y ubre muy grandes, primeriza: está por parir.'},
-        null,{fecha:'2026-11-01',tipo:'Revisión',detalle:'Preñada, por parir',obs:'Panza gigante y ubre muy grande (primeriza). Se preñó en la doma.'});
-    // Tomás: pasan a Madres mientras crían; en julio 2027, cuando se desteten los potrillos, vuelven a hechura (o adonde corresponda)
-    for(const n of ['PARANOICA','BLUSERA','PSICODELICA']){const c=S.caballos.find(x=>norm(x.nombre)===n);
-      if(c&&c.estado==='Activo'&&c.categoria!=='Madres')await aplicarPaso(c,'Madres',{fecha:'2026-11-03',obs:'Preñada (se preñó en la doma). Vuelve a hechura en julio 2027, al destetar.'})}
-    if(!S.notas.some(x=>/DESTETE.*PARANOICA|PARANOICA.*DESTETE/.test(norm(x.titulo+' '+x.texto))))
-      await db.collection('notas').doc(slugId('n')).set({titulo:'Julio 2027: destete y vuelta a hechura de Paranoica, Blusera y Psicodélica',
-        texto:'Pasaron a Madres el 3/11/2026 porque se preñaron en la doma. Cuando se desteten los potrillos (julio 2027), pasarlas de nuevo a Hechura o adonde tengan que ir.',fecha:'2027-07-01',estado:'Pendiente'})},
-  // 5/11: señas que contó Tomás de los de doma (para reconocerlos en la foto y en las fichas)
-  'nov-senas-21-24-27':async()=>{
-    for(const [n,t] of [['21','3 patas blancas · estrellita en la frente'],['24','2 patas blancas'],['27','Alazán más oscuro']]){
-      const c=S.caballos.find(x=>x.nombre===n&&x.categoria==='Doma');if(!c||(c.obs||'').includes(t))continue;
-      await db.collection('caballos').doc(c.id).update({obs:[t,c.obs].filter(Boolean).join(' · ')})}},
+  // 11/11: herrero del 26/10/2026 que contó Tomás. Herrada = desvase + herraduras (un 2x1), con el precio de la herrada.
+  // Lote apretar: China, Moria, Wanda, Susana, Vedette y Graciela. Y Marimorena, Contienda y Alegra (las tres desvasadas el 10/10).
+  // La China tenía un desvase cargado por error con fecha de hoy (11/11): se borra, porque va la herrada del 26/10.
+  'nov-herrada-2610':async()=>{
+    const mal=S.eventos.find(e=>e.id==='e-mwc3e14h9zky'&&e.tipo==='Desvasada'&&e.fecha==='2026-11-11');
+    if(mal)await db.collection('eventos').doc(mal.id).delete();
+    const precio=precios()['Herrada'];
+    for(const n of ['CHINA','MORIA','WANDA','SUSANA','VEDETTE','GRACIELA','MARIMORENA','CONTIENDA','ALEGRA']){
+      const c=S.caballos.find(x=>norm(x.nombre)===n&&x.estado==='Activo');if(!c)continue;
+      if(S.eventos.some(e=>e.caballoId===c.id&&e.tipo==='Herrada'&&e.fecha==='2026-10-26'))continue; // ya está
+      await db.collection('eventos').doc(slugId('e')).set({fecha:'2026-10-26',caballoId:c.id,caballo:c.nombre,tipo:'Herrada',detalle:'Herrada (desvase + herraduras)',obs:'',...(precio?{precio}:{}),por:uid||''})}},
 };
 let _ajustando=false;
 async function ajustesUnicos(){if(_ajustando||!canWrite||!db||!window.DC_NUBE_LISTA||!S.loaded.caballos||!S.loaded.eventos||!S.loaded.config||!S.loaded.servicios||!S.caballos.length)return;
