@@ -185,7 +185,8 @@ EXTRA_ACTS.config=()=>{const cs=controles(),catsAll=CATS.filter(x=>x!=='Doma');
       <div class="row">${['todas',...catsAll].map(k=>`<label class="chk small"><input type="checkbox" id="cc-c-${i}-${k}" ${(c.cats===TODAS?k==='todas':(c.cats||[]).includes(k))?'checked':''}>${k==='todas'?'Todas':k}</label>`).join('')}</div></div>`).join('')}
     ${canWrite?'<button class="btn pri ancho" data-act="guardarCtrl">Guardar controles</button>':''}</section>
    <section class="fsec"><div class="fsec-h"><h3>Desvase, herrado, desparasitación y precios</h3></div>${panelDias()}</section>
-   <section class="fsec"><div class="fsec-h"><h3>Avisos</h3></div><div class="list"><div class="li"><span>Notificaciones en el celular</span><button class="btn sm" data-act="notificaciones">Abrir</button></div><div class="li"><span>Calendario</span><button class="btn sm" data-act="recordatorios">Abrir</button></div></div></section>`)};
+   <section class="fsec"><div class="fsec-h"><h3>Avisos</h3></div><div class="list"><div class="li"><span>Notificaciones en el celular</span><button class="btn sm" data-act="notificaciones">Abrir</button></div><div class="li"><span>Calendario</span><button class="btn sm" data-act="recordatorios">Abrir</button></div></div></section>
+   <section class="fsec"><div class="fsec-h"><h3>Asistente por audio</h3></div><div class="list"><div class="li"><div>Claude carga lo que le contás<div class="sub">Con permisos limitados, a tu nombre y con registro para deshacer</div></div><button class="btn sm" data-act="puerta">Abrir</button></div></div></section>`)};
 EXTRA_ACTS.guardarCtrl=async()=>{const catsAll=CATS.filter(x=>x!=='Doma'),g={};
   CONTROLES_DEF.forEach((c,i)=>{const o={activo:$('#cc-a-'+i).checked};
     if(c.dias)o.dias=+$('#cc-d-'+i).value||c.dias;else o.meses=($('#cc-m-'+i).value.match(/\d+/g)||[]).map(Number).filter(n=>n>0&&n<12);

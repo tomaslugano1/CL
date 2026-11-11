@@ -352,3 +352,7 @@ Se publicó todo lo de AE el 5/11 (versión dc-v57): botón del asistente más a
 - Se sacaron del código los ajustes de noviembre ya aplicados en los datos reales (premios, preñeces, señas).
 - Sheet: las 9 herradas en EVENTOS (HERRERO de octubre las suma).
 - Ajuste `nov-sin-plan-prenez-doma`: Paranoica, Blusera y Psicodélica sin plan de vacunas de preñez (Tomás: "nos dimos cuenta sobre la hora, no se las dimos"). Nuevo campo del servicio `sinPlanPrenez`: con él no se avisan Encéfalo, Adenitis ni Desparasitación de preñez. Las demás madres siguen con el plan.
+
+## AG. Asistente por audio (11/11, sin publicar)
+- supabase/asistente.sql: "puerta" con permisos limitados para que Claude cargue sin publicar (crear eventos/servicios/partos/notas/padrillos, cambiar datos sin vaciarlos, anular eventos a la papelera; nada de usuarios, config, fotos ni premios). A nombre de Toto, con registro y deshacer. Probado en un Postgres local que imita Supabase.
+- App: Configuración → Asistente por audio (activar con clave que se muestra una vez, apagar, ver lo último que cargó). Versión dc-v58.

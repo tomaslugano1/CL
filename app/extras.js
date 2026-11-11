@@ -303,3 +303,33 @@ EXTRA_ACTS.eco=d=>{const s=S.servicios.find(x=>x.id===d.id);if(!s)return;const v
      const m=findByName(s.madre);if(m)await db.collection('eventos').doc(slugId('e')).set({fecha:e.fecha,caballoId:m.id,caballo:m.nombre,tipo:'Tacto / Eco',detalle:(e.resultado==='Preñada'?'Confirmación de preñez':'Eco: '+e.resultado.toUpperCase())+(s.padrillo?' · '+s.padrillo:''),obs:e.obs||'',por:uid||''});
      toast(s.madre+': '+e.resultado.toLowerCase());if(volver){UI.ficha=volver;renderFicha()}else closeModal()},
    `<p class="note">Servida el ${fmt(s.fecha)}${s.padrillo?' con '+esc(s.padrillo):''}${s.fecha?' · hoy van '+diff(hoy(),s.fecha)+' días':''}. Si da preñada, la FPP queda en ${fmt(s.fpp||(s.fecha?addDays(s.fecha,GEST):''))}.</p>`)};
+
+/* ================= Asistente por audio (pedido de Tomás el 11/11/2026) =================
+   Abre una "puerta" (supabase/asistente.sql) para que Claude cargue lo que Tomás le cuenta por audio, sin publicar la app.
+   Solo puede crear eventos, servicios, partos, notas y padrillos, cambiar datos (sin dejarlos vacíos) y anular eventos
+   (quedan en la papelera). No puede borrar caballos ni tocar usuarios, configuración, fotos ni premios.
+   Todo queda a nombre de quien activó la puerta (Toto) y en un registro para deshacer. */
+const ACC_TXT={crear:'Cargó',cambiar:'Cambió',anular:'Anuló'};
+async function panelPuerta(){UI.ficha=null;const A=window.DC_ASISTENTE;
+  $('#modal').innerHTML=`<div class="ov" data-close-ov><div class="sheet narrow"><div class="sheet-h"><h2>Asistente por audio</h2><button class="x" data-act="close" aria-label="Cerrar">×</button></div><div class="sheet-b" id="pta-b"><div class="empty">Revisando…</div></div></div></div>`;
+  const b=$('#pta-b');let st=null,err='';try{st=await A.estado()}catch(e){err=e?.message||String(e)}
+  const que=`<p style="margin:0 0 10px">Le contás a Claude lo que pasó (por audio o escrito) y lo carga en la app: herradas, desparasitaciones, vacunas, partos, servicios, movimientos, señas.</p>
+    <ul class="small" style="margin:0 0 12px;padding-left:18px"><li>Queda cargado <b>a tu nombre</b>.</li><li><b>No puede borrar</b> caballos, servicios ni datos; un evento mal cargado lo anula y queda en la papelera.</li><li>No toca usuarios, configuración, fotos ni premios.</li><li>Todo queda en un registro y se puede deshacer.</li></ul>`;
+  if(!b)return;
+  if(err||!st){b.innerHTML=que+`<div class="panel"><h3>Falta un paso único</h3><p class="small" style="margin:0">Hay que correr <b>supabase/asistente.sql</b> en Supabase (te lo pasa Claude, con la guía).</p>${err?`<p class="note">${esc(err)}</p>`:''}</div>`;return}
+  let reg=[];try{reg=await A.registro()}catch(e){}
+  const lista=reg.length?`<div class="list">${reg.map(r=>{const d=r.despues||r.antes||{};return `<div class="li"><div>${ACC_TXT[r.accion]||esc(r.accion)} · ${esc(d.caballo||d.madre||d.nombre||d.titulo||r.id)}<div class="sub">${esc([d.detalle||d.tipo||d.estado||'',r.nota].filter(Boolean).join(' · '))}</div></div><span class="small muted">${fmt((r.cuando||'').slice(0,10))}</span></div>`}).join('')}</div>`:'<p class="muted small">Todavía no cargó nada.</p>';
+  b.innerHTML=que+(st.activa?`<div class="panel"><h3>✓ Activado</h3><p class="small" style="margin:0 0 10px">Desde el ${fmt(String(st.desde||'').slice(0,10))}.</p>
+      ${canWrite?`<div class="row"><button class="btn danger" data-act="puertaApagar">Apagar</button><button class="btn" data-act="puertaActivar">Clave nueva</button></div>`:''}</div>
+      <div class="panel"><h3>Lo último que cargó</h3>${lista}</div>`
+    :`<div class="panel"><h3>Apagado</h3>${canWrite?'<button class="btn pri ancho" data-act="puertaActivar">Activar</button>':'<p class="small muted">Lo activa un usuario que pueda cargar datos.</p>'}</div>${reg.length?`<div class="panel"><h3>Lo último que cargó</h3>${lista}</div>`:''}`)}
+EXTRA_ACTS.puerta=panelPuerta;
+EXTRA_ACTS.puertaActivar=async()=>{if(!confirm('¿Crear la clave del asistente? Si ya había una, la vieja deja de andar.'))return;
+  let k;try{k=await window.DC_ASISTENTE.activar()}catch(e){toast('No se pudo: '+(e?.message||e));return}
+  const b=$('#pta-b');if(!b)return;
+  b.innerHTML=`<div class="panel"><h3>Tu clave del asistente</h3><p class="small" style="margin:0 0 8px">Se muestra <b>una sola vez</b>. Copiala y pegala en el <b>formulario seguro</b> que te abre Claude. <b>No la mandes por chat ni por WhatsApp.</b></p>
+    <input id="pta-k" readonly value="${esc(k)}" onclick="this.select()" style="font-family:monospace;font-size:13px">
+    <div class="row" style="margin-top:10px"><button class="btn pri" data-act="puertaCopiar">Copiar clave</button><button class="btn" data-act="puerta">Listo</button></div></div>`};
+EXTRA_ACTS.puertaCopiar=async()=>{const i=$('#pta-k');if(!i)return;try{await navigator.clipboard.writeText(i.value);toast('Clave copiada')}catch(e){i.select();toast('Seleccioná la clave y copiala')}};
+EXTRA_ACTS.puertaApagar=async()=>{if(!confirm('¿Apagar el asistente? Deja de poder cargar hasta que lo actives de nuevo.'))return;
+  try{await window.DC_ASISTENTE.apagar();toast('Asistente apagado')}catch(e){toast('No se pudo: '+(e?.message||e));return}panelPuerta()};

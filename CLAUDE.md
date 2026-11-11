@@ -10,6 +10,13 @@ SIEMPRE, sin que lo pida: todo lo que cuenta va a la app **y** al Sheet en el mi
 3. Las camadas son registro histórico: un potrillo que nace muerto o muere queda en su camada (con sexo, fecha y "muerto"), no se borra; solo no cuenta entre los vivos.
 4. Avisar en una línea qué quedó cargado y qué falta.
 
+## Puerta del asistente (cargar sin publicar) — supabase/asistente.sql
+- Si está activa (Configuración → Asistente por audio), lo que Tomás cuenta se carga directo en la app con la RPC `asistente_cargar` (y se lee todo con `asistente_leer`), sin publicar. La clave la pone el proxy en el encabezado `X-DC-Asistente-Key` (nunca pedirla por chat ni guardarla en el repo).
+- SIEMPRE antes de cargar: decirle a Tomás en una línea qué se entendió (caballos, fecha, qué) y esperar el ok si hay cualquier duda (ej. qué yegua parió).
+- Todo queda a nombre de Toto y en `asistente_registro`; un error se arregla con `asistente_deshacer(n)`.
+- Solo puede crear/cambiar caballos, eventos, servicios, notas y padrillos, y anular eventos. No puede borrar datos ni tocar fotos, premios, usuarios ni config.
+- Igual que antes: lo que se carga en la app va también al Sheet en el mismo momento.
+
 ## Cómo leer los datos
 - App (solo lectura), copiar este comando tal cual, en una sola línea (ya tiene permiso en `.claude/settings.json`; armarlo distinto lo frena el control de permisos):
   `curl -sS https://rqmibapllqfvxgsawyox.supabase.co/rest/v1/rpc/datos_calendario -H "apikey: $(sed -n "s/.*anonKey:'\([^']*\)'.*/\1/p" /home/user/CL/app/config.js)" -H "Content-Type: application/json" -d "{\"p_clave\":\"$DC_CLAVE\"}" -o <scratchpad>/app.json -w "%{http_code}\n"`

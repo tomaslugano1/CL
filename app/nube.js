@@ -91,6 +91,11 @@
   /* ---------- clave del calendario de recordatorios (tabla calendario_clave, ver supabase/recordatorios.sql) ---------- */
   window.DC_CLAVE_CAL=async()=>{if(!sb)return null;const {data,error}=await sb.from('calendario_clave').select('clave').limit(1);if(error)throw error;return data?.[0]?.clave||null};
 
+  /* ---------- puerta del asistente por audio (ver supabase/asistente.sql) ---------- */
+  const rpcA=async(f,a)=>{if(!sb)throw new Error('Sin conexión');const {data,error}=await sb.rpc(f,a);if(error)throw error;return data};
+  window.DC_ASISTENTE={estado:()=>rpcA('asistente_estado'),activar:()=>rpcA('asistente_activar'),apagar:()=>rpcA('asistente_apagar'),
+    registro:async()=>{const {data,error}=await sb.from('asistente_registro').select('n,cuando,accion,coleccion,id,nota,despues,antes').order('n',{ascending:false}).limit(20);if(error)throw error;return data||[]}};
+
   /* ---------- notificaciones en el celular (Web Push) ---------- */
   const b64u=s=>{const b=atob((s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,ch=>ch.charCodeAt(0))};
   const b64e=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
