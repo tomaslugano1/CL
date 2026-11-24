@@ -1,0 +1,522 @@
+<title>Mis 60 Días</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: una columna angosta tipo app, encabezado fijo arriba y pestañas abajo. Verde cancha + ámbar cerveza. */
+:root{
+  --bg:#f1f4ee; --surface:#ffffff; --ink:#1b281f; --muted:#5d6b61; --line:#dbe2d6;
+  --accent:#2e6a3a; --accent-ink:#ffffff; --accent-soft:#e1eedf;
+  --warm:#b8691f; --warm-soft:#f7e8d6; --calm:#4f7f9a; --calm-soft:#e2edf3;
+  --f-display:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111713; --surface:#19211b; --ink:#e5ece4; --muted:#9aa89d; --line:#2a352d;
+  --accent:#73c181; --accent-ink:#0d1a10; --accent-soft:#1f3324;
+  --warm:#e5a35c; --warm-soft:#382a1a; --calm:#8cc0dc; --calm-soft:#1c2c35; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111713; --surface:#19211b; --ink:#e5ece4; --muted:#9aa89d; --line:#2a352d;
+  --accent:#73c181; --accent-ink:#0d1a10; --accent-soft:#1f3324;
+  --warm:#e5a35c; --warm-soft:#382a1a; --calm:#8cc0dc; --calm-soft:#1c2c35; color-scheme:dark}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 120px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px 10px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line)}
+.brand{font-family:var(--f-display);font-weight:800;font-size:1.35rem;letter-spacing:-.01em}
+.daycount{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.daycount b{color:var(--accent);font-weight:600}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0}
+h1{font-size:1.6rem;line-height:1.15}
+h2{font-size:1.15rem}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+section.view{display:grid;gap:16px;padding-top:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px;min-width:0}
+.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+textarea,input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;width:100%;box-sizing:border-box}
+textarea{min-height:140px;resize:vertical;font-size:16px}
+input{font-size:16px}
+textarea:focus,input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row>*{min-width:0}
+.field{display:grid;gap:6px;flex:1 1 140px}
+button{font:inherit;cursor:pointer;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;font-weight:600}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);padding:14px 20px;font-size:1rem;width:100%}
+button.ghost{background:transparent}
+button:disabled{opacity:.55;cursor:default}
+.mic{display:inline-flex;align-items:center;gap:8px}
+.mic.on{background:var(--warm);color:#fff;border-color:var(--warm)}
+.mic svg{width:18px;height:18px}
+.daynav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.daynav h1{text-align:center;flex:1}
+.daynav button{width:44px;height:44px;padding:0;font-size:1.2rem}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px;font-size:.85rem;font-weight:600;border:1px solid transparent}
+.c-liviano{background:var(--accent-soft);color:var(--accent)}
+.c-normal{background:var(--calm-soft);color:var(--calm)}
+.c-pesado{background:var(--warm-soft);color:var(--warm)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{padding:6px 14px;font-size:.9rem}
+.chips button.sel.liviano{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.chips button.sel.normal{background:var(--calm-soft);color:var(--calm);border-color:var(--calm)}
+.chips button.sel.pesado{background:var(--warm-soft);color:var(--warm);border-color:var(--warm)}
+dl.facts{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0}
+dl.facts dt{color:var(--muted);font-size:.85rem;padding-top:2px}
+dl.facts dd{margin:0;min-width:0}
+ul.plain{margin:0;padding-left:18px;display:grid;gap:4px}
+.note{background:var(--accent-soft);border-radius:10px;padding:10px 12px;font-size:.95rem}
+.goal{display:grid;gap:6px}
+.goal .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.goal .val{font-variant-numeric:tabular-nums;font-weight:600}
+.bar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--accent)}
+.bar.limit>i{background:var(--calm)}
+.bar.over>i{background:var(--warm)}
+.strip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.strip button{border-radius:12px;padding:8px 2px;display:grid;justify-items:center;gap:4px;font-weight:500;font-size:.75rem;color:var(--muted)}
+.strip button .n{font-size:1rem;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.strip button.today{border-color:var(--accent)}
+.strip button.future{opacity:.4}
+.dots{display:flex;gap:3px;height:8px}
+.dot{width:8px;height:8px;border-radius:50%}
+.d-liviano{background:var(--accent)} .d-normal{background:var(--calm)} .d-pesado{background:var(--warm)}
+.d-act{background:var(--ink)} .d-alc{background:var(--warm);border-radius:2px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.75rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+table.plan{width:100%;border-collapse:collapse;font-size:.88rem;font-variant-numeric:tabular-nums}
+table.plan th,table.plan td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.plan th{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+table.plan tr.cur td{background:var(--accent-soft)}
+.scroll{overflow-x:auto}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabs .in{display:grid;grid-template-columns:repeat(3,1fr);width:100%;max-width:560px}
+nav.tabs button{border:0;border-radius:0;background:transparent;padding:12px 4px 14px;color:var(--muted);font-weight:600;display:grid;justify-items:center;gap:3px;font-size:.8rem}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button[aria-current="page"]{color:var(--accent)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:.9rem;z-index:20;max-width:90vw}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+.hero{display:grid;gap:8px;padding-top:8px}
+.big{font-family:var(--f-display);font-weight:800;font-size:2.4rem;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.confirm{border:1px solid var(--warm);background:var(--warm-soft);border-radius:10px;padding:12px;display:grid;gap:10px}
+.loading{padding:60px 0;text-align:center;color:var(--muted)}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Mis 60 días</div>
+    <div class="daycount" id="daycount"></div>
+  </header>
+  <main id="app"><div class="loading"><span class="spin"></span> Cargando…</div></main>
+</div>
+
+<nav class="tabs" id="tabs" hidden>
+  <div class="in">
+    <button type="button" id="tab-hoy" data-tab="hoy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12"/><rect x="8" y="3" width="8" height="12" rx="4"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Hoy</button>
+    <button type="button" id="tab-semana" data-tab="semana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Semana</button>
+    <button type="button" id="tab-plan" data-tab="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>Plan</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+"use strict";
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n => String(n).padStart(2,"0");
+const ymd = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parseD = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); };
+const addDays = (s,n) => { const d = parseD(s); d.setDate(d.getDate()+n); return ymd(d); };
+const diffDays = (a,b) => Math.round((parseD(b)-parseD(a))/86400000);
+const todayStr = () => ymd(new Date());
+const DIAS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const prettyDate = s => { const d = parseD(s); return DIAS[d.getDay()]+" "+d.getDate()+" "+MESES[d.getMonth()]; };
+const cap = s => s.charAt(0).toUpperCase()+s.slice(1);
+const num = v => { const n = parseFloat(String(v).replace(",", ".")); return isFinite(n) ? n : null; };
+function toast(msg){ document.querySelectorAll(".toast").forEach(x=>x.remove()); const t=document.createElement("div"); t.className="toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
+const withTimeout = (p,ms) => Promise.race([p, new Promise(r=>setTimeout(()=>r(null),ms))]);
+const getCap = name => { try { return window.claude && window.claude.use ? withTimeout(window.claude.use(name).catch(()=>null), 10000) : Promise.resolve(null); } catch(e){ return Promise.resolve(null); } };
+
+/* ---------- guardado: base de datos de Claude, o el navegador si no hay ---------- */
+const store = {
+  db:null,
+  async get(path){
+    if(this.db){ const s = await this.db.doc(path).get(); return s.exists ? s.data() : null; }
+    try { const v = localStorage.getItem("h60:"+path); return v ? JSON.parse(v) : null; } catch(e){ return null; }
+  },
+  async set(path,data){
+    if(this.db){ return this.db.doc(path).set(data); }
+    try { localStorage.setItem("h60:"+path, JSON.stringify(data)); } catch(e){}
+  },
+  async list(col){
+    if(this.db){ const q = await this.db.collection(col).get(); return q.docs.map(d=>d.data()); }
+    const out=[]; try { for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k.startsWith("h60:"+col+"/")) out.push(JSON.parse(localStorage.getItem(k))); } } catch(e){}
+    return out;
+  }
+};
+
+/* ---------- estado ---------- */
+const S = { plan:null, days:{}, sums:{}, tab:"hoy", date:todayStr(), weekIdx:null, sample:null, dict:null, busy:false, confirmReset:false };
+
+/* ---------- plan de 60 días ---------- */
+function buildWeeks(){
+  const base = [
+    {actividad:2, pasos:5000, sueno:7,   alcohol:2, pesados:3, foco:"Arrancar sin apuro: 2 días de movimiento (una caminata de 30 min cuenta) y salir un rato de casa aunque estés estudiando."},
+    {actividad:2, pasos:5500, sueno:7,   alcohol:2, pesados:3, foco:"Mismo ritmo, un poco más de pasos. Cortar el estudio con una vuelta a la manzana."},
+    {actividad:3, pasos:6500, sueno:7,   alcohol:2, pesados:3, foco:"Sumar un tercer día: polo o montar el finde ya suman uno."},
+    {actividad:3, pasos:7000, sueno:7,   alcohol:2, pesados:2, foco:"Ojo con la merienda: es donde más se cuelan las facturas."},
+    {actividad:3, pasos:7500, sueno:7.5, alcohol:2, pesados:2, foco:"Volver al gimnasio aunque sea 1 vez, o probar trotar 20 min."},
+    {actividad:3, pasos:8000, sueno:7.5, alcohol:2, pesados:2, foco:"Sostener lo que ya hacés. La constancia vale más que un día heroico."},
+    {actividad:4, pasos:8000, sueno:7.5, alcohol:2, pesados:2, foco:"Cuatro días de movimiento: 2 de gimnasio o trote + polo/montar."},
+    {actividad:4, pasos:8500, sueno:7.5, alcohol:2, pesados:2, foco:"Igual que la semana pasada. Ya es costumbre."},
+    {actividad:2, pasos:8500, sueno:7.5, alcohol:1, pesados:1, foco:"Recta final (4 días). Mirá cuánto cambiaste desde el día 1."}
+  ];
+  return base.map((w,i)=>({n:i+1, ...w, dias: i===8 ? 4 : 7}));
+}
+function weekOf(dateStr){ if(!S.plan) return 0; const d = diffDays(S.plan.inicio, dateStr); return Math.max(0, Math.min(8, Math.floor(d/7))); }
+function dayNum(dateStr){ return diffDays(S.plan.inicio, dateStr)+1; }
+
+/* ---------- IA ---------- */
+const PARSE_PROMPT = (texto, fecha) => `Sos el ayudante de una app personal de hábitos de un chico de 18 años de Argentina (1,79 m, unos 84 kg). Juega al polo y monta a caballo los fines de semana. No desayuna: toma mate hasta el mediodía (el mate solo no es comida). Los fines de semana toma cerveza y no la piensa dejar. Está rindiendo finales, así que pasa muchos días en casa.
+
+Te paso lo que contó de su día (${prettyDate(fecha)}), dictado como se lo diría a un amigo. Ordenalo. No inventes nada que no diga. Si algo no aparece, usá null o una lista vacía.
+
+Criterio para "calificacion" del día según la comida y la bebida (sin contar calorías):
+- "liviano": comió poco o comida simple (ensalada, yogur, una porción normal).
+- "normal": un día de comida común (un plato de milanesa, pastas, empanadas sin exagerar).
+- "pesado": porciones grandes o repetidas, frituras, mucha factura/medialunas, picoteo, o tomó bastante alcohol.
+Si no dice nada de comida, null.
+
+"activo" es true si hizo actividad física de verdad: polo, montar, gimnasio, correr, o caminar 20 minutos o más. Quedarse en casa es false.
+
+Respondé SOLO con este JSON:
+{"sueno_horas": número o null,
+ "comidas": [{"momento":"almuerzo|merienda|cena|picoteo|otro","que":"texto corto"}],
+ "calificacion": "liviano"|"normal"|"pesado"|null,
+ "actividades": [{"tipo":"polo|montar|caminar|correr|gimnasio|otro","detalle":"texto corto","minutos": número o null}],
+ "activo": true|false,
+ "alcohol": {"tomo": true|false, "detalle": "texto corto o vacío", "nivel": "nada|poco|bastante|mucho"},
+ "pasos": número o null,
+ "comentario": "una frase corta, relajada, en voseo rioplatense, sin retar ni dar culpa. Si fue un día flojo, decilo con naturalidad y listo."}
+
+Lo que contó:
+"""${texto}"""`;
+
+const WEEK_PROMPT = (w, days) => `Sos el ayudante de una app personal de hábitos de un chico de 18 años de Argentina que quiere tener más conciencia de lo que hace y bajar un poco de peso, sin dietas raras ni fitness extremo. Come normal: milanesas, empanadas, pastas, ensaladas, yogur griego. No desayuna (mate hasta el mediodía). Toma cerveza los fines de semana y no la va a dejar. Juega al polo y monta. Está rindiendo finales.
+
+Metas de esta semana (semana ${w.n} de su plan de 60 días): ${w.actividad} días con actividad, ${w.pasos} pasos por día, ${w.sueno} horas de sueño, alcohol como mucho ${w.alcohol} días, como mucho ${w.pesados} días pesados.
+
+Lo que registró cada día (JSON):
+${JSON.stringify(days)}
+
+Escribí un resumen de la semana en voseo rioplatense, tono relajado de amigo, sin culpa ni retos. Los consejos tienen que ser 2 o 3, concretos y basados en lo que comió e hizo de verdad (por ejemplo: "comiste medialunas 5 días, probá bajarlo a 2" o "el almuerzo fue siempre de 3 milanesas, probá con 2 y más ensalada"). Nada de dietas, suplementos ni contar calorías. Si registró pocos días, decilo sin drama y basate en lo que hay.
+
+Respondé SOLO con este JSON:
+{"titulo":"frase corta que resuma la semana","resumen":"2 o 3 oraciones","bien":"una cosa que hizo bien","consejos":["...","..."]}`;
+
+/* ---------- carga ---------- */
+async function boot(){
+  const [db, sample, dict] = await Promise.all([getCap("db"), getCap("sample"), getCap("dictation")]);
+  store.db = db; S.sample = sample; S.dict = dict;
+  try {
+    S.plan = await store.get("config/plan");
+    if(S.plan){
+      (await store.list("dias")).forEach(d=>{ if(d && d.fecha) S.days[d.fecha]=d; });
+      (await store.list("resumenes")).forEach(r=>{ if(r && r.semana) S.sums[r.semana]=r; });
+    }
+  } catch(e){ console.error(e); }
+  if(dict){
+    dict.onFinal(({text})=>{ const ta=$("#texto"); if(ta){ ta.value = (ta.value.trim()+" "+text).trim(); saveDraft(); } const p=$("#partial"); if(p) p.textContent=""; });
+    dict.onPartial(({text})=>{ const p=$("#partial"); if(p) p.textContent=text; });
+    dict.onState(({state})=>{ const b=$("#mic"); if(!b) return; const on = state==="listening"||state==="starting"; b.classList.toggle("on", on); b.querySelector("span").textContent = on ? "Listo, parar" : "Hablar"; });
+  }
+  render();
+}
+
+/* ---------- vistas ---------- */
+function render(){
+  const app = $("#app");
+  if(!S.plan){ $("#tabs").hidden = true; $("#daycount").textContent=""; app.innerHTML = setupView(); bindSetup(); return; }
+  $("#tabs").hidden = false;
+  const dn = dayNum(todayStr());
+  $("#daycount").innerHTML = dn<1 ? "Arranca el "+esc(prettyDate(S.plan.inicio)) : dn>60 ? "¡Terminaste los 60!" : "Día <b>"+dn+"</b> de 60";
+  document.querySelectorAll("nav.tabs button").forEach(b=> b.setAttribute("aria-current", b.dataset.tab===S.tab ? "page" : "false"));
+  if(S.tab==="hoy"){ app.innerHTML = hoyView(); bindHoy(); }
+  else if(S.tab==="semana"){ app.innerHTML = semanaView(); bindSemana(); }
+  else { app.innerHTML = planView(); bindPlan(); }
+}
+
+function setupView(){
+  return `<section class="view">
+    <div class="hero">
+      <h1>Armemos tu plan de 60 días</h1>
+      <p class="muted">Tres datos y listo. Las metas arrancan suaves porque hoy estás casi sin moverte, y suben de a poco.</p>
+    </div>
+    <div class="card">
+      <div class="field"><label class="label" for="s-obj">Tu objetivo, en tus palabras</label>
+        <textarea id="s-obj" style="min-height:90px">Tener más conciencia de lo que hago, moverme más y verme más esbelto. Sin dietas raras y sin dejar la cerveza del finde.</textarea></div>
+      <div class="row">
+        <div class="field"><label class="label" for="s-peso">Peso hoy (kg)</label><input id="s-peso" inputmode="decimal" value="84"></div>
+        <div class="field"><label class="label" for="s-ini">Arranco el</label><input id="s-ini" type="date" value="${todayStr()}"></div>
+      </div>
+      <button class="primary" id="s-go" type="button">Armar mi plan</button>
+      <p class="small muted">Referencia realista: bajar entre 3 y 4 kg en 60 días (medio kilo por semana, más o menos). Es una guía, no una obligación.</p>
+    </div>
+  </section>`;
+}
+function bindSetup(){
+  $("#s-go").onclick = async ()=>{
+    const peso = num($("#s-peso").value) || 84;
+    const inicio = $("#s-ini").value || todayStr();
+    S.plan = { inicio, pesoInicial:peso, pesoRef: Math.round((peso-3.5)*10)/10, objetivo: $("#s-obj").value.trim(), semanas: buildWeeks(), creado: new Date().toISOString() };
+    await store.set("config/plan", S.plan);
+    S.tab="hoy"; S.date = todayStr(); render(); toast("Plan listo. ¡Arrancamos!");
+  };
+}
+
+/* ----- Hoy ----- */
+function draftKey(){ return "h60draft:"+S.date; }
+function saveDraft(){ try{ const t=$("#texto"); if(t) localStorage.setItem(draftKey(), t.value); }catch(e){} }
+function readDraft(){ try{ return localStorage.getItem(draftKey()); }catch(e){ return null; } }
+
+function hoyView(){
+  const d = S.days[S.date];
+  const isToday = S.date===todayStr();
+  const draft = readDraft();
+  const texto = draft!=null ? draft : (d ? d.texto : "");
+  const micBtn = S.dict ? `<button type="button" class="mic" id="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Hablar</span></button>` : "";
+  const aiNote = S.sample ? "" : `<p class="small muted">El ordenador automático no está disponible ahora. Igual se guarda lo que escribas y podés marcar cómo fue el día a mano.</p>`;
+  return `<section class="view">
+    <div class="daynav">
+      <button type="button" id="prev" aria-label="Día anterior">‹</button>
+      <h1>${isToday ? "Hoy" : esc(cap(prettyDate(S.date)))}</h1>
+      <button type="button" id="next" aria-label="Día siguiente" ${isToday?"disabled":""}>›</button>
+    </div>
+    <div class="card">
+      <label class="label" for="texto">Contame tu día</label>
+      <textarea id="texto" placeholder="Ej: dormí 8 horas, al mediodía comí 3 milanesas con papa y calabaza, a la tarde mate con 2 medialunas, no salí de casa">${esc(texto)}</textarea>
+      <div id="partial" class="small muted"></div>
+      <div class="row">${micBtn}<span class="small muted" style="flex:1 1 200px">${S.dict ? "O escribilo." : "Para dictar: tocá el micrófono del teclado del iPhone y hablá."}</span></div>
+      <div class="row">
+        <div class="field"><label class="label" for="pasos">Pasos (del celu)</label><input id="pasos" inputmode="numeric" placeholder="ej. 4200" value="${d && d.pasos!=null ? esc(d.pasos) : ""}"></div>
+        <div class="field"><label class="label" for="peso">Peso (si te pesaste)</label><input id="peso" inputmode="decimal" placeholder="opcional" value="${d && d.peso!=null ? esc(d.peso) : ""}"></div>
+      </div>
+      <button class="primary" type="button" id="guardar">${S.busy ? '<span class="spin"></span> Ordenando…' : (d ? "Actualizar el día" : "Guardar el día")}</button>
+      ${aiNote}
+    </div>
+    ${d ? dayCard(d) : `<p class="muted small">Todavía no cargaste este día. No hace falta que sea perfecto: "hoy no hice nada" también vale.</p>`}
+  </section>`;
+}
+
+function dayCard(d){
+  const p = d.parsed || {};
+  const cal = d.calificacion;
+  const comidas = (p.comidas||[]).map(c=>`<li><b>${esc(cap(c.momento||""))}</b>${c.momento?": ":""}${esc(c.que)}</li>`).join("");
+  const acts = (p.actividades||[]).map(a=>`<li>${esc(cap(a.tipo||"otro"))}${a.detalle?" · "+esc(a.detalle):""}${a.minutos?" · "+esc(a.minutos)+" min":""}</li>`).join("");
+  const alc = p.alcohol && p.alcohol.tomo ? esc(p.alcohol.detalle || "Sí") + (p.alcohol.nivel && p.alcohol.nivel!=="nada" ? ` <span class="muted small">(${esc(p.alcohol.nivel)})</span>` : "") : (d.parsed ? "No" : "—");
+  return `<div class="card">
+    <div class="row" style="justify-content:space-between"><h2>Así quedó</h2>${cal ? `<span class="chip c-${esc(cal)}">Día ${esc(cal)}</span>` : ""}</div>
+    ${d.parsed ? `<dl class="facts">
+      <dt>Sueño</dt><dd>${p.sueno_horas!=null ? esc(p.sueno_horas)+" h" : "—"}</dd>
+      <dt>Comidas</dt><dd>${comidas ? `<ul class="plain">${comidas}</ul>` : "—"}</dd>
+      <dt>Actividad</dt><dd>${acts ? `<ul class="plain">${acts}</ul>` : "Nada hoy"}</dd>
+      <dt>Alcohol</dt><dd>${alc}</dd>
+      <dt>Pasos</dt><dd>${d.pasos!=null ? esc(Number(d.pasos).toLocaleString("es-AR")) : "—"}</dd>
+    </dl>` : `<p class="small muted">Guardado como texto. Marcá abajo cómo fue el día.</p>`}
+    ${p.comentario ? `<div class="note">${esc(p.comentario)}</div>` : ""}
+    <div class="label">¿Cómo fue el día de comida? (tocá para corregir)</div>
+    <div class="chips" id="calchips">${["liviano","normal","pesado"].map(k=>`<button type="button" data-cal="${k}" class="${k} ${cal===k?"sel":""}">${cap(k)}</button>`).join("")}</div>
+    <div class="chips" id="flagchips">
+      <button type="button" data-flag="activo" class="${d.activo?"sel liviano":""}">${d.activo?"✓ ":""}Hice actividad</button>
+      <button type="button" data-flag="alcohol" class="${d.alcohol?"sel pesado":""}">${d.alcohol?"✓ ":""}Tomé alcohol</button>
+    </div>
+  </div>`;
+}
+
+function bindHoy(){
+  $("#prev").onclick = ()=>{ S.date = addDays(S.date,-1); render(); };
+  $("#next").onclick = ()=>{ if(S.date<todayStr()){ S.date = addDays(S.date,1); render(); } };
+  $("#texto").addEventListener("input", saveDraft);
+  const mic = $("#mic");
+  if(mic){ mic.onclick = ()=>{
+    if(S.dict.active()){ S.dict.stop().catch(()=>{}); return; }
+    S.dict.start({language:"es-AR"}).catch(e=>{ if(e && e.code==="not_granted"){ mic.remove(); toast("Sin micrófono: usá el del teclado o escribilo."); } });
+  }; }
+  $("#guardar").onclick = guardarDia;
+  document.querySelectorAll("#calchips button").forEach(b=> b.onclick = async ()=>{
+    const d = S.days[S.date]; if(!d) return; d.calificacion = d.calificacion===b.dataset.cal ? null : b.dataset.cal; await persistDay(d); render();
+  });
+  document.querySelectorAll("#flagchips button").forEach(b=> b.onclick = async ()=>{
+    const d = S.days[S.date]; if(!d) return; d[b.dataset.flag] = !d[b.dataset.flag]; await persistDay(d); render();
+  });
+}
+
+async function persistDay(d){ d.actualizado = new Date().toISOString(); S.days[d.fecha]=d; await store.set("dias/"+d.fecha, d); }
+
+async function guardarDia(){
+  if(S.busy) return;
+  const texto = $("#texto").value.trim();
+  const pasosIn = num($("#pasos").value), pesoIn = num($("#peso").value);
+  if(!texto && pasosIn==null && pesoIn==null){ toast("Contame algo del día, aunque sea corto."); return; }
+  const prev = S.days[S.date] || {fecha:S.date, calificacion:null, activo:false, alcohol:false, parsed:null};
+  const d = {...prev, fecha:S.date, texto, pasos: pasosIn!=null ? Math.round(pasosIn) : prev.pasos ?? null, peso: pesoIn ?? prev.peso ?? null};
+  if(S.dict && S.dict.active()) await S.dict.stop().catch(()=>{});
+  if(texto && S.sample && texto !== prev.textoOrdenado){
+    S.busy = true; render();
+    try {
+      const r = await S.sample.json(PARSE_PROMPT(texto, S.date), {modelTier:"quick"});
+      if(r && typeof r==="object"){
+        d.parsed = r; d.textoOrdenado = texto;
+        if(["liviano","normal","pesado"].includes(r.calificacion)) d.calificacion = r.calificacion;
+        d.activo = !!r.activo;
+        d.alcohol = !!(r.alcohol && r.alcohol.tomo);
+        d.sueno = typeof r.sueno_horas==="number" ? r.sueno_horas : null;
+        if(d.pasos==null && typeof r.pasos==="number") d.pasos = Math.round(r.pasos);
+      }
+    } catch(e){
+      if(e && e.code==="not_granted"){ S.sample = null; toast("Sin permiso para ordenar con IA. Se guardó el texto."); }
+      else if(e && e.code==="rate_limited"){ toast("Mucho uso seguido. Se guardó el texto; probá ordenar en un rato."); }
+      else toast("No pude ordenarlo esta vez. Se guardó el texto.");
+    }
+    S.busy = false;
+  }
+  try { await persistDay(d); try{ localStorage.removeItem(draftKey()); }catch(e){} toast("Día guardado"); }
+  catch(e){ toast("No se pudo guardar. Revisá la conexión y probá de nuevo."); }
+  render();
+}
+
+/* ----- Semana ----- */
+function weekStats(wi){
+  const w = S.plan.semanas[wi];
+  const start = addDays(S.plan.inicio, wi*7);
+  const fechas = Array.from({length:w.dias}, (_,i)=>addDays(start,i));
+  const ds = fechas.map(f=>S.days[f]).filter(Boolean);
+  const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+  const pasos = ds.map(d=>d.pasos).filter(v=>typeof v==="number");
+  const sueno = ds.map(d=>d.sueno).filter(v=>typeof v==="number");
+  return { w, start, fechas, cargados: ds.length,
+    activos: ds.filter(d=>d.activo).length,
+    pasos: avg(pasos), sueno: avg(sueno),
+    alcohol: ds.filter(d=>d.alcohol).length,
+    pesados: ds.filter(d=>d.calificacion==="pesado").length };
+}
+function goalRow(label, valTxt, ratio, kind){
+  const pct = Math.max(0, Math.min(1, ratio||0))*100;
+  return `<div class="goal"><div class="top"><span>${label}</span><span class="val">${valTxt}</span></div><div class="bar ${kind||""}"><i style="width:${pct}%"></i></div></div>`;
+}
+function semanaView(){
+  if(S.weekIdx==null) S.weekIdx = weekOf(todayStr());
+  const st = weekStats(S.weekIdx), w = st.w, t = todayStr();
+  const fmt = n => n==null ? "—" : Math.round(n).toLocaleString("es-AR");
+  const strip = st.fechas.map(f=>{
+    const d = S.days[f], dd = parseD(f);
+    const dots = d ? `${d.calificacion?`<i class="dot d-${esc(d.calificacion)}"></i>`:""}${d.activo?'<i class="dot d-act"></i>':""}${d.alcohol?'<i class="dot d-alc"></i>':""}` : "";
+    return `<button type="button" data-go="${f}" class="${f===t?"today":""} ${f>t?"future":""}" ${f>t?"disabled":""}>${DIAS[dd.getDay()].slice(0,2)}<span class="n">${dd.getDate()}</span><span class="dots">${dots}</span></button>`;
+  }).join("");
+  const sum = S.sums["s"+w.n];
+  const pesos = Object.values(S.days).filter(d=>typeof d.peso==="number").sort((a,b)=>a.fecha<b.fecha?-1:1);
+  const ultimo = pesos.length ? pesos[pesos.length-1] : null;
+  const delta = ultimo ? Math.round((ultimo.peso - S.plan.pesoInicial)*10)/10 : null;
+  return `<section class="view">
+    <div class="daynav">
+      <button type="button" id="wprev" aria-label="Semana anterior" ${S.weekIdx===0?"disabled":""}>‹</button>
+      <div style="flex:1;text-align:center"><h1>Semana ${w.n}</h1><div class="small muted">${esc(prettyDate(st.start))} → ${esc(prettyDate(st.fechas[st.fechas.length-1]))}</div></div>
+      <button type="button" id="wnext" aria-label="Semana siguiente" ${S.weekIdx>=8?"disabled":""}>›</button>
+    </div>
+    <div class="card">
+      <div class="strip">${strip}</div>
+      <div class="legend"><span><i class="dot d-liviano"></i>liviano</span><span><i class="dot d-normal"></i>normal</span><span><i class="dot d-pesado"></i>pesado</span><span><i class="dot d-act"></i>actividad</span><span><i class="dot d-alc"></i>alcohol</span></div>
+      <p class="small muted">${st.cargados} de ${w.dias} días cargados. Tocá un día para verlo.</p>
+    </div>
+    <div class="card">
+      <div class="label">Cómo vas contra las metas</div>
+      ${goalRow("Días con actividad", st.activos+" / "+w.actividad, st.activos/w.actividad)}
+      ${goalRow("Pasos por día (promedio)", fmt(st.pasos)+" / "+w.pasos.toLocaleString("es-AR"), (st.pasos||0)/w.pasos)}
+      ${goalRow("Sueño (promedio)", (st.sueno==null?"—":(Math.round(st.sueno*10)/10)+" h")+" / "+w.sueno+" h", (st.sueno||0)/w.sueno)}
+      ${goalRow("Días con alcohol", st.alcohol+" de "+w.alcohol+" que te diste", st.alcohol/w.alcohol, st.alcohol>w.alcohol?"over":"limit")}
+      ${goalRow("Días pesados", st.pesados+" de "+w.pesados+" que te diste", st.pesados/w.pesados, st.pesados>w.pesados?"over":"limit")}
+      <p class="small muted">${esc(w.foco)}</p>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h2>Resumen de la semana</h2></div>
+      ${sum ? `<h3>${esc(sum.titulo)}</h3><p>${esc(sum.resumen)}</p>${sum.bien?`<div class="note"><b>Bien:</b> ${esc(sum.bien)}</div>`:""}<div class="label">Para probar</div><ul class="plain">${(sum.consejos||[]).map(c=>`<li>${esc(c)}</li>`).join("")}</ul>` : `<p class="small muted">Con lo que cargaste, te armo 2 o 3 consejos concretos sobre lo que comés y hacés de verdad.</p>`}
+      ${S.sample ? `<button type="button" id="resumir" ${st.cargados?"":"disabled"}>${S.busy?'<span class="spin"></span> Pensando…':(sum?"Rehacer el resumen":"Armar el resumen")}</button>` : `<p class="small muted">El resumen automático no está disponible ahora.</p>`}
+    </div>
+    <div class="card">
+      <div class="label">Peso</div>
+      <div class="row" style="justify-content:space-between;align-items:flex-end">
+        <div><div class="big">${ultimo ? esc(ultimo.peso) : esc(S.plan.pesoInicial)}<span class="small muted"> kg</span></div><div class="small muted">${ultimo ? "último registro, "+esc(prettyDate(ultimo.fecha)) : "al arrancar"}</div></div>
+        <div class="small muted" style="text-align:right">${delta!=null ? (delta<=0?"":"+")+delta+" kg desde el inicio<br>" : ""}Referencia día 60: ~${esc(S.plan.pesoRef)} kg</div>
+      </div>
+      <p class="small muted">Pesate una vez por semana, mismo día y en ayunas. El número sube y baja solo; importa la tendencia.</p>
+    </div>
+  </section>`;
+}
+function bindSemana(){
+  $("#wprev").onclick = ()=>{ S.weekIdx--; render(); };
+  $("#wnext").onclick = ()=>{ S.weekIdx++; render(); };
+  document.querySelectorAll(".strip button[data-go]").forEach(b=> b.onclick = ()=>{ S.date=b.dataset.go; S.tab="hoy"; render(); });
+  const r = $("#resumir"); if(r) r.onclick = resumirSemana;
+}
+async function resumirSemana(){
+  if(S.busy || !S.sample) return;
+  const st = weekStats(S.weekIdx), w = st.w;
+  const days = st.fechas.filter(f=>S.days[f]).map(f=>{ const d=S.days[f], p=d.parsed||{}; return {dia:prettyDate(f), calificacion:d.calificacion, comidas:p.comidas||[], actividades:p.actividades||[], activo:d.activo, alcohol:p.alcohol||{tomo:d.alcohol}, sueno:d.sueno, pasos:d.pasos, texto: p.comidas ? undefined : d.texto}; });
+  S.busy = true; render();
+  try {
+    const r = await S.sample.json(WEEK_PROMPT(w, days), {modelTier:"default"});
+    if(r && r.resumen){ const s = {semana:"s"+w.n, titulo:String(r.titulo||"Tu semana"), resumen:String(r.resumen), bien:String(r.bien||""), consejos:(Array.isArray(r.consejos)?r.consejos:[]).slice(0,3).map(String), creado:new Date().toISOString()}; S.sums[s.semana]=s; await store.set("resumenes/"+s.semana, s); }
+  } catch(e){
+    if(e && e.code==="not_granted"){ S.sample=null; }
+    toast(e && e.code==="rate_limited" ? "Mucho uso seguido, probá en un rato." : "No pude armar el resumen ahora.");
+  }
+  S.busy = false; render();
+}
+
+/* ----- Plan ----- */
+function planView(){
+  const cur = weekOf(todayStr());
+  const rows = S.plan.semanas.map((w,i)=>`<tr class="${i===cur?"cur":""}"><td>${w.n}${w.dias<7?" *":""}</td><td>${w.actividad}</td><td>${w.pasos.toLocaleString("es-AR")}</td><td>${w.sueno} h</td><td>≤ ${w.alcohol}</td><td>≤ ${w.pesados}</td></tr>`).join("");
+  const w = S.plan.semanas[cur];
+  return `<section class="view">
+    <div class="hero"><div class="label">Tu objetivo</div><h1>${esc(S.plan.objetivo || "Moverme más y verme más esbelto")}</h1>
+      <p class="muted">Arrancaste el ${esc(prettyDate(S.plan.inicio))} con ${esc(S.plan.pesoInicial)} kg. Referencia realista al día 60: alrededor de ${esc(S.plan.pesoRef)} kg.</p></div>
+    <div class="card">
+      <div class="label">Esta semana (semana ${w.n})</div>
+      <p style="margin:0">${esc(w.foco)}</p>
+    </div>
+    <div class="card">
+      <div class="label">Metas semana por semana</div>
+      <div class="scroll"><table class="plan"><thead><tr><th>Sem.</th><th>Días activos</th><th>Pasos/día</th><th>Sueño</th><th>Alcohol</th><th>Pesados</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="small muted">"Alcohol ≤ 2" son días con alcohol, pensado para el finde. Cuenta como actividad: polo, montar, gimnasio, correr o caminar 20 minutos o más. * La semana 9 tiene 4 días.</p>
+    </div>
+    <div class="card">
+      <div class="label">Cómo usarla</div>
+      <ul class="plain">
+        <li>Una vez por día (a la noche está bien), en <b>Hoy</b> contá tu día con el micrófono del teclado o escribiendo.</li>
+        <li>Cargá los pasos que marca la app Salud del iPhone.</li>
+        <li>Si te olvidaste un día, usá la flecha ‹ para ir atrás y cargarlo.</li>
+        <li>El domingo, en <b>Semana</b>, tocá "Armar el resumen".</li>
+      </ul>
+    </div>
+    <div class="card">
+      ${S.confirmReset ? `<div class="confirm"><b>¿Rehacer el plan?</b><span class="small">Se vuelve a la pantalla inicial para elegir fecha y peso. Los días que cargaste no se borran.</span><div class="row"><button type="button" id="reset-yes">Sí, rehacer</button><button type="button" class="ghost" id="reset-no">Cancelar</button></div></div>` : `<button type="button" class="ghost" id="reset">Cambiar fecha de inicio o peso</button>`}
+      <p class="small muted">${store.db ? "Tus datos se guardan en tu cuenta de Claude: los ves desde cualquier dispositivo." : "Tus datos se guardan solo en este navegador."}</p>
+    </div>
+  </section>`;
+}
+function bindPlan(){
+  const r=$("#reset"); if(r) r.onclick=()=>{ S.confirmReset=true; render(); };
+  const n=$("#reset-no"); if(n) n.onclick=()=>{ S.confirmReset=false; render(); };
+  const y=$("#reset-yes"); if(y) y.onclick=()=>{ S.confirmReset=false; S.plan=null; render(); };
+}
+
+document.querySelectorAll("nav.tabs button").forEach(b=> b.onclick = ()=>{ S.tab=b.dataset.tab; if(S.tab==="semana") S.weekIdx=null; window.scrollTo(0,0); render(); });
+boot();
+})();
+</script>
