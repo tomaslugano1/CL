@@ -101,6 +101,14 @@ nav.tabs button[aria-current="page"]{color:var(--accent)}
 @media (prefers-reduced-motion:reduce){.spin{animation:none}}
 .hero{display:grid;gap:8px;padding-top:8px}
 .big{font-family:var(--f-display);font-weight:800;font-size:2.4rem;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.plan-card{background:var(--accent-soft);border-color:transparent}
+ul.todo{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+ul.todo li{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:start}
+ul.todo li::before{content:"";width:14px;height:14px;margin-top:3px;border:2px solid var(--accent);border-radius:5px}
+ol.claves{margin:0;padding-left:22px;display:grid;gap:12px}
+ol.claves li{padding-left:4px}
+ol.claves li>*{display:block}
+ol.claves li::marker{font-family:var(--f-display);font-weight:800;color:var(--accent)}
 .confirm{border:1px solid var(--warm);background:var(--warm-soft);border-radius:10px;padding:12px;display:grid;gap:10px}
 .loading{padding:60px 0;text-align:center;color:var(--muted)}
 </style>
@@ -182,7 +190,19 @@ function weekOf(dateStr){ if(!S.plan) return 0; const d = diffDays(S.plan.inicio
 function dayNum(dateStr){ return diffDays(S.plan.inicio, dateStr)+1; }
 
 /* ---------- IA ---------- */
-const PARSE_PROMPT = (texto, fecha) => `Sos el ayudante de una app personal de hábitos de un chico de 18 años de Argentina (1,79 m, unos 84 kg). Juega al polo y monta a caballo los fines de semana. No desayuna: toma mate hasta el mediodía (el mate solo no es comida). Los fines de semana toma cerveza y no la piensa dejar. Está rindiendo finales, así que pasa muchos días en casa.
+function dayContext(fecha){
+  const wi = weekOf(fecha), w = S.plan.semanas[wi];
+  const start = addDays(S.plan.inicio, wi*7);
+  const prevs = []; for(let f=start; f<fecha; f=addDays(f,1)) if(S.days[f]) prevs.push(S.days[f]);
+  const ayer = S.days[addDays(fecha,-1)];
+  const ultimos = [1,2,3].map(i=>S.days[addDays(fecha,-i)]).filter(Boolean).map(d=>({dia:prettyDate(d.fecha), comidas:((d.parsed&&d.parsed.comidas)||[]).map(c=>c.que), activo:d.activo, alcohol:d.alcohol, pasos:d.pasos}));
+  return { w, quedan: Math.max(0, w.dias - diffDays(start, fecha) - 1),
+    activos: prevs.filter(d=>d.activo).length, pesados: prevs.filter(d=>d.calificacion==="pesado").length, alcohol: prevs.filter(d=>d.alcohol).length,
+    propuesta: (ayer && ayer.parsed && ayer.parsed.para_manana) || null, ultimos,
+    diaSemana: DIAS[parseD(fecha).getDay()], manana: DIAS[parseD(addDays(fecha,1)).getDay()], diaPlan: dayNum(fecha) };
+}
+
+const PARSE_PROMPT = (texto, fecha, c) => `Sos el ayudante de una app personal de hábitos de un chico de 18 años de Argentina (1,79 m, unos 84 kg). Juega al polo y monta a caballo los fines de semana. No desayuna: toma mate hasta el mediodía (el mate solo no es comida). Los fines de semana toma cerveza y no la piensa dejar. Está rindiendo finales, así que pasa muchos días en casa.
 
 Te paso lo que contó de su día (${prettyDate(fecha)}), dictado como se lo diría a un amigo. Ordenalo. No inventes nada que no diga. Si algo no aparece, usá null o una lista vacía.
 
@@ -202,7 +222,18 @@ Respondé SOLO con este JSON:
  "activo": true|false,
  "alcohol": {"tomo": true|false, "detalle": "texto corto o vacío", "nivel": "nada|poco|bastante|mucho"},
  "pasos": número o null,
- "comentario": "una frase corta, relajada, en voseo rioplatense, sin retar ni dar culpa. Si fue un día flojo, decilo con naturalidad y listo."}
+ "comentario": "una frase corta, relajada, en voseo rioplatense, sin retar ni dar culpa. Si fue un día flojo, decilo con naturalidad y listo.",
+ "bien": "una cosa concreta que hizo bien hoy (si no hubo nada, reconocé que lo registró)",
+ "a_mejorar": "una sola cosa concreta de hoy que convendría cambiar, dicha como dato y sin culpa, o null",
+ "para_manana": ["1 o 2 acciones chicas y concretas para mañana, con cuándo y cuánto"],
+ "propuesta_cumplida": true|false|null}
+
+Para "para_manana": mañana es ${c.manana}. Tené en cuenta qué día es (si es finde puede haber polo, montar o cerveza, y eso está bien) y lo que le falta para las metas de la semana. Que sean cosas que se puedan hacer estando en casa con finales. Ejemplos del estilo: "Caminá 30 minutos a las 18 como corte del estudio", "Con el mate de la mañana, nada de alfajores: si tenés ganas, uno en la merienda", "Al mediodía, 2 pedazos de carne en vez de 3 y sumá ensalada". No repitas siempre lo mismo si ya lo propusiste antes.
+"propuesta_cumplida": si ayer le propusiste algo, decí si lo cumplió según lo que contó hoy (null si no había propuesta o no se puede saber).
+
+Contexto del plan: hoy es ${c.diaSemana}, día ${c.diaPlan} de 60, semana ${c.w.n}. Metas de la semana: ${c.w.actividad} días con actividad, ${c.w.pasos} pasos por día, ${c.w.sueno} h de sueño, alcohol como mucho ${c.w.alcohol} días, como mucho ${c.w.pesados} días pesados. Antes de hoy, esta semana lleva ${c.activos} días con actividad, ${c.pesados} días pesados y ${c.alcohol} días con alcohol. Después de hoy quedan ${c.quedan} días de la semana.
+${c.propuesta ? "Ayer le propusiste para hoy: "+JSON.stringify(c.propuesta) : "Ayer no le propusiste nada."}
+Últimos días: ${JSON.stringify(c.ultimos)}
 
 Lo que contó:
 """${texto}"""`;
@@ -219,6 +250,31 @@ Escribí un resumen de la semana en voseo rioplatense, tono relajado de amigo, s
 Respondé SOLO con este JSON:
 {"titulo":"frase corta que resuma la semana","resumen":"2 o 3 oraciones","bien":"una cosa que hizo bien","consejos":["...","..."]}`;
 
+const STRATEGY_PROMPT = (days) => `Sos el ayudante de una app personal de hábitos. El usuario es un chico de 18 años de Argentina, 1,79 m, empezó con ${S.plan.pesoInicial} kg. Juega al polo y monta los fines de semana; antes iba al gimnasio 2 veces por semana y ahora no. Está rindiendo finales y pasa días enteros en casa. No desayuna (mate hasta el mediodía). Toma cerveza los fines de semana y no la va a dejar. Come normal: milanesas, empanadas, pastas, ensaladas, yogur griego. Nada de dietas raras ni contar calorías.
+
+Su objetivo de 60 días, en sus palabras: "${S.plan.objetivo}". Referencia realista: llegar a unos ${S.plan.pesoRef} kg.
+Hoy es el día ${dayNum(todayStr())} de 60.
+
+Lo que registró hasta ahora (JSON, puede estar vacío):
+${JSON.stringify(days)}
+
+Explicale, en voseo rioplatense y con tono de amigo que sabe del tema, qué tiene que hacer para lograr el objetivo. Basate en lo que come y hace de verdad según los registros (nombrá cosas concretas que aparecen, como alimentos o días sin salir de casa). Sin culpa ni exageraciones.
+
+Respondé SOLO con este JSON:
+{"resumen":"1 o 2 oraciones: dónde está hoy y qué es lo que más le va a cambiar el resultado",
+ "claves":[{"titulo":"corto","porque":"1 oración, basada en sus datos si los hay","como":"acción concreta y medible"}],
+ "dia_modelo":{"manana":"","mediodia":"","tarde":"","noche":""},
+ "finde":"cómo encarar el finde con polo, montar y cerveza sin culpa, en 1 o 2 oraciones"}
+Entre 3 y 5 claves, de la más importante a la menos.`;
+
+const DEFAULT_CLAVES = [
+  {titulo:"Moverte todos los días", porque:"Hoy pasás días enteros en casa: ahí está la mayor diferencia.", como:"30 minutos de caminata por día como corte del estudio. Polo y montar el finde suman aparte."},
+  {titulo:"Bajar el dulce suelto", porque:"Alfajores, medialunas y facturas suman mucho y no llenan.", como:"Como mucho 1 por día, y no con el mate de la mañana."},
+  {titulo:"Un plato, más verdura", porque:"Tus comidas son buenas; lo que pesa es la cantidad.", como:"Una porción de lo principal. Si querés más, que sea ensalada o verdura."},
+  {titulo:"Cerveza sí, con cabeza", porque:"La cerveza del finde se queda en el plan.", como:"Agua entre medio, y el día siguiente comida liviana."},
+  {titulo:"Fuerza 2 veces por semana", porque:"Para verte más esbelto ayuda tener algo de músculo, no solo bajar de peso.", como:"Desde la semana 5, volver al gimnasio 2 veces (o flexiones y sentadillas en casa)."}
+];
+
 /* ---------- carga ---------- */
 async function boot(){
   const [db, sample, dict] = await Promise.all([getCap("db"), getCap("sample"), getCap("dictation")]);
@@ -228,6 +284,7 @@ async function boot(){
     if(S.plan){
       (await store.list("dias")).forEach(d=>{ if(d && d.fecha) S.days[d.fecha]=d; });
       (await store.list("resumenes")).forEach(r=>{ if(r && r.semana) S.sums[r.semana]=r; });
+      S.estrategia = await store.get("config/estrategia");
     }
   } catch(e){ console.error(e); }
   if(dict){
@@ -291,12 +348,20 @@ function hoyView(){
   const texto = draft!=null ? draft : (d ? d.texto : "");
   const micBtn = S.dict ? `<button type="button" class="mic" id="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Hablar</span></button>` : "";
   const aiNote = S.sample ? "" : `<p class="small muted">El ordenador automático no está disponible ahora. Igual se guarda lo que escribas y podés marcar cómo fue el día a mano.</p>`;
+  const ayer = S.days[addDays(S.date,-1)];
+  const prop = ayer && ayer.parsed && Array.isArray(ayer.parsed.para_manana) ? ayer.parsed.para_manana : null;
+  const cumplida = d && d.parsed ? d.parsed.propuesta_cumplida : null;
+  const paraHoy = prop && prop.length ? `<div class="card plan-card">
+      <div class="row" style="justify-content:space-between"><div class="label">${isToday ? "Para hoy" : "Lo que tocaba este día"}</div>${cumplida===true ? '<span class="chip c-liviano">Cumplido</span>' : cumplida===false ? '<span class="chip c-normal">Quedó pendiente</span>' : ""}</div>
+      <ul class="todo">${prop.map(p=>`<li>${esc(p)}</li>`).join("")}</ul>
+    </div>` : "";
   return `<section class="view">
     <div class="daynav">
       <button type="button" id="prev" aria-label="Día anterior">‹</button>
       <h1>${isToday ? "Hoy" : esc(cap(prettyDate(S.date)))}</h1>
       <button type="button" id="next" aria-label="Día siguiente" ${isToday?"disabled":""}>›</button>
     </div>
+    ${paraHoy}
     <div class="card">
       <label class="label" for="texto">Contame tu día</label>
       <textarea id="texto" placeholder="Ej: dormí 8 horas, al mediodía comí 3 milanesas con papa y calabaza, a la tarde mate con 2 medialunas, no salí de casa">${esc(texto)}</textarea>
@@ -329,6 +394,9 @@ function dayCard(d){
       <dt>Pasos</dt><dd>${d.pasos!=null ? esc(Number(d.pasos).toLocaleString("es-AR")) : "—"}</dd>
     </dl>` : `<p class="small muted">Guardado como texto. Marcá abajo cómo fue el día.</p>`}
     ${p.comentario ? `<div class="note">${esc(p.comentario)}</div>` : ""}
+  </div>
+  ${d.parsed ? feedbackCard(d) : ""}
+  <div class="card">
     <div class="label">¿Cómo fue el día de comida? (tocá para corregir)</div>
     <div class="chips" id="calchips">${["liviano","normal","pesado"].map(k=>`<button type="button" data-cal="${k}" class="${k} ${cal===k?"sel":""}">${cap(k)}</button>`).join("")}</div>
     <div class="chips" id="flagchips">
@@ -338,7 +406,21 @@ function dayCard(d){
   </div>`;
 }
 
+function feedbackCard(d){
+  const p = d.parsed, pm = Array.isArray(p.para_manana) ? p.para_manana : [];
+  const btn = S.sample ? `<button type="button" class="ghost" id="reanalizar">${S.busy ? '<span class="spin"></span> Pensando…' : (pm.length ? "Pedir otros consejos" : "Ver qué hacer mañana")}</button>` : "";
+  if(!p.bien && !p.a_mejorar && !pm.length) return `<div class="card"><h2>Qué hacer mañana</h2><p class="small muted">Este día se cargó antes de que existieran los consejos.</p>${btn}</div>`;
+  return `<div class="card">
+    <h2>Tu devolución del día</h2>
+    ${p.bien ? `<div><div class="label">Bien</div><p style="margin:4px 0 0">${esc(p.bien)}</p></div>` : ""}
+    ${p.a_mejorar ? `<div><div class="label">Para ajustar</div><p style="margin:4px 0 0">${esc(p.a_mejorar)}</p></div>` : ""}
+    ${pm.length ? `<div class="plan-card" style="border-radius:10px;padding:12px"><div class="label">Para mañana</div><ul class="todo">${pm.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+    ${btn}
+  </div>`;
+}
+
 function bindHoy(){
+  const re = $("#reanalizar"); if(re) re.onclick = ()=>guardarDia(true);
   $("#prev").onclick = ()=>{ S.date = addDays(S.date,-1); render(); };
   $("#next").onclick = ()=>{ if(S.date<todayStr()){ S.date = addDays(S.date,1); render(); } };
   $("#texto").addEventListener("input", saveDraft);
@@ -347,7 +429,7 @@ function bindHoy(){
     if(S.dict.active()){ S.dict.stop().catch(()=>{}); return; }
     S.dict.start({language:"es-AR"}).catch(e=>{ if(e && e.code==="not_granted"){ mic.remove(); toast("Sin micrófono: usá el del teclado o escribilo."); } });
   }; }
-  $("#guardar").onclick = guardarDia;
+  $("#guardar").onclick = ()=>guardarDia(false);
   document.querySelectorAll("#calchips button").forEach(b=> b.onclick = async ()=>{
     const d = S.days[S.date]; if(!d) return; d.calificacion = d.calificacion===b.dataset.cal ? null : b.dataset.cal; await persistDay(d); render();
   });
@@ -358,18 +440,19 @@ function bindHoy(){
 
 async function persistDay(d){ d.actualizado = new Date().toISOString(); S.days[d.fecha]=d; await store.set("dias/"+d.fecha, d); }
 
-async function guardarDia(){
+async function guardarDia(force){
   if(S.busy) return;
+  force = force === true;
   const texto = $("#texto").value.trim();
   const pasosIn = num($("#pasos").value), pesoIn = num($("#peso").value);
   if(!texto && pasosIn==null && pesoIn==null){ toast("Contame algo del día, aunque sea corto."); return; }
   const prev = S.days[S.date] || {fecha:S.date, calificacion:null, activo:false, alcohol:false, parsed:null};
   const d = {...prev, fecha:S.date, texto, pasos: pasosIn!=null ? Math.round(pasosIn) : prev.pasos ?? null, peso: pesoIn ?? prev.peso ?? null};
   if(S.dict && S.dict.active()) await S.dict.stop().catch(()=>{});
-  if(texto && S.sample && texto !== prev.textoOrdenado){
+  if(texto && S.sample && (force || texto !== prev.textoOrdenado)){
     S.busy = true; render();
     try {
-      const r = await S.sample.json(PARSE_PROMPT(texto, S.date), {modelTier:"quick"});
+      const r = await S.sample.json(PARSE_PROMPT(texto, S.date, dayContext(S.date)), {modelTier:"default", cache:!force});
       if(r && typeof r==="object"){
         d.parsed = r; d.textoOrdenado = texto;
         if(["liviano","normal","pesado"].includes(r.calificacion)) d.calificacion = r.calificacion;
@@ -490,6 +573,7 @@ function planView(){
       <div class="label">Esta semana (semana ${w.n})</div>
       <p style="margin:0">${esc(w.foco)}</p>
     </div>
+    ${caminoCard()}
     <div class="card">
       <div class="label">Metas semana por semana</div>
       <div class="scroll"><table class="plan"><thead><tr><th>Sem.</th><th>Días activos</th><th>Pasos/día</th><th>Sueño</th><th>Alcohol</th><th>Pesados</th></tr></thead><tbody>${rows}</tbody></table></div>
@@ -510,7 +594,42 @@ function planView(){
     </div>
   </section>`;
 }
+function caminoCard(){
+  const e = S.estrategia;
+  const claves = e && Array.isArray(e.claves) && e.claves.length ? e.claves : DEFAULT_CLAVES;
+  const dm = e && e.dia_modelo;
+  const n = Object.keys(S.days).length;
+  return `<div class="card">
+    <h2>Cómo llegar a tu objetivo</h2>
+    <p style="margin:0">${esc(e && e.resumen ? e.resumen : "Para bajar unos kilos y verte más esbelto no hace falta nada raro. Estas son las cosas que más te van a cambiar el resultado, de la más importante a la menos.")}</p>
+    <ol class="claves">${claves.map(c=>`<li><b>${esc(c.titulo)}</b><span class="muted small">${esc(c.porque)}</span><span>${esc(c.como)}</span></li>`).join("")}</ol>
+    ${dm ? `<div class="plan-card" style="border-radius:10px;padding:12px;display:grid;gap:8px"><div class="label">Un día que funciona</div>
+      <dl class="facts">${[["Mañana",dm.manana],["Mediodía",dm.mediodia],["Tarde",dm.tarde],["Noche",dm.noche]].filter(x=>x[1]).map(x=>`<dt>${x[0]}</dt><dd>${esc(x[1])}</dd>`).join("")}</dl></div>` : ""}
+    ${e && e.finde ? `<div><div class="label">El finde</div><p style="margin:4px 0 0">${esc(e.finde)}</p></div>` : ""}
+    ${S.sample ? `<button type="button" id="camino">${S.busy ? '<span class="spin"></span> Pensando…' : (e ? "Actualizar con lo que cargué" : "Armarlo según lo que vengo cargando")}</button>
+      <p class="small muted">${e ? "Armado el "+esc(prettyDate(String(e.creado||"").slice(0,10)||todayStr()))+". Conviene actualizarlo una vez por semana." : n ? "Lo arma la IA mirando los "+n+" día"+(n>1?"s":"")+" que cargaste." : "Cargá unos días y después armalo a tu medida."}</p>` : ""}
+  </div>`;
+}
+async function armarCamino(){
+  if(S.busy || !S.sample) return;
+  const days = Object.values(S.days).sort((a,b)=>a.fecha<b.fecha?-1:1).slice(-21).map(d=>{ const p=d.parsed||{}; return {dia:prettyDate(d.fecha), calificacion:d.calificacion, comidas:(p.comidas||[]).map(c=>c.que), actividades:(p.actividades||[]).map(a=>a.tipo), alcohol:d.alcohol, sueno:d.sueno, pasos:d.pasos, peso:d.peso}; });
+  S.busy = true; render();
+  try {
+    const r = await S.sample.json(STRATEGY_PROMPT(days), {modelTier:"default", cache:false});
+    if(r && Array.isArray(r.claves)){
+      const e = { resumen:String(r.resumen||""), claves:r.claves.slice(0,5).map(c=>({titulo:String(c.titulo||""), porque:String(c.porque||""), como:String(c.como||"")})),
+        dia_modelo: r.dia_modelo && typeof r.dia_modelo==="object" ? {manana:String(r.dia_modelo.manana||""), mediodia:String(r.dia_modelo.mediodia||""), tarde:String(r.dia_modelo.tarde||""), noche:String(r.dia_modelo.noche||"")} : null,
+        finde:String(r.finde||""), creado:new Date().toISOString() };
+      S.estrategia = e; await store.set("config/estrategia", e); toast("Listo, armado a tu medida");
+    }
+  } catch(err){
+    if(err && err.code==="not_granted") S.sample=null;
+    toast(err && err.code==="rate_limited" ? "Mucho uso seguido, probá en un rato." : "No pude armarlo ahora. Probá de nuevo.");
+  }
+  S.busy = false; render();
+}
 function bindPlan(){
+  const c=$("#camino"); if(c) c.onclick=armarCamino;
   const r=$("#reset"); if(r) r.onclick=()=>{ S.confirmReset=true; render(); };
   const n=$("#reset-no"); if(n) n.onclick=()=>{ S.confirmReset=false; render(); };
   const y=$("#reset-yes"); if(y) y.onclick=()=>{ S.confirmReset=false; S.plan=null; render(); };
